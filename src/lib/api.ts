@@ -3,11 +3,12 @@ import axios from "axios";
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
   process.env.NEXT_PUBLIC_FALLBACK_API_URL ||
-  "http://localhost:3000/api";
+  "";
 // Create an Axios instance with default configuration
 
 export const api = axios.create({
-  baseURL: API_URL,
+  // if API_URL is empty string, leave baseURL undefined so axios uses relative URLs
+  baseURL: API_URL || undefined,
   headers: {
     "Content-Type": "application/json",
   },

@@ -31,7 +31,7 @@ export const useAuthStore = create<AuthState>()(
       loading: false,
       setAuth: (
         token: string | null,
-        user: string | null = null
+        user: AuthResponse["user"] | null = null
       ) => {
         setAuthToken(token);
         set(() => ({ token, user }));
