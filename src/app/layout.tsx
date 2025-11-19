@@ -14,7 +14,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
-      <body>
+      <body className="min-h-screen bg-background antialiased overflow-x-hidden">
         <AuthInit />
         {children}
       </body>
