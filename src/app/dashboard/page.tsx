@@ -1,9 +1,13 @@
+"use client";
 import Image from "next/image";
 import Slider from "@/components/main/slider";
 import Menu from "@/components/main/menu";
 
 // Example icon import (replace with your actual icon)
 import { FaUser } from "react-icons/fa";
+import { FaArrowUp } from "react-icons/fa";
+import { FaArrowDown } from "react-icons/fa";
+import CardButton from "@/components/main/card_button";
 const UserIcon = FaUser;
 
 export default function Home() {
@@ -30,6 +34,10 @@ export default function Home() {
       </div>
       <div className="max-w-full border-b border-gray overflow-h-hidden overflow-x-hidden">
         <Slider />
+      </div>
+      <div className="flex w-full justify-center gap-4 p-4">
+        <CardButton icon={FaArrowDown} title="Entradas" />
+        <CardButton icon={FaArrowUp} title="Saídas" />
       </div>
     </>
   );

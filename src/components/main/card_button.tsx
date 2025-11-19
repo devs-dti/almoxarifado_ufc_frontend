@@ -15,8 +15,8 @@ export default function CardButton({
   className,
 }: CardButtonProps) {
   return (
-    <button className="rounded border border-[#EAEAEA] px-4 py-2 text-sm font-medium transition-colors duration-100 ease-in-out">
-      {Icon && <Icon className="mr-2" />}
+    <button className="flex flex-col w-full items-center rounded-md border border-[#8A38F575] px-8 py-4 text-sm font-medium transition-colors duration-100 ease-in-out">
+      {Icon && <Icon className="text-[#8A38F5] mb-2" />}
       {title}
     </button>
   );

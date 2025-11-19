@@ -112,18 +112,22 @@ export default function LoginPage() {
         onSubmit={handleSubmit(onSubmit)}
         className="w-full max-w-sm bg-white p-6 rounded-lg shadow-md"
       >
-        <h1 className="text-xl font-semibold mb-4 text-center">
+        <h1 className="text-2xl font-bold mb-4 text-center text-[#8A38F5]">
           Entrar
         </h1>
 
-        <label className="block text-sm mb-1">Email</label>
+        <label className="block text-[#8A38F5] text-sm mb-1">
+          Email
+        </label>
         <Input
           {...register("email")}
           type="email"
           className="mb-2"
         />
 
-        <label className="block text-sm mb-1">Senha</label>
+        <label className="block text-[#8A38F5] text-sm mb-1">
+          Senha
+        </label>
         <Input
           {...register("password")}
           type="password"
@@ -148,21 +152,6 @@ export default function LoginPage() {
             ? "Entrando..."
             : "Entrar"}
         </Button>
-        {process.env.NODE_ENV !== "production" && (
-          <button
-            type="button"
-            className="mt-2 text-sm underline text-blue-600"
-            onClick={() => {
-              // eslint-disable-next-line no-console
-              console.log(
-                "Debug native button clicked - submitting form"
-              );
-              void handleSubmit(onSubmit)();
-            }}
-          >
-            Debug: submit (native)
-          </button>
-        )}
       </form>
       {lastSubmitted && (
         <div className="mt-4 w-full max-w-sm bg-yellow-50 border border-yellow-200 p-3 rounded text-sm text-yellow-800">

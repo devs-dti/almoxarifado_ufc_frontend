@@ -20,11 +20,11 @@ const Button = React.forwardRef<
     ref
   ) => {
     const base =
-      "w-full inline-flex items-center justify-center rounded px-4 py-2 text-sm font-medium";
+      "w-full inline-flex items-center justify-center rounded-full shadow-sm shadow-gray-300 px-4 py-2 text-sm font-medium";
     const variantClass =
       variant === "ghost"
         ? "bg-transparent hover:bg-slate-100"
-        : "bg-indigo-600 text-white hover:bg-indigo-700";
+        : "bg-[#8A38F5] text-white hover:bg-indigo-700";
     const stateClass = props.disabled
       ? "pointer-events-none opacity-50 cursor-not-allowed"
       : "cursor-pointer relative z-50";
