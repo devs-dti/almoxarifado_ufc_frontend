@@ -7,16 +7,17 @@ type OptionCardProps = {
   title: string;
   icon: LucideIcon;
   iconColor?: string;
+  titleColor?: string;
   onClick?: () => void;
 };
 
-export function OptionCard({ title, icon: Icon, iconColor, onClick }: OptionCardProps) {
+export function OptionCard({ title, icon: Icon, iconColor, titleColor = "text-gray-700", onClick }: OptionCardProps) {
   return (
     <div 
       onClick={onClick}
       className="flex items-center justify-between w-full p-5 bg-white rounded-2xl shadow-sm border border-gray-100 active:scale-[0.98] transition-all cursor-pointer"
     >
-      <span className="text-gray-700 font-semibold text-lg">
+      <span className={`font-semibold text-lg ${titleColor}`}>
         {title}
       </span>
 
