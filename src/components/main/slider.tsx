@@ -1,39 +1,39 @@
+// src/components/Slider.tsx
 "use client";
-import React from "react"; // Remova o useState daqui
+import React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-// 1. Define Contract
-interface SliderProps {
-  active: string | null;
-  onSelect: (label: string) => void;
-}
+export default function Slider() {
+  const pathname = usePathname();
 
-// 2. Use Contract in Component
-export default function Slider({ active, onSelect }: SliderProps) {
   const items = [
-    { label: "Materiais" },
-    { label: "Relatórios" },
-    { label: "Setores" },
-    { label: "Unidades" },
-    { label: "Usuários" },
+    { label: "Materiais", href: "/dashboard/materiais" },
+    { label: "Relatórios", href: "/dashboard/relatorios" },
+    { label: "Setores", href: "/dashboard/setores" },
+    { label: "Unidades", href: "/dashboard/unidades" },
+    { label: "Usuários", href: "/dashboard/usuarios" },
   ];
 
   return (
-    <div className="flex items-center overflow-y-hidden overflow-x-auto px-4 py-4">
+    <div className="flex items-center overflow-y-hidden overflow-x-auto px-4 py-4 scrollbar-hide">
       <ul className="flex items-center flex-row flex-nowrap gap-x-4 w-max">
         {items.map((item) => {
-          const isActive = active === item.label;
+          // Checks if the current URL starts with the item's href
+          const isActive = pathname.startsWith(item.href);
+
           return (
-            <li
-              key={item.label}
-              
-              onClick={() => onSelect(item.label)} 
-              className={`rounded-full px-4 py-2 text-sm font-medium transition-colors duration-100 ease-in-out cursor-pointer ${
-                isActive
-                  ? "text-white bg-[#4A0E98]"
-                  : "text-[#938F8F]"
-              }`}
-            >
-              {item.label}
+            <li key={item.label}>
+              <Link
+                href={item.href}
+                className={`block rounded-full px-4 py-2 text-sm font-medium transition-colors duration-100 ease-in-out cursor-pointer ${
+                  isActive
+                    ? "text-white bg-[#4A0E98]"
+                    : "text-[#938F8F] hover:bg-gray-100"
+                }`}
+              >
+                {item.label}
+              </Link>
             </li>
           );
         })}
