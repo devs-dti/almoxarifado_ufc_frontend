@@ -21,20 +21,18 @@ export default function Menu({ className }: CardButtonProps) {
   // 3. Add routes to the menu
   const links = [
     { label: "Login", href: "/login" }, //
-    { label: "Suporte", href: "#" },
-    { label: "FAC", href: "#" },
-    { label: "Serviços", href: "#" },
+    { label: "Suporte", href: "/suporte" },
+    { label: "FAC", href: "/fac" },
+    { label: "Serviços", href: "/servicos" },
   ];
 
   const handleNavigation = (label: string, href: string) => {
     setActive(label);
 
-    // Se a rota existir e não for apenas um "#", ele navega
     if (href !== "#") {
       router.push(href);
     }
 
-    // Fecha o menu lateral após o clique para não ficar travando a tela
     if (open) toggleOpen();
   };
 
