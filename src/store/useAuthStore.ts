@@ -10,13 +10,9 @@ import {
 } from "../services/auth";
 
 type AuthState = {
-  token: string | null;
   user: AuthResponse["user"] | null;
   loading: boolean;
-  setAuth: (
-    token: string | null,
-    user: AuthResponse["user"] | null
-  ) => void;
+  setAuth: (user: AuthResponse["user"] | null) => void;
   login: (data: LoginPayLoad) => Promise<void>;
   logout: () => Promise<void>;
   isAuthenticated: () => boolean;
@@ -26,23 +22,18 @@ type AuthState = {
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
-      token: null,
       user: null,
       loading: false,
-      setAuth: (
-        token: string | null,
-        user: AuthResponse["user"] | null = null
-      ) => {
-        setAuthToken(token);
-        set(() => ({ token, user }));
+      setAuth: (user: AuthResponse["user"] | null = null) => {
+        set(() => ({ user }));
       },
       login: async (data: LoginPayLoad) => {
         set({ loading: true });
         try {
           const response = await loginService(data);
-          setAuthToken(response.token);
+          
+          //Saving user in localStorage and setting auth for future requests 
           set({
-            token: response.token,
             user: response.user,
             loading: false,
           });
@@ -52,16 +43,15 @@ export const useAuthStore = create<AuthState>()(
         }
       },
       logout: async () => {
-        setAuthToken(null);
         await logoutService();
         set(() => ({
-          token: null,
           user: null,
           loading: false,
         }));
       },
       isAuthenticated: (): boolean => {
-        return Boolean(get().token);
+        // Check if user is not null to determine if authenticated
+        return Boolean(get().user);
       },
       fetchMe: async () => {
         set({ loading: true });
@@ -77,14 +67,8 @@ export const useAuthStore = create<AuthState>()(
     {
       name: "auth-storage",
       partialize: (state: AuthState) => ({
-        token: state.token,
-        user: state.user,
+        user: state.user, // Saving only the user object, not loading or functions
       }),
-      onRehydrateStorage: () => (state) => {
-        if (state?.token) {
-          setAuthToken(state.token);
-        }
-      },
     }
   )
 );
