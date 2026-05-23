@@ -26,15 +26,14 @@ const emailSchema = isDev
 
 const schema = z.object({
   email: emailSchema,
-  password: z
-    .string()
-    .min(6, "password must be at least 6 characters long"),
+  password: z.string().min(6, "password must be at least 6 characters long"),
 });
 type formData = z.infer<typeof schema>;
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 export const api = axios.create({
   baseURL: API_URL,
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
@@ -44,12 +43,10 @@ export default function LoginPage() {
   const router = useRouter();
   const login = useAuthStore((state) => state.login);
   const [error, setError] = useState<string | null>(null);
-  const [lastSubmitted, setLastSubmitted] =
-    useState<formData | null>(null);
-  const { register, handleSubmit, formState } =
-    useForm<formData>({
-      resolver: zodResolver(schema),
-    });
+  const [lastSubmitted, setLastSubmitted] = useState<formData | null>(null);
+  const { register, handleSubmit, formState } = useForm<formData>({
+    resolver: zodResolver(schema),
+  });
 
   async function onSubmit(data: formData) {
     console.log("onSubmit start", data);
@@ -59,16 +56,12 @@ export default function LoginPage() {
     if (typeof window !== "undefined") {
       // eslint-disable-next-line no-alert
       window.alert(
-        `Enviando login:\nemail: ${data.email}\npassword: ${data.password}`
+        `Enviando login:\nemail: ${data.email}\npassword: ${data.password}`,
       );
     }
     try {
       console.log(
-        `Submitting login with data: ${JSON.stringify(
-          data,
-          null,
-          2
-        )}`
+        `Submitting login with data: ${JSON.stringify(data, null, 2)}`,
       );
       await login({
         email: data.email,
@@ -80,22 +73,19 @@ export default function LoginPage() {
         `✅ Login bem-sucedido!\n\nUsuário retornado:\n${JSON.stringify(
           user,
           null,
-          2
-        )}`
+          2,
+        )}`,
       );
       router.push("/dashboard");
     } catch (err: unknown) {
       // Debug: submit failed
       // eslint-disable-next-line no-console
       console.log("onSubmit error", err);
-      let message =
-        "An unexpected error occurred. Please try again.";
+      let message = "An unexpected error occurred. Please try again.";
       if (err instanceof Error) {
         message = err.message || message;
       } else if (axios.isAxiosError(err)) {
-        const data = err.response?.data as
-          | { message?: unknown }
-          | undefined;
+        const data = err.response?.data as { message?: unknown } | undefined;
         if (data && typeof data.message === "string") {
           message = data.message;
         } else if (typeof err.message === "string") {
@@ -116,23 +106,11 @@ export default function LoginPage() {
           Entrar
         </h1>
 
-        <label className="block text-[#8A38F5] text-sm mb-1">
-          Email
-        </label>
-        <Input
-          {...register("email")}
-          type="email"
-          className="mb-2"
-        />
+        <label className="block text-[#8A38F5] text-sm mb-1">Email</label>
+        <Input {...register("email")} type="email" className="mb-2" />
 
-        <label className="block text-[#8A38F5] text-sm mb-1">
-          Senha
-        </label>
-        <Input
-          {...register("password")}
-          type="password"
-          className="mb-3"
-        />
+        <label className="block text-[#8A38F5] text-sm mb-1">Senha</label>
+        <Input {...register("password")} type="password" className="mb-3" />
 
         {error && <p className="text-sm mb-1"> {error}</p>}
 
@@ -144,13 +122,11 @@ export default function LoginPage() {
             // eslint-disable-next-line no-console
             console.log(
               "LoginButton clicked - isSubmitting:",
-              formState.isSubmitting
+              formState.isSubmitting,
             );
           }}
         >
-          {formState.isSubmitting
-            ? "Entrando..."
-            : "Entrar"}
+          {formState.isSubmitting ? "Entrando..." : "Entrar"}
         </Button>
       </form>
       {lastSubmitted && (
