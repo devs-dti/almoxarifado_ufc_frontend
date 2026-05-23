@@ -1,9 +1,10 @@
 "use client";
-import type { Metadata } from "next";
+import React, { useState } from "react";
 import Menu from "@/components/main/menu";
 import Slider from "@/components/main/slider";
 import CardButton from "@/components/main/card_button";
 import { FaUser, FaArrowUp, FaArrowDown } from "react-icons/fa";
+import Modal from "@/components/material/modal";
 const UserIcon = FaUser;
 
 export default function DashboardLayout({
@@ -11,6 +12,14 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    type: "entrada" | "saida" | null;
+  }>({
+    isOpen: false,
+    type: null,
+  });
+
   return (
     <div className="min-h-screen bg-[#F8F9FC] flex flex-col antialiased">
       <div className="overflow-x-hidden max-w-full flex items-center gap-4 px-4 border-b border-gray overflow-x-hidden">
@@ -34,12 +43,34 @@ export default function DashboardLayout({
       <div className="bg-white border-b border-gray-100">
         <Slider />
       </div>
+
       <div className="flex w-full justify-center gap-4 p-4">
-        <CardButton icon={FaArrowDown} title="Entradas" />
-        <CardButton icon={FaArrowUp} title="Saídas" />
+        <CardButton
+          icon={FaArrowDown}
+          title="Entradas"
+          onClick={() => setModalConfig({ isOpen: true, type: "entrada" })}
+        />
+        <CardButton
+          icon={FaArrowUp}
+          title="Saídas"
+          onClick={() => setModalConfig({ isOpen: true, type: "saida" })}
+        />
       </div>
+
       {/* 3. Where the content of the pages (Materials, Reports) will appear */}
       <main className="flex-1 overflow-x-hidden">{children}</main>
+
+      <Modal
+        isOpen={modalConfig.isOpen}
+        type={modalConfig.type}
+        onClose={() => setModalConfig({ isOpen: false, type: null })}
+        onCadastrarClick={() => {
+          console.log("Clicou em Cadastrar! (Standby)");
+        }}
+        onEditarClick={(material) => {
+          console.log("Clicou em Editar o material:", material);
+        }}
+      />
     </div>
   );
 }
