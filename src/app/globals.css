@@ -165,3 +165,18 @@
     color: var(--color-foreground, #222);
   }
 }
+/* Modal class animation*/
+@keyframes slideDown {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-down {
+  animation: slideDown 0.25s ease-out forwards;
+}
