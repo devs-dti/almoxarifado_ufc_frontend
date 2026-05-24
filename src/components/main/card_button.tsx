@@ -1,27 +1,20 @@
 "use client";
 
-import React, { useState } from "react";
-import { cn } from "@/lib/utils";
+import React from "react";
 
 type CardButtonProps = {
   title: string;
   icon: React.ElementType;
-  className?: string;
   onClick?: () => void;
 };
 
-export default function CardButton({
-  title,
-  icon: Icon,
-  className,
-  onClick,
-}: CardButtonProps) {
+export default function CardButton({ title, icon: Icon, onClick }: CardButtonProps) {
   return (
     <button
       onClick={onClick}
-      className="flex flex-col w-full items-center rounded-md border border-[#8A38F575] px-8 py-4 text-sm font-medium transition-colors duration-100 ease-in-out"
+      className="flex flex-col flex-1 items-center gap-1.5 rounded-xl border border-brand/20 bg-brand-subtle/50 px-6 py-3.5 text-sm font-semibold text-brand hover:bg-brand-subtle hover:border-brand/40 transition-all duration-150 cursor-pointer"
     >
-      {Icon && <Icon className="text-[#8A38F5] mb-2" />}
+      {Icon && <Icon size={18} className="text-brand" />}
       {title}
     </button>
   );

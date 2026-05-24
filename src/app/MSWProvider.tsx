@@ -1,0 +1,24 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+
+export function MSWProvider({ children }: { children: React.ReactNode }) {
+  const [ready, setReady] = useState(false)
+
+  useEffect(() => {
+    if (process.env.NEXT_PUBLIC_USE_MOCKS !== 'true') {
+      setReady(true)
+      return
+    }
+
+    import('@/infrastructure/mocks/browser').then(({ worker }) => {
+      worker
+        .start({ onUnhandledRequest: 'bypass', serviceWorker: { url: '/mockServiceWorker.js' } })
+        .then(() => setReady(true))
+    })
+  }, [])
+
+  if (!ready) return null
+
+  return <>{children}</>
+}

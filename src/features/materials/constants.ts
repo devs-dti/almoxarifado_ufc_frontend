@@ -1,0 +1,2 @@
+export const MATERIALS_PAGE_SIZE = 10
+export const MATERIALS_SKELETON_COUNT = 4

@@ -1,0 +1,19 @@
+import { authHandlers } from './handlers/auth.handlers'
+import { materialsHandlers } from './handlers/materials.handlers'
+import { entriesHandlers } from './handlers/entries.handlers'
+import { transfersHandlers } from './handlers/transfers.handlers'
+import { usersHandlers } from './handlers/users.handlers'
+import { sectorsHandlers } from './handlers/sectors.handlers'
+import { suppliersHandlers } from './handlers/suppliers.handlers'
+import { reportsHandlers } from './handlers/reports.handlers'
+
+export const handlers = [
+  ...authHandlers,
+  ...materialsHandlers,
+  ...entriesHandlers,
+  ...transfersHandlers,
+  ...usersHandlers,
+  ...sectorsHandlers,
+  ...suppliersHandlers,
+  ...reportsHandlers,
+]
