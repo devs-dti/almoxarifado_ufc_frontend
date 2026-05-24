@@ -4,11 +4,12 @@ import { useAuthStore } from "@/store/useAuthStore";
 
 export default function AuthInit() {
   const fetchMe = useAuthStore((s) => s.fetchMe);
-  const token = useAuthStore((s) => s.token);
+
   useEffect(() => {
-    if (!token) return;
+    // CHANGED: Removed the 'token' check. Since we use HttpOnly cookies now,
+    // the browser will automatically include the session credentials in fetchMe().
     fetchMe().catch(() => {
-      // opcional: handle error (logout, limpar token, redirecionar)
+      // opcional: handle error (logout, limpar estado, redirecionar)
     });
   }, [fetchMe]);
 

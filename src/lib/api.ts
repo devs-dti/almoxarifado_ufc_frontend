@@ -1,14 +1,18 @@
 import axios from "axios";
-
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  process.env.NEXT_PUBLIC_FALLBACK_API_URL ||
-  "";
+// Puxando a URL de forma segura da variável de ambiente
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+// const API_URL =
+//   process.env.NEXT_PUBLIC_API_URL ||
+//   process.env.NEXT_PUBLIC_FALLBACK_API_URL ||
+//   "";
 // Create an Axios instance with default configuration
 
 export const api = axios.create({
   // if API_URL is empty string, leave baseURL undefined so axios uses relative URLs
   baseURL: API_URL || undefined,
+  // CHANGED: Added globally to ensure all network requests (GET, POST, PATCH)
+  // automatically include the backend's HttpOnly session cookies.
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
@@ -17,7 +21,7 @@ export const api = axios.create({
 function isBrowser() {
   return typeof window !== "undefined";
 }
-
+// Function to set the auth token in Axios headers and optionally in localStorage (não tirei para não quebrar) 
 export function setAuthToken(token?: string | null) {
   if (token) {
     api.defaults.headers.common[
