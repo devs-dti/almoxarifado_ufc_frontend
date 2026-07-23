@@ -25,11 +25,11 @@ export function SectorFormDialog({ open, onOpenChange, editing }: Props) {
 
   const form = useForm<SectorFormData>({
     resolver: zodResolver(sectorSchema),
-    defaultValues: { name: '', description: '' },
+    defaultValues: { name: '' },
   })
 
   useEffect(() => {
-    form.reset(editing ? { name: editing.name, description: editing.description ?? '' } : { name: '', description: '' })
+    form.reset(editing ? { name: editing.name } : { name: '' })
   }, [editing, open])
 
   async function onSubmit(data: SectorFormData) {
@@ -58,13 +58,6 @@ export function SectorFormDialog({ open, onOpenChange, editing }: Props) {
             <FormField control={form.control} name="name" render={({ field }) => (
               <FormItem>
                 <FormLabel>Nome</FormLabel>
-                <FormControl><Input className="rounded-xl" {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
-            <FormField control={form.control} name="description" render={({ field }) => (
-              <FormItem>
-                <FormLabel>Descrição (opcional)</FormLabel>
                 <FormControl><Input className="rounded-xl" {...field} /></FormControl>
                 <FormMessage />
               </FormItem>

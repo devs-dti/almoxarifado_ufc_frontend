@@ -30,7 +30,7 @@ export function EntryList() {
       {isLoading && (
         <div className="flex flex-col gap-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-20 bg-gray-100 rounded-2xl animate-pulse" />
+            <div key={i} className="h-20 rounded-2xl animate-shimmer" />
           ))}
         </div>
       )}
@@ -47,8 +47,10 @@ export function EntryList() {
         </div>
       )}
 
-      {!isLoading && entries.map((entry) => (
-        <EntryAccordion key={entry.id} entry={entry} />
+      {!isLoading && entries.map((entry, i) => (
+        <div key={entry.id} className="animate-fade-in-up" style={{ animationDelay: `${i * 40}ms` }}>
+          <EntryAccordion entry={entry} />
+        </div>
       ))}
 
       {totalPages > 1 && (

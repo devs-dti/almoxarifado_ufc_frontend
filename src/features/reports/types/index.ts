@@ -1,46 +1,45 @@
-export type InventoryMaterial = {
-  materialId: number
+export type PagedReport<T> = {
+  content: T[]
+  totalElements: number
+  totalPages: number
+}
+
+export type StockItem = {
   materialName: string
-  code: string
-  quantity: number
-  totalValue: number
-  abcCurve: 'A' | 'B' | 'C'
+  measurementUnitDescription: string
+  lotCode?: string
+  expirationDate?: string
+  currentLotQuantity: number
+  invoiceNumber?: string
 }
 
-export type InventoryReport = {
-  materials: InventoryMaterial[]
-  totalValue: number
-  generatedAt: string
-}
-
-export type LowStockMaterial = {
-  materialId: number
+export type LowStockItem = {
   materialName: string
-  code: string
+  measurementUnit: string
   quantity: number
-  minQuantity: number
 }
 
-export type ExpiringLot = {
-  lotId: number
+export type ExpiringItem = {
+  materialName: string
+  measurementUnit: string
   lotCode: string
-  materialId: number
-  materialName: string
+  expirationDate: string
   quantity: number
-  expiresAt: string
-  daysUntilExpiry: number
 }
 
-export type EntriesSummary = {
-  totalEntries: number
-  totalValue: number
-  bySupplier: { supplierId: number; supplierName: string; totalValue: number }[]
-  byGroup: { groupId: number; groupName: string; totalValue: number }[]
+export type EntryReportItem = {
+  materialName: string
+  measurementUnit: string
+  quantity: number
+  entryDate: string
 }
 
-export type TransfersSummary = {
-  totalTransfers: number
-  bySector: { sectorId: number; sectorName: string; itemsConsumed: number; totalCost: number }[]
+export type ExitReportItem = {
+  materialName: string
+  measurementUnit: string
+  quantity: number
+  exitDate: string
+  currentStock: number
 }
 
 export type ReportDateParams = {

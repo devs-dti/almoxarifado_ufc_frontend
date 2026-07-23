@@ -10,7 +10,7 @@ type ButtonProps =
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className = "", variant = "default", size, children, ...props }, ref) => {
     const base =
-      "inline-flex items-center justify-center font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 select-none";
+      "inline-flex items-center justify-center font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 select-none active:scale-[0.97]";
 
     const sizeClass =
       size === "sm"
@@ -26,7 +26,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ? "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-300 shadow-sm"
         : variant === "destructive"
         ? "bg-red-500 text-white hover:bg-red-600 shadow-sm shadow-red-200"
-        : "bg-brand text-white hover:bg-brand-hover shadow-sm shadow-violet-200";
+        : "bg-brand text-white hover:bg-brand-hover hover:shadow-md hover:shadow-violet-300/50 shadow-sm shadow-violet-200";
 
     const stateClass = props.disabled
       ? "pointer-events-none opacity-50 cursor-not-allowed"

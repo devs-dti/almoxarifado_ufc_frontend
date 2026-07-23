@@ -23,11 +23,13 @@ export function BottomNav() {
           <Link
             key={href}
             href={href}
-            className={`flex flex-col items-center justify-center flex-1 py-2 gap-0.5 text-[10px] font-medium transition-colors ${
+            className={`flex flex-col items-center justify-center flex-1 py-2 gap-0.5 text-[10px] font-medium transition-colors duration-150 ${
               isActive ? 'text-brand' : 'text-gray-400'
             }`}
           >
-            <Icon size={20} strokeWidth={isActive ? 2.5 : 1.8} />
+            <span className={`transition-transform duration-150 ${isActive ? 'scale-110' : 'scale-100'}`}>
+              <Icon size={20} strokeWidth={isActive ? 2.5 : 1.8} />
+            </span>
             {label}
           </Link>
         )

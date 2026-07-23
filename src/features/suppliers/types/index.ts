@@ -1,16 +1,14 @@
 export type Supplier = {
-  id: number
-  name: string
+  id: string
+  corporateName: string
   cnpj?: string
-  email?: string
   phone?: string
   deletedAt?: string | null
 }
 
 export type CreateSupplierPayload = {
-  name: string
+  corporateName: string
   cnpj?: string
-  email?: string
   phone?: string
 }
 
