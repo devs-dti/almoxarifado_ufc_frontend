@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
 import { useSuppliers } from '@/features/suppliers/hooks'
+import type { Supplier } from '@/features/suppliers/types'
 import { useCreateEntry } from '../hooks'
 import { createEntrySchema, type CreateEntryValues } from '../schemas'
 
@@ -113,8 +114,8 @@ export function CreateEntryDialog({ open, onOpenChange }: Props) {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {suppliers.map((s) => (
-                          <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>
+                        {suppliers.map((s: Supplier) => (
+                          <SelectItem key={s.id} value={String(s.id)}>{s.corporateName}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>

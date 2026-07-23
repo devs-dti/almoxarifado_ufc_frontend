@@ -1,24 +1,20 @@
 'use client'
 
 import { useState } from 'react'
-import { Pencil, Trash2, Plus, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Pencil, Trash2, Plus, ChevronLeft, ChevronRight, Shield, Briefcase, User } from 'lucide-react'
 import { toast } from 'sonner'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useUsers, useDeleteUser } from '../hooks'
 import { UserFormDialog } from './UserFormDialog'
 import type { UserListItem } from '../types'
+import type { LucideIcon } from 'lucide-react'
 
-const ROLE_LABELS: Record<string, string> = {
-  ADMIN: 'Admin',
-  MANAGER: 'Gerente',
-  STAFF: 'Colaborador',
-}
+type RoleConfig = { Icon: LucideIcon; label: string; iconColor: string; bg: string }
 
-const ROLE_COLORS: Record<string, string> = {
-  ADMIN: 'text-purple-600 bg-purple-50 border-purple-200',
-  MANAGER: 'text-blue-600 bg-blue-50 border-blue-200',
-  STAFF: 'text-gray-600 bg-gray-50 border-gray-200',
+const ROLE_CONFIG: Record<string, RoleConfig> = {
+  ADMIN:   { Icon: Shield,    label: 'Admin',       iconColor: 'text-brand',       bg: 'bg-violet-50' },
+  MANAGER: { Icon: Briefcase, label: 'Gerente',     iconColor: 'text-slate-500',   bg: 'bg-slate-100' },
+  STAFF:   { Icon: User,      label: 'Colaborador', iconColor: 'text-slate-400',   bg: 'bg-slate-50'  },
 }
 
 const PAGE_SIZE = 10
@@ -35,14 +31,9 @@ export function UserList() {
   const deleteMutation = useDeleteUser()
 
   async function handleDelete(id: number) {
-    try {
-      await deleteMutation.mutateAsync(id)
-      toast.success('Usuário removido.')
-    } catch {
-      toast.error('Erro ao remover usuário.')
-    } finally {
-      setDeletingId(null)
-    }
+    try { await deleteMutation.mutateAsync(id); toast.success('Usuário removido.') }
+    catch { toast.error('Erro ao remover usuário.') }
+    finally { setDeletingId(null) }
   }
 
   return (
@@ -58,7 +49,7 @@ export function UserList() {
       {isLoading && (
         <div className="flex flex-col gap-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-16 bg-gray-100 rounded-2xl animate-pulse" />
+            <div key={i} className="h-[68px] rounded-2xl animate-shimmer" />
           ))}
         </div>
       )}
@@ -69,55 +60,60 @@ export function UserList() {
         <div className="text-center py-12 text-gray-400 text-sm">Nenhum usuário encontrado.</div>
       )}
 
-      {!isLoading && users.map((user) => (
-        <div key={user.id} className="bg-white rounded-2xl border border-gray-100 px-4 py-3 flex items-center justify-between shadow-sm">
-          <div className="flex flex-col gap-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-semibold text-gray-900 text-sm">{user.name}</span>
-              <span className={`text-[10px] font-semibold border rounded-full px-2 py-0.5 ${ROLE_COLORS[user.role] ?? ''}`}>
-                {ROLE_LABELS[user.role] ?? user.role}
-              </span>
+      {!isLoading && users.map((user, i) => {
+        const role = ROLE_CONFIG[user.role] ?? ROLE_CONFIG.STAFF
+        const { Icon: RoleIcon } = role
+        return (
+          <div
+            key={user.id}
+            className="bg-white rounded-2xl border border-gray-100 px-4 py-3 flex items-center gap-3 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 hover:border-gray-200 animate-fade-in-up"
+            style={{ animationDelay: `${i * 40}ms` }}
+          >
+            <div className={`w-9 h-9 rounded-xl ${role.bg} flex items-center justify-center shrink-0`}>
+              <RoleIcon size={17} className={role.iconColor} />
             </div>
-            <span className="text-xs text-gray-400">{user.email}</span>
-          </div>
-          <div className="flex items-center gap-1 shrink-0 ml-2">
-            {deletingId === user.id ? (
-              <div className="flex items-center gap-1">
-                <span className="text-xs text-gray-400">Confirmar?</span>
-                <button onClick={() => handleDelete(user.id)} className="text-xs font-medium text-destructive px-2 py-1 rounded-lg hover:bg-red-50">Sim</button>
-                <button onClick={() => setDeletingId(null)} className="text-xs text-gray-400 px-2 py-1 rounded-lg hover:bg-gray-100">Não</button>
+            <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-gray-900 text-sm truncate">{user.name}</span>
+                <span className={`text-[11px] font-medium ${role.iconColor}`}>{role.label}</span>
               </div>
-            ) : (
-              <>
-                <button onClick={() => { setEditing(user); setDialogOpen(true) }} className="p-2 rounded-xl text-gray-400 hover:text-brand hover:bg-purple-50 transition-colors" aria-label="Editar">
-                  <Pencil size={15} />
-                </button>
-                <button onClick={() => setDeletingId(user.id)} className="p-2 rounded-xl text-gray-400 hover:text-destructive hover:bg-red-50 transition-colors" aria-label="Remover">
-                  <Trash2 size={15} />
-                </button>
-              </>
-            )}
+              <span className="text-[11px] text-gray-400 truncate">{user.email}</span>
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              {deletingId === user.id ? (
+                <div className="flex items-center gap-1">
+                  <span className="text-xs text-gray-400">Confirmar?</span>
+                  <button onClick={() => handleDelete(user.id)} className="text-xs font-medium text-destructive px-2 py-1 rounded-lg hover:bg-red-50 cursor-pointer">Sim</button>
+                  <button onClick={() => setDeletingId(null)} className="text-xs text-gray-400 px-2 py-1 rounded-lg hover:bg-gray-100 cursor-pointer">Não</button>
+                </div>
+              ) : (
+                <>
+                  <button onClick={() => { setEditing(user); setDialogOpen(true) }} className="p-2 rounded-xl text-gray-400 hover:text-brand hover:bg-violet-50 transition-colors cursor-pointer" aria-label="Editar">
+                    <Pencil size={15} />
+                  </button>
+                  <button onClick={() => setDeletingId(user.id)} className="p-2 rounded-xl text-gray-400 hover:text-destructive hover:bg-red-50 transition-colors cursor-pointer" aria-label="Remover">
+                    <Trash2 size={15} />
+                  </button>
+                </>
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        )
+      })}
 
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-3 pt-2">
-          <button onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={page === 0} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 disabled:opacity-30" aria-label="Anterior">
+          <button onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={page === 0} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 disabled:opacity-30 cursor-pointer" aria-label="Anterior">
             <ChevronLeft size={18} />
           </button>
           <span className="text-sm text-gray-500">{page + 1} / {totalPages}</span>
-          <button onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 disabled:opacity-30" aria-label="Próxima">
+          <button onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 disabled:opacity-30 cursor-pointer" aria-label="Próxima">
             <ChevronRight size={18} />
           </button>
         </div>
       )}
 
-      <UserFormDialog
-        open={dialogOpen}
-        onOpenChange={(v) => { setDialogOpen(v); if (!v) setEditing(null) }}
-        editing={editing}
-      />
+      <UserFormDialog open={dialogOpen} onOpenChange={(v) => { setDialogOpen(v); if (!v) setEditing(null) }} editing={editing} />
     </div>
   )
 }

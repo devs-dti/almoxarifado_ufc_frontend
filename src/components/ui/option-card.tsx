@@ -7,28 +7,28 @@ type OptionCardProps = {
   title: string;
   icon: LucideIcon;
   iconColor?: string;
-  titleColor?: string;
+  iconBg?: string;
   description?: string;
   onClick?: () => void;
 };
 
-export function OptionCard({ title, icon: Icon, iconColor, titleColor = "text-gray-800", description, onClick }: OptionCardProps) {
+export function OptionCard({ title, icon: Icon, iconColor = "text-brand", iconBg = "bg-brand-subtle", description, onClick }: OptionCardProps) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex items-center gap-4 w-full px-5 py-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 hover:bg-gray-50/50 active:scale-[0.99] transition-all duration-150 cursor-pointer text-left group"
+      className="flex items-center gap-4 w-full px-5 py-4 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-gray-200 active:scale-[0.97] active:translate-y-0 transition-all duration-200 cursor-pointer text-left group"
     >
-      <div className="w-10 h-10 rounded-lg bg-brand-subtle flex items-center justify-center shrink-0">
-        <Icon size={20} className={iconColor || "text-brand"} />
+      <div className={`w-10 h-10 rounded-xl ${iconBg} flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-110`}>
+        <Icon size={20} className={iconColor} />
       </div>
 
       <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-        <span className={`font-semibold text-sm ${titleColor}`}>{title}</span>
+        <span className="font-semibold text-sm text-gray-800">{title}</span>
         {description && <span className="text-xs text-gray-400">{description}</span>}
       </div>
 
-      <ChevronRight size={16} className="text-gray-300 group-hover:text-gray-400 shrink-0 transition-colors" />
+      <ChevronRight size={16} className="text-gray-300 group-hover:text-brand shrink-0 transition-colors duration-200" />
     </button>
   );
 }

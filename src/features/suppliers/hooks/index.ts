@@ -22,7 +22,7 @@ export function useCreateSupplier() {
 export function useUpdateSupplier() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: UpdateSupplierPayload }) => suppliersApi.update(id, data),
+    mutationFn: ({ id, data }: { id: string; data: UpdateSupplierPayload }) => suppliersApi.update(id, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: suppliersKeys.all }),
   })
 }
@@ -30,7 +30,7 @@ export function useUpdateSupplier() {
 export function useDeleteSupplier() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (id: number) => suppliersApi.delete(id),
+    mutationFn: (id: string) => suppliersApi.delete(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: suppliersKeys.all }),
   })
 }

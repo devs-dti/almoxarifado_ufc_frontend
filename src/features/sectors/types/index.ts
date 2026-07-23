@@ -1,19 +1,18 @@
 export type Sector = {
-  id: number
+  id: string
   name: string
-  description?: string
+  code?: string
   deletedAt?: string | null
 }
 
 export type CreateSectorPayload = {
   name: string
-  description?: string
 }
 
 export type UpdateSectorPayload = Partial<CreateSectorPayload>
 
 export type MeasurementUnit = {
-  id: number
+  id: string
   name: string
   abbreviation: string
   deletedAt?: string | null

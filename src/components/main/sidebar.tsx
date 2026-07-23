@@ -72,10 +72,10 @@ export function Sidebar() {
                 <Link
                   key={href}
                   href={href}
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-colors duration-150 ${
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150 ${
                     isActive
                       ? 'bg-brand/10 text-brand'
-                      : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'
+                      : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800 hover:translate-x-0.5'
                   }`}
                 >
                   <Icon size={16} strokeWidth={isActive ? 2.5 : 1.8} />

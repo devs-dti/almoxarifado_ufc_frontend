@@ -30,7 +30,7 @@ export function TransferList() {
       {isLoading && (
         <div className="flex flex-col gap-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-20 bg-gray-100 rounded-2xl animate-pulse" />
+            <div key={i} className="h-20 rounded-2xl animate-shimmer" />
           ))}
         </div>
       )}
@@ -47,8 +47,10 @@ export function TransferList() {
         </div>
       )}
 
-      {!isLoading && transfers.map((t) => (
-        <TransferAccordion key={t.id} transfer={t} />
+      {!isLoading && transfers.map((t, i) => (
+        <div key={t.id} className="animate-fade-in-up" style={{ animationDelay: `${i * 40}ms` }}>
+          <TransferAccordion transfer={t} />
+        </div>
       ))}
 
       {totalPages > 1 && (

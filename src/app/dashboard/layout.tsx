@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { DashboardHeader } from "@/features/auth/components/DashboardHeader";
-import Menu from "@/components/main/menu";
-import Slider from "@/components/main/slider";
+import { MobileNav } from "@/components/main/mobile-nav";
 import { ActionButtons } from "@/components/main/action-buttons";
 import { BottomNav } from "@/components/main/bottom-nav";
 import { Sidebar } from "@/components/main/sidebar";
@@ -26,13 +25,8 @@ export default function DashboardLayout({
         <div className="relative z-10 flex items-center px-4 border-b border-gray-100 bg-white lg:hidden">
           <div className="flex w-full items-center justify-between py-3">
             <DashboardHeader />
-            <Menu />
+            <MobileNav />
           </div>
-        </div>
-
-        {/* Slider tabs — mobile/tablet only */}
-        <div className="bg-white border-b border-gray-100 lg:hidden">
-          <Slider />
         </div>
 
         {/* Action buttons — mobile/tablet only */}

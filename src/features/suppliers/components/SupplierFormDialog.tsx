@@ -25,22 +25,21 @@ export function SupplierFormDialog({ open, onOpenChange, editing }: Props) {
 
   const form = useForm<SupplierFormData>({
     resolver: zodResolver(supplierSchema),
-    defaultValues: { name: '', cnpj: '', email: '', phone: '' },
+    defaultValues: { corporateName: '', cnpj: '', phone: '' },
   })
 
   useEffect(() => {
     form.reset(
       editing
-        ? { name: editing.name, cnpj: editing.cnpj ?? '', email: editing.email ?? '', phone: editing.phone ?? '' }
-        : { name: '', cnpj: '', email: '', phone: '' }
+        ? { corporateName: editing.corporateName, cnpj: editing.cnpj ?? '', phone: editing.phone ?? '' }
+        : { corporateName: '', cnpj: '', phone: '' }
     )
   }, [editing, open])
 
   async function onSubmit(data: SupplierFormData) {
     const payload = {
-      name: data.name,
+      corporateName: data.corporateName,
       cnpj: data.cnpj || undefined,
-      email: data.email || undefined,
       phone: data.phone || undefined,
     }
     try {
@@ -65,9 +64,9 @@ export function SupplierFormDialog({ open, onOpenChange, editing }: Props) {
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4 pt-2">
-            <FormField control={form.control} name="name" render={({ field }) => (
+            <FormField control={form.control} name="corporateName" render={({ field }) => (
               <FormItem>
-                <FormLabel>Nome *</FormLabel>
+                <FormLabel>Razão Social *</FormLabel>
                 <FormControl><Input className="rounded-xl" {...field} /></FormControl>
                 <FormMessage />
               </FormItem>
@@ -76,13 +75,6 @@ export function SupplierFormDialog({ open, onOpenChange, editing }: Props) {
               <FormItem>
                 <FormLabel>CNPJ</FormLabel>
                 <FormControl><Input className="rounded-xl" placeholder="00.000.000/0000-00" {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
-            <FormField control={form.control} name="email" render={({ field }) => (
-              <FormItem>
-                <FormLabel>E-mail</FormLabel>
-                <FormControl><Input type="email" className="rounded-xl" {...field} /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />

@@ -35,28 +35,27 @@ export function ExpiringReportDialog({ open, onOpenChange }: Props) {
         {isLoading && (
           <div className="flex flex-col gap-2">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-10 bg-gray-100 rounded-xl animate-pulse" />
+              <div key={i} className="h-10 rounded-xl animate-shimmer" />
             ))}
           </div>
         )}
 
         {isError && <p className="text-sm text-destructive py-4 text-center">Erro ao carregar relatório.</p>}
 
-        {data && data.lots.length === 0 && (
+        {data && data.content.length === 0 && (
           <p className="text-sm text-gray-400 text-center py-4">Nenhum lote vencendo neste período.</p>
         )}
 
-        {data && data.lots.length > 0 && (
+        {data && data.content.length > 0 && (
           <div className="flex flex-col gap-1 max-h-64 overflow-y-auto">
-            {data.lots.map((lot) => (
-              <div key={lot.lotId} className="flex items-center justify-between px-3 py-2 rounded-xl bg-gray-50">
+            {data.content.map((lot, i) => (
+              <div key={i} className="flex items-center justify-between px-3 py-2 rounded-xl bg-gray-50">
                 <div className="flex flex-col gap-0.5 min-w-0">
                   <span className="text-xs font-medium text-gray-800 truncate">{lot.materialName}</span>
-                  <span className="text-[10px] text-gray-400">Lote {lot.lotCode} · {lot.quantity} un</span>
+                  <span className="text-[10px] text-gray-400">Lote {lot.lotCode} · {lot.quantity} {lot.measurementUnit}</span>
                 </div>
                 <div className="flex flex-col items-end shrink-0 ml-2">
-                  <span className="text-xs font-medium text-red-500">{formatDate(lot.expiresAt)}</span>
-                  <span className="text-[10px] text-gray-400">{lot.daysUntilExpiry}d restantes</span>
+                  <span className="text-xs font-medium text-red-500">{formatDate(lot.expirationDate)}</span>
                 </div>
               </div>
             ))}
