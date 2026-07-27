@@ -12,13 +12,21 @@ const compat = new FlatCompat({
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
+    files: ["**/*.{js,jsx,ts,tsx}"],
     ignores: [
       "node_modules/**",
       ".next/**",
       "out/**",
       "build/**",
       "next-env.d.ts",
+      // 🎯 BASELINE: Adicione aqui pastas legadas com muitos erros
+      // para o ESLint ignorar no código antigo enquanto o time desenvolve o novo
+      // "src/componentes-antigos/**",
     ],
+    rules: {
+      "@typescript-eslint/no-unused-vars": "warn",
+      "@typescript-eslint/no-explicit-any": "warn",
+    },
   },
 ];
 
