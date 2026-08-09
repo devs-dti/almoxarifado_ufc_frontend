@@ -30,8 +30,8 @@ export function UserList() {
   const [deletingId, setDeletingId] = useState<number | null>(null)
 
   const { data, isLoading, isError } = useUsers({ page, size: PAGE_SIZE })
-  const users = data?.content ?? []
-  const totalPages = data?.totalPages ?? 0
+  const users = data?.data ?? []
+  const totalPages = data?.meta?.totalPages ?? 0
   const deleteMutation = useDeleteUser()
 
   async function handleDelete(id: number) {

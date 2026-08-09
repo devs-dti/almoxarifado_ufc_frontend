@@ -41,7 +41,7 @@ type Props = {
 
 export function CreateTransferDialog({ open, onOpenChange }: Props) {
   const { data: materialsPage } = useMaterials({ page: 0, size: 100 })
-  const materials = materialsPage?.content ?? []
+  const materials = materialsPage?.data ?? []
   const { data: sectors = [] } = useSectors()
   const create = useCreateTransfer()
 

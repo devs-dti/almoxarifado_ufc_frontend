@@ -14,8 +14,8 @@ export function TransferList() {
   const [createOpen, setCreateOpen] = useState(false)
 
   const { data, isLoading, isError } = useTransfers({ page, size: PAGE_SIZE })
-  const transfers = data?.content ?? []
-  const totalPages = data?.totalPages ?? 0
+  const transfers = data?.data ?? []
+  const totalPages = data?.meta?.totalPages ?? 0
 
   return (
     <div className="flex flex-col gap-4 p-4">

@@ -1,9 +1,11 @@
 export type PaginatedResponse<T> = {
-  content: T[]
-  totalElements: number
-  totalPages: number
-  number: number
-  size: number
+  data: T[]
+  meta: {
+    page: number
+    size: number
+    totalElements: number
+    totalPages: number
+  }
 }
 
 export type PageParams = {

@@ -28,8 +28,8 @@ export function MaterialList() {
     name: debouncedSearch || undefined,
   })
 
-  const materials = data?.content ?? []
-  const totalPages = data?.totalPages ?? 0
+  const materials = data?.data ?? []
+  const totalPages = data?.meta?.totalPages ?? 0
 
   function handleEdit(m: Material) {
     setEditing(m)

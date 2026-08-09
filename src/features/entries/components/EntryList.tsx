@@ -14,8 +14,8 @@ export function EntryList() {
   const [createOpen, setCreateOpen] = useState(false)
 
   const { data, isLoading, isError } = useEntries({ page, size: PAGE_SIZE })
-  const entries = data?.content ?? []
-  const totalPages = data?.totalPages ?? 0
+  const entries = data?.data ?? []
+  const totalPages = data?.meta?.totalPages ?? 0
 
   return (
     <div className="flex flex-col gap-4 p-4">
