@@ -83,8 +83,12 @@ export const contractsHandlers = [
   // Criar contrato
   http.post('/contracts', async ({ request }) => {
     const body = await request.json() as ContractDTO
+    const company = MOCK_COMPANIES.find(c => c.id === body.companyId)
+    // Extract everything except companyId from body to build Contract
+    const { companyId, ...restBody } = body
     const newContract: Contract = {
-      ...body,
+      ...restBody,
+      companyName: company?.name || 'Unknown',
       id: crypto.randomUUID(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -126,7 +130,21 @@ export const contractsHandlers = [
     if (idx === -1) return new HttpResponse(null, { status: 404 })
     
     const body = await request.json() as Partial<ContractDTO>
-    contracts[idx] = { ...contracts[idx], ...body, updatedAt: new Date().toISOString() }
+    
+    let updatedCompanyName = contracts[idx].companyName
+    if (body.companyId) {
+      const company = MOCK_COMPANIES.find(c => c.id === body.companyId)
+      if (company) updatedCompanyName = company.name
+    }
+    
+    const { companyId, ...restBody } = body
+
+    contracts[idx] = { 
+      ...contracts[idx], 
+      ...restBody, 
+      companyName: updatedCompanyName,
+      updatedAt: new Date().toISOString() 
+    }
     
     return HttpResponse.json(contracts[idx])
   }),

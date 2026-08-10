@@ -1,4 +1,4 @@
-// Force TS Server Reload
+
 export interface Contract {
   id: string; // UUID
   referenceNumber: string;
@@ -13,4 +13,6 @@ export interface Contract {
   deletedAt?: string | null;
 }
 
-export type ContractDTO = Omit<Contract, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'users'>;
+export type ContractDTO = Omit<Contract, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'users' | 'companyName'> & {
+  companyId: string;
+};

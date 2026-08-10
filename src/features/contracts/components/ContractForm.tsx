@@ -35,7 +35,7 @@ export function ContractForm({ mode = 'create', initialData, onSuccess }: Contra
   const updateContract = useUpdateContract()
   const renewContract = useRenewContract()
 
-  // No modo renew, preenchemos apenas empresa e usuários (desabilitados) e limpamos datas e numero
+  // No modo renew, preenchemos apenas empresa e usuários (desabilitados) 
   const getDefaults = (): ContractFormData => {
     if (mode === 'renew' && initialData) {
       return {
@@ -43,7 +43,7 @@ export function ContractForm({ mode = 'create', initialData, onSuccess }: Contra
         startDate: '',
         endDate: '',
         status: true,
-        companyName: initialData.companyName,
+        companyId: '',
         userIds: initialData.userIds,
       }
     }
@@ -53,7 +53,7 @@ export function ContractForm({ mode = 'create', initialData, onSuccess }: Contra
         startDate: initialData.startDate.slice(0, 16), // datetime-local format
         endDate: initialData.endDate.slice(0, 16),
         status: initialData.status,
-        companyName: initialData.companyName,
+        companyId: '',
         userIds: initialData.userIds,
       }
     }
@@ -62,7 +62,7 @@ export function ContractForm({ mode = 'create', initialData, onSuccess }: Contra
       startDate: '',
       endDate: '',
       status: true,
-      companyName: '',
+      companyId: '',
       userIds: [],
     }
   }
@@ -136,20 +136,20 @@ export function ContractForm({ mode = 'create', initialData, onSuccess }: Contra
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="companyName">Empresa Vinculada</Label>
+        <Label htmlFor="companyId">Empresa Vinculada</Label>
         <select 
-          id="companyName" 
+          id="companyId" 
           disabled={disableRelations}
           className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-          {...register('companyName')}
+          {...register('companyId')}
         >
           <option value="">Selecione uma empresa</option>
           {MOCK_COMPANIES.map(c => (
-            <option key={c.name} value={c.name}>{c.name}</option>
+            <option key={c.id} value={c.id}>{c.name}</option>
           ))}
         </select>
-        {errors.companyName && (
-          <p className="text-sm text-red-500">{errors.companyName.message}</p>
+        {errors.companyId && (
+          <p className="text-sm text-red-500">{errors.companyId.message}</p>
         )}
       </div>
 
