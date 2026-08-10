@@ -42,7 +42,7 @@ export function ContractsList({ search, statusFilter, companyNameFilter, onView,
   const totalPages = pageData?.meta.totalPages || 0
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       {contracts.length === 0 ? (
         <div className="p-8 text-center text-slate-500 bg-white rounded-xl border border-gray-100 shadow-sm mt-2">
           Nenhum contrato encontrado.
