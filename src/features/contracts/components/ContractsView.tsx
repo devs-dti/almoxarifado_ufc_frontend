@@ -54,11 +54,19 @@ export function ContractsView() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <h2 className="text-sm font-semibold text-gray-700">Contratos</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Contratos</h2>
+          <div className="md:hidden">
+            <Button onClick={handleOpenCreate} className="gap-1.5 rounded-xl px-3 bg-brand hover:bg-brand/90 shrink-0" size="sm">
+              <Plus size={15} />
+              Novo Contrato
+            </Button>
+          </div>
+        </div>
         
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
           <div className="relative flex-1">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
             <Input
@@ -91,10 +99,12 @@ export function ContractsView() {
             </select>
           </div>
 
-          <Button onClick={handleOpenCreate} className="gap-1.5 rounded-xl px-3 bg-brand hover:bg-brand/90 shrink-0" size="sm">
-            <Plus size={15} />
-            Novo Contrato
-          </Button>
+          <div className="hidden md:block">
+            <Button onClick={handleOpenCreate} className="gap-1.5 rounded-xl px-3 bg-brand hover:bg-brand/90 shrink-0" size="sm">
+              <Plus size={15} />
+              Novo Contrato
+            </Button>
+          </div>
         </div>
       </div>
 

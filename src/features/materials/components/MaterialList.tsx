@@ -42,21 +42,36 @@ export function MaterialList() {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4">
-      <div className="flex items-center gap-2">
-        <div className="relative flex-1">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <Input
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(0) }}
-            placeholder="Buscar material..."
-            className="pl-8 rounded-xl text-sm"
-          />
+    <div className="flex flex-col gap-6">
+      {/* Header and Actions */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Materiais</h2>
+          <div className="md:hidden">
+            <Button onClick={handleNew} className="gap-1.5 rounded-xl px-3 bg-brand hover:bg-brand/90 shrink-0" size="sm">
+              <Plus size={15} />
+              Novo
+            </Button>
+          </div>
         </div>
-        <Button onClick={handleNew} className="gap-1.5 rounded-xl px-3 shrink-0">
-          <Plus size={15} />
-          Novo
-        </Button>
+        
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <div className="relative flex-1 md:w-64">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Input
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(0) }}
+              placeholder="Buscar material..."
+              className="pl-8 h-8 rounded-lg text-xs w-full"
+            />
+          </div>
+          <div className="hidden md:block">
+            <Button onClick={handleNew} className="gap-1.5 rounded-xl px-3 bg-brand hover:bg-brand/90 shrink-0" size="sm">
+              <Plus size={15} />
+              Novo
+            </Button>
+          </div>
+        </div>
       </div>
 
       {isLoading && (
