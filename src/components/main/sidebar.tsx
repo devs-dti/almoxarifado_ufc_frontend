@@ -14,6 +14,7 @@ import {
   Users,
   LogOut,
   LayoutDashboard,
+  FileSignature,
 } from 'lucide-react'
 
 const navGroups = [
@@ -38,6 +39,7 @@ const navGroups = [
     label: 'Gestão',
     items: [
       { label: 'Relatórios', href: '/dashboard/relatorios', icon: FileBarChart },
+      { label: 'Contratos', href: '/dashboard/contracts', icon: FileSignature },
     ],
   },
 ]
