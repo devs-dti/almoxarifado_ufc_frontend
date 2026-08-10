@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw'
 import type { Supplier } from '@/features/suppliers/types'
 
-let suppliers: Supplier[] = [
+const suppliers: Supplier[] = [
   { id: 1, name: 'Papelaria Central', cnpj: '12.345.678/0001-90', email: 'contato@papelaria.com' },
   { id: 2, name: 'Distribuidora UFC', cnpj: '98.765.432/0001-10', email: 'vendas@dist.com' },
 ]

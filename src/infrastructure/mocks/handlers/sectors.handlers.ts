@@ -1,13 +1,13 @@
 import { http, HttpResponse } from 'msw'
 import type { Sector, MeasurementUnit } from '@/features/sectors/types'
 
-let sectors: Sector[] = [
+const sectors: Sector[] = [
   { id: 1, name: 'TI', description: 'Tecnologia da Informação' },
   { id: 2, name: 'Administrativo', description: 'Setor Administrativo' },
   { id: 3, name: 'Biblioteca', description: 'Biblioteca Central' },
 ]
 
-let units: MeasurementUnit[] = [
+const units: MeasurementUnit[] = [
   { id: 1, name: 'Unidade', abbreviation: 'un' },
   { id: 2, name: 'Pacote', abbreviation: 'pct' },
   { id: 3, name: 'Caixa', abbreviation: 'cx' },

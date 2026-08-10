@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { Pencil, Trash2, Plus, ChevronLeft, ChevronRight } from 'lucide-react'
 import { toast } from 'sonner'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useUsers, useDeleteUser } from '../hooks'
 import { UserFormDialog } from './UserFormDialog'

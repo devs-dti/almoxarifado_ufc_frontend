@@ -1,10 +1,9 @@
 // Force TS Server Reload
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import { format } from 'date-fns'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Pencil, Trash, RotateCw, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useGetContracts, useDeleteContract } from '../api/useContracts'
 import type { Contract } from '../types'
