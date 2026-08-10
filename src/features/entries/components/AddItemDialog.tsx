@@ -40,7 +40,7 @@ type Props = {
 
 export function AddItemDialog({ entryId, open, onOpenChange }: Props) {
   const { data: materialsPage } = useMaterials({ page: 0, size: 100 })
-  const materials = materialsPage?.content ?? []
+  const materials = materialsPage?.data ?? []
   const addItem = useAddEntryItem()
 
   const form = useForm<AddItemValues>({

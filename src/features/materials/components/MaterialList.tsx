@@ -22,14 +22,14 @@ export function MaterialList() {
   const [editing, setEditing] = useState<Material | null>(null)
   const [deleting, setDeleting] = useState<Material | null>(null)
 
-  const { data, isLoading, isError } = useMaterials({
+  const { data: pageData, isLoading, isError } = useMaterials({
     page,
     size: MATERIALS_PAGE_SIZE,
     name: debouncedSearch || undefined,
   })
 
-  const materials = data?.content ?? []
-  const totalPages = data?.totalPages ?? 0
+  const materials = pageData?.data || []
+  const totalPages = pageData?.meta.totalPages || 0
 
   function handleEdit(m: Material) {
     setEditing(m)

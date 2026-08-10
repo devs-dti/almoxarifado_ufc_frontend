@@ -14,7 +14,7 @@ const units = [
   { id: 4, name: 'Litro', abbreviation: 'L' },
 ]
 
-let materials: Material[] = [
+const materials: Material[] = [
   { id: 1, name: 'Papel A4', code: 'PAP-001', quantity: 500, minQuantity: 100, group: groups[0], unit: units[1] },
   { id: 2, name: 'Caneta Azul', code: 'CAN-001', quantity: 80, minQuantity: 50, group: groups[0], unit: units[0] },
   { id: 3, name: 'Detergente 500ml', code: 'DET-001', quantity: 20, minQuantity: 30, group: groups[1], unit: units[3] },
@@ -30,7 +30,15 @@ export const materialsHandlers = [
     const size = Number(url.searchParams.get('size') ?? 10)
     const active = materials.filter((m) => !m.deletedAt)
     const content = active.slice(page * size, page * size + size)
-    return HttpResponse.json({ content, totalElements: active.length, totalPages: Math.ceil(active.length / size), number: page, size })
+    return HttpResponse.json({ 
+      data: content, 
+      meta: {
+        page,
+        size,
+        totalElements: active.length, 
+        totalPages: Math.ceil(active.length / size)
+      }
+    })
   }),
 
   http.get('/materials/:id', ({ params }) => {
