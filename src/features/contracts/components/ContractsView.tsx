@@ -54,25 +54,25 @@ export function ContractsView() {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4 h-full">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <h2 className="text-sm font-semibold text-gray-700">Contratos</h2>
         
-        <div className="flex items-center gap-3">
-          <div className="relative">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <div className="relative flex-1">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar contrato..."
-              className="pl-8 h-8 text-xs bg-white border-gray-200 shadow-sm rounded-lg w-56"
+              className="pl-8 h-8 text-xs bg-white border-gray-200 shadow-sm rounded-lg w-full md:w-56"
             />
           </div>
           <div className="flex gap-2">
             <select
               value={companyFilter}
               onChange={(e) => setCompanyFilter(e.target.value)}
-              className="h-8 text-xs bg-white border border-gray-200 shadow-sm rounded-lg px-2 outline-none text-slate-600 cursor-pointer"
+              className="flex-1 min-w-0 h-8 text-xs bg-white border border-gray-200 shadow-sm rounded-lg px-2 outline-none text-slate-600 cursor-pointer"
             >
               <option value="all">Todas as Empresas</option>
               {MOCK_COMPANIES.map(c => (
@@ -83,7 +83,7 @@ export function ContractsView() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="h-8 text-xs bg-white border border-gray-200 shadow-sm rounded-lg px-2 outline-none text-slate-600 cursor-pointer"
+              className="flex-1 min-w-0 h-8 text-xs bg-white border border-gray-200 shadow-sm rounded-lg px-2 outline-none text-slate-600 cursor-pointer"
             >
               <option value="all">Todos os Status</option>
               <option value="true">Ativos</option>
@@ -91,7 +91,7 @@ export function ContractsView() {
             </select>
           </div>
 
-          <Button onClick={handleOpenCreate} className="gap-1.5 rounded-xl px-3 bg-brand hover:bg-brand/90" size="sm">
+          <Button onClick={handleOpenCreate} className="gap-1.5 rounded-xl px-3 bg-brand hover:bg-brand/90 shrink-0" size="sm">
             <Plus size={15} />
             Novo Contrato
           </Button>
