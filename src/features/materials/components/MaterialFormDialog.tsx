@@ -29,7 +29,8 @@ import {
 } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { useMaterialGroups, useMeasurementUnits, useCreateMaterial, useUpdateMaterial } from '../hooks'
+import { useMeasurementUnits, useCreateMaterial, useUpdateMaterial } from '../hooks'
+import { useMaterialGroups } from '@/features/material-groups/hooks'
 import { materialSchema, type MaterialFormData } from '../schemas'
 import type { Material } from '../types'
 
@@ -40,14 +41,15 @@ type Props = {
 }
 
 export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
-  const { data: groups = [] } = useMaterialGroups()
+  const { data: groupsResponse } = useMaterialGroups({ page: 0, size: 100 })
+  const groups = groupsResponse?.data || []
   const { data: units = [] } = useMeasurementUnits()
   const create = useCreateMaterial()
   const update = useUpdateMaterial()
 
   const form = useForm<MaterialFormData>({
     resolver: zodResolver(materialSchema),
-    defaultValues: { name: '', code: '', minQuantity: 0, groupId: 0, unitId: 0 },
+    defaultValues: { name: '', code: '', minQuantity: 0, groupId: '', unitId: 0 },
   })
 
   useEffect(() => {
@@ -56,11 +58,11 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
         name: editing.name,
         code: editing.code,
         minQuantity: editing.minQuantity,
-        groupId: editing.group.id,
+        groupId: String(editing.group.id),
         unitId: editing.unit.id,
       })
     } else {
-      form.reset({ name: '', code: '', minQuantity: 0, groupId: 0, unitId: 0 })
+      form.reset({ name: '', code: '', minQuantity: 0, groupId: '', unitId: 0 })
     }
   }, [editing, open])
 
@@ -139,8 +141,8 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
                 <FormItem>
                   <FormLabel>Grupo</FormLabel>
                   <Select
-                    onValueChange={(v) => field.onChange(Number(v))}
-                    value={field.value ? String(field.value) : ''}
+                    onValueChange={(v) => field.onChange(v)}
+                    value={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
