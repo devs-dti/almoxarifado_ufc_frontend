@@ -2,9 +2,9 @@ import { http, HttpResponse } from 'msw'
 import type { Material } from '@/features/materials/types'
 
 const groups = [
-  { id: 1, name: 'Papelaria' },
-  { id: 2, name: 'Limpeza' },
-  { id: 3, name: 'Informática' },
+  { id: crypto.randomUUID(), name: 'Papelaria' },
+  { id: crypto.randomUUID(), name: 'Limpeza' },
+  { id: crypto.randomUUID(), name: 'Informática' },
 ]
 
 const units = [
@@ -47,7 +47,7 @@ export const materialsHandlers = [
   }),
 
   http.post('/materials', async ({ request }) => {
-    const body = await request.json() as { name: string; code: string; minQuantity: number; groupId: number; unitId: number }
+    const body = await request.json() as { name: string; code: string; minQuantity: number; groupId: string; unitId: number }
     const group = groups.find((g) => g.id === body.groupId) ?? groups[0]
     const unit = units.find((u) => u.id === body.unitId) ?? units[0]
     const mat: Material = { id: nextId++, name: body.name, code: body.code, quantity: 0, minQuantity: body.minQuantity, group, unit }
@@ -77,22 +77,43 @@ export const materialsHandlers = [
     ])
   }),
 
-  http.get('/material-groups', () => HttpResponse.json(groups)),
+  http.get('/material-groups', ({ request }) => {
+    const url = new URL(request.url)
+    const page = Number(url.searchParams.get('page') ?? 0)
+    const size = Number(url.searchParams.get('size') ?? 10)
+    const search = url.searchParams.get('search')?.toLowerCase() ?? ''
+    
+    let active = groups
+    if (search) {
+      active = active.filter(g => g.name.toLowerCase().includes(search))
+    }
+    
+    const content = active.slice(page * size, page * size + size)
+    return HttpResponse.json({ 
+      data: content, 
+      meta: {
+        page,
+        size,
+        totalElements: active.length, 
+        totalPages: Math.ceil(active.length / size)
+      }
+    })
+  }),
   http.post('/material-groups', async ({ request }) => {
     const body = await request.json() as { name: string }
-    const g = { id: Date.now(), name: body.name }
+    const g = { id: crypto.randomUUID(), name: body.name }
     groups.push(g)
     return HttpResponse.json(g, { status: 201 })
   }),
   http.patch('/material-groups/:id', async ({ request, params }) => {
-    const idx = groups.findIndex((g) => g.id === Number(params.id))
+    const idx = groups.findIndex((g) => g.id === params.id)
     if (idx === -1) return new HttpResponse(null, { status: 404 })
     const body = await request.json() as { name: string }
     groups[idx] = { ...groups[idx], ...body }
     return HttpResponse.json(groups[idx])
   }),
   http.delete('/material-groups/:id', ({ params }) => {
-    const idx = groups.findIndex((g) => g.id === Number(params.id))
+    const idx = groups.findIndex((g) => g.id === params.id)
     if (idx !== -1) groups.splice(idx, 1)
     return new HttpResponse(null, { status: 204 })
   }),
