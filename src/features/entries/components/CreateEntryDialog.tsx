@@ -114,7 +114,7 @@ export function CreateEntryDialog({ open, onOpenChange }: Props) {
                       </FormControl>
                       <SelectContent>
                         {suppliers.map((s) => (
-                          <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>
+                          <SelectItem key={s.id} value={String(s.id)}>{s.corporateName}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
