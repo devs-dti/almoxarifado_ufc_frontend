@@ -25,6 +25,36 @@ const audits: MaterialAuditDetails[] = [
         systemQuantity: 500,
         physicalQuantity: 0,
         difference: -500
+      },
+      {
+        id: 'item-1b',
+        materialId: '3',
+        materialName: 'Luva Descartável P',
+        expirationType: 'DATED',
+        expirationDate: '2027-03-15',
+        systemQuantity: 26,
+        physicalQuantity: 0,
+        difference: -26
+      },
+      {
+        id: 'item-1c',
+        materialId: '4',
+        materialName: 'Álcool Gel 500ml',
+        expirationType: 'DATED',
+        expirationDate: '2026-11-30',
+        systemQuantity: 64,
+        physicalQuantity: 0,
+        difference: -64
+      },
+      {
+        id: 'item-1d',
+        materialId: '5',
+        materialName: 'Grampeador de Mesa',
+        expirationType: 'INDEFINITE',
+        expirationDate: null,
+        systemQuantity: 26,
+        physicalQuantity: 0,
+        difference: -26
       }
     ]
   },
@@ -33,7 +63,9 @@ const audits: MaterialAuditDetails[] = [
     status: 'FINALIZED',
     createdAt: new Date(Date.now() - 172800000).toISOString(),
     finishedAt: new Date(Date.now() - 86400000).toISOString(),
-    auditors: [],
+    auditors: [
+      { id: '2', name: 'Maria Silva' }
+    ],
     items: [
       {
         id: 'item-2',
@@ -44,10 +76,31 @@ const audits: MaterialAuditDetails[] = [
         systemQuantity: 80,
         physicalQuantity: 85,
         difference: 5
+      },
+      {
+        id: 'item-2b',
+        materialId: '6',
+        materialName: 'Máscara Cirúrgica',
+        expirationType: 'DATED',
+        expirationDate: '2027-06-20',
+        systemQuantity: 200,
+        physicalQuantity: 195,
+        difference: -5
+      },
+      {
+        id: 'item-2c',
+        materialId: '7',
+        materialName: 'Caderno Universitário',
+        expirationType: 'NON_EXPIRING',
+        expirationDate: null,
+        systemQuantity: 50,
+        physicalQuantity: 50,
+        difference: 0
       }
     ]
   }
 ]
+
 
 export const materialAuditsHandlers = [
   http.get('/material-audits', ({ request }) => {
