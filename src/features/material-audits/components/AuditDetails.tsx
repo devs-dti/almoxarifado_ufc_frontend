@@ -136,11 +136,13 @@ export function AuditDetails({ id }: Props) {
 
   return (
     <div className="flex flex-col gap-6">
+      <div className="flex">
+        <Button variant="default" size="sm" onClick={() => router.push('/dashboard/auditorias')} className="shrink-0 h-10 w-10 p-0 rounded-full bg-brand text-white hover:bg-brand/90 shadow-sm transition-colors">
+          <ArrowLeft size={20} />
+        </Button>
+      </div>
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div className="flex gap-4 items-start">
-          <Button variant="ghost" size="sm" onClick={() => router.push('/dashboard/auditorias')} className="shrink-0 h-8 w-8 p-0 -mt-1">
-            <ArrowLeft size={20} />
-          </Button>
           <div>
             <div className="flex items-center gap-3 mb-1">
               <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Detalhes da Auditoria</h2>
@@ -204,11 +206,11 @@ export function AuditDetails({ id }: Props) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Material</TableHead>
+                <TableHead className="pl-6">Material</TableHead>
                 <TableHead>Validade</TableHead>
-                <TableHead className="text-right">Qtd. Sistema</TableHead>
-                <TableHead className="text-right w-48">Qtd. Física</TableHead>
-                <TableHead className="text-right">Diferença</TableHead>
+                <TableHead className="text-center w-32">Qtd. Sistema</TableHead>
+                <TableHead className="text-center w-40">Qtd. Física</TableHead>
+                <TableHead className="text-center w-32">Diferença</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -218,7 +220,7 @@ export function AuditDetails({ id }: Props) {
                 
                 return (
                   <TableRow key={item.id}>
-                    <TableCell className="font-medium">{item.materialName}</TableCell>
+                    <TableCell className="font-medium pl-6">{item.materialName}</TableCell>
                     <TableCell>
                       {item.expirationType === 'DATED' && item.expirationDate
                         ? format(new Date(item.expirationDate), 'dd/MM/yyyy')
@@ -226,10 +228,10 @@ export function AuditDetails({ id }: Props) {
                         ? 'Não Expira'
                         : 'Indefinido'}
                     </TableCell>
-                    <TableCell className="text-right text-gray-500">
+                    <TableCell className="text-center text-gray-500">
                       {item.systemQuantity}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-center">
                       {isFinalizedOrCanceled ? (
                         <span className="font-medium">{item.physicalQuantity}</span>
                       ) : (
@@ -238,11 +240,11 @@ export function AuditDetails({ id }: Props) {
                           min={0}
                           value={quantities[item.id] ?? ''}
                           onChange={(e) => handleQuantityChange(item.id, e.target.value)}
-                          className="w-24 text-right ml-auto"
+                          className="w-24 text-center mx-auto"
                         />
                       )}
                     </TableCell>
-                    <TableCell className={`text-right font-medium ${diffColor}`}>
+                    <TableCell className={`text-center font-medium ${diffColor}`}>
                       {diff > 0 ? `+${diff}` : diff}
                     </TableCell>
                   </TableRow>

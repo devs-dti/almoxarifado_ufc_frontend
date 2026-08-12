@@ -130,8 +130,8 @@ export function MaterialAuditList() {
                       : '-'}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="sm" onClick={() => router.push(`/dashboard/auditorias/${audit.id}`)} className="h-8 w-8 p-0 text-gray-500 hover:text-brand">
-                      <Eye size={16} />
+                    <Button variant="ghost" size="sm" onClick={() => router.push(`/dashboard/auditorias/${audit.id}`)} className="h-10 w-10 p-0 text-gray-500 hover:text-brand">
+                      <Eye size={20} />
                     </Button>
                   </TableCell>
                 </TableRow>
