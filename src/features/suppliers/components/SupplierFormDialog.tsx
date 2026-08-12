@@ -60,7 +60,7 @@ export function SupplierFormDialog({ open, onOpenChange, editing }: Props) {
             address: { street: '', number: '', complement: '', city: '', state: '', cep: '' } 
           }
     )
-  }, [editing, open])
+  }, [editing, open, form])
 
   // ViaCEP integration
   const watchCep = form.watch('address.cep')
