@@ -54,13 +54,32 @@ export const materialAuditsHandlers = [
     const url = new URL(request.url)
     const page = Number(url.searchParams.get('page') ?? 0)
     const size = Number(url.searchParams.get('size') ?? 10)
+    const startDate = url.searchParams.get('startDate')
+    const endDate = url.searchParams.get('endDate')
+    const status = url.searchParams.get('status')
+
+    let filtered = [...audits]
+
+    // Filter by status
+    if (status) {
+      filtered = filtered.filter(a => a.status === status)
+    }
+
+    // Filter by date range
+    if (startDate) {
+      const start = new Date(startDate).getTime()
+      filtered = filtered.filter(a => new Date(a.createdAt).getTime() >= start)
+    }
+    if (endDate) {
+      const end = new Date(endDate).getTime() + 86400000 // include the end date
+      filtered = filtered.filter(a => new Date(a.createdAt).getTime() <= end)
+    }
     
     // Sort desc by createdAt
-    const sorted = [...audits].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    const sorted = filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     
     const content = sorted.slice(page * size, page * size + size)
     
-    // We only need MaterialAudit fields for the list (stripping auditors and items is not strictly necessary for the mock, but good practice)
     return HttpResponse.json({
       data: content,
       meta: {

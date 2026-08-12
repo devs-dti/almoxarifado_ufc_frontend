@@ -41,10 +41,15 @@ export function CreateAuditDialog() {
       return
     }
 
+    if (selectedAuditors.length === 0) {
+      toast.error('Selecione pelo menos um auditor.')
+      return
+    }
+
     createAudit.mutate(
       {
         materialIds: selectedMaterials.map(String),
-        auditorIds: selectedAuditors.length > 0 ? selectedAuditors.map(String) : undefined,
+        auditorIds: selectedAuditors.map(String),
       },
       {
         onSuccess: () => {
@@ -109,7 +114,7 @@ export function CreateAuditDialog() {
           </div>
 
           <div className="space-y-3">
-            <h4 className="font-semibold text-sm">Selecione os Auditores (Opcional)</h4>
+            <h4 className="font-semibold text-sm">Selecione os Auditores <span className="text-red-500">*</span></h4>
             {loadingUsers ? (
               <p className="text-sm text-gray-500">Carregando...</p>
             ) : (
