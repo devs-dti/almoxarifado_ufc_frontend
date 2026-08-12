@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Pencil, Trash2, Plus, Layers } from 'lucide-react'
+import { Pencil, Trash2, Plus, Layers, Search } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -37,15 +37,18 @@ export function MaterialGroupList() {
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <h2 className="text-sm font-semibold text-gray-700 w-full sm:w-auto">Grupos de Materiais</h2>
         <div className="flex items-center gap-3 w-full sm:w-auto">
-          <Input 
-            placeholder="Buscar grupo..." 
-            className="rounded-xl h-9 text-sm"
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value)
-              setPage(0)
-            }}
-          />
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
+            <Input 
+              placeholder="Buscar grupo..." 
+              className="rounded-xl h-9 text-sm pl-8"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value)
+                setPage(0)
+              }}
+            />
+          </div>
           <Button onClick={() => { setEditing(null); setDialogOpen(true) }} className="gap-1.5 rounded-xl px-3 h-9 shrink-0" size="sm">
             <Plus size={15} />
             Novo
