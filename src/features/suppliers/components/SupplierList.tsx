@@ -54,7 +54,7 @@ export function SupplierList() {
       {!isLoading && suppliers.map((supplier) => (
         <div key={supplier.id} className="bg-white rounded-2xl border border-gray-100 px-4 py-3 flex items-start justify-between shadow-sm">
           <div className="flex flex-col gap-1 min-w-0">
-            <span className="font-semibold text-gray-900 text-sm">{supplier.name}</span>
+            <span className="font-semibold text-gray-900 text-sm">{supplier.corporateName}</span>
             {supplier.cnpj && <span className="text-xs text-gray-400 font-mono">{supplier.cnpj}</span>}
             <div className="flex items-center gap-3 flex-wrap">
               {supplier.email && (
