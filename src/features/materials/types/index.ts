@@ -1,8 +1,4 @@
-export type MaterialGroup = {
-  id: number
-  name: string
-  deletedAt?: string | null
-}
+import type { MaterialGroup } from '@/features/material-groups/types'
 
 export type MeasurementUnit = {
   id: number
@@ -26,7 +22,7 @@ export type CreateMaterialPayload = {
   name: string
   code: string
   minQuantity: number
-  groupId: number
+  groupId: string
   unitId: number
 }
 

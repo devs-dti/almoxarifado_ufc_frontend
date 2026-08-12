@@ -7,7 +7,6 @@ export const materialsKeys = {
   list: (params?: object) => ['materials', 'list', params] as const,
   detail: (id: number) => ['materials', id] as const,
   movements: (id: number) => ['materials', id, 'movements'] as const,
-  groups: () => ['material-groups'] as const,
   units: () => ['measurement-units'] as const,
 }
 
@@ -18,13 +17,6 @@ export function useMaterials(params?: Parameters<typeof materialsApi.list>[0]) {
   })
 }
 
-export function useMaterialGroups() {
-  return useQuery({
-    queryKey: materialsKeys.groups(),
-    queryFn: materialsApi.groups,
-    staleTime: Infinity,
-  })
-}
 
 export function useMeasurementUnits() {
   return useQuery({

@@ -2,7 +2,6 @@ import { httpClient } from '@/infrastructure/http/client'
 import type { PaginatedResponse, PageParams } from '@/shared/types/pagination'
 import type {
   Material,
-  MaterialGroup,
   MeasurementUnit,
   MaterialMovement,
   CreateMaterialPayload,
@@ -33,8 +32,6 @@ export const materialsApi = {
       .get<MaterialMovement[]>(`/materials/${id}/movements`)
       .then((r) => r.data),
 
-  groups: () =>
-    httpClient.get<MaterialGroup[]>('/material-groups').then((r) => r.data),
 
   units: () =>
     httpClient.get<MeasurementUnit[]>('/measurement-units').then((r) => r.data),
