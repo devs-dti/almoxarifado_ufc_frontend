@@ -62,6 +62,35 @@ export function SupplierFormDialog({ open, onOpenChange, editing }: Props) {
     )
   }, [editing, open])
 
+  // ViaCEP integration
+  const watchCep = form.watch('address.cep')
+  useEffect(() => {
+    const fetchCep = async (cep: string) => {
+      const cleanCep = cep.replace(/\D/g, '')
+      if (cleanCep.length === 8) {
+        try {
+          const res = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`)
+          const data = await res.json()
+          if (!data.erro) {
+            form.setValue('address.street', data.logradouro || '')
+            form.setValue('address.city', data.localidade || '')
+            form.setValue('address.state', data.uf || '')
+            // Set focus to number input
+            setTimeout(() => {
+              document.getElementsByName('address.number')[0]?.focus()
+            }, 100)
+          }
+        } catch (error) {
+          console.error('Erro ao buscar CEP:', error)
+        }
+      }
+    }
+    
+    if (watchCep && watchCep.length >= 9) {
+      fetchCep(watchCep)
+    }
+  }, [watchCep, form])
+
   async function onSubmit(data: SupplierFormData) {
     const payload = {
       corporateName: data.corporateName,
