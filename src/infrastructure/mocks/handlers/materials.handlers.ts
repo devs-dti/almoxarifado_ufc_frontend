@@ -21,7 +21,19 @@ const materials: Material[] = [
   { id: 4, name: 'Mouse USB', code: 'MOU-001', quantity: 15, minQuantity: 5, group: groups[2], unit: units[0] },
 ]
 
-let nextId = 5
+for (let i = 5; i <= 50; i++) {
+  materials.push({
+    id: i,
+    name: `Material de Teste ${i}`,
+    code: `MAT-${String(i).padStart(3, '0')}`,
+    quantity: Math.floor(Math.random() * 1000),
+    minQuantity: Math.floor(Math.random() * 100),
+    group: groups[i % 3],
+    unit: units[i % 4],
+  })
+}
+
+let nextId = 51
 
 export const materialsHandlers = [
   http.get('/materials', ({ request }) => {
