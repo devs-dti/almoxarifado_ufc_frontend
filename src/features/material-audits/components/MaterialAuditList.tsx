@@ -104,12 +104,12 @@ export function MaterialAuditList() {
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex items-start justify-between gap-4 w-full">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Auditorias de Materiais</h2>
-          <p className="text-sm text-gray-500">Gerencie e visualize as auditorias de estoque.</p>
+          <p className="text-sm text-gray-500 mt-1">Gerencie e visualize as auditorias de estoque.</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="shrink-0 mt-1 sm:mt-0">
           <CreateAuditDialog />
         </div>
       </div>
