@@ -113,6 +113,14 @@ export const materialsHandlers = [
     return HttpResponse.json(groups[idx])
   }),
   http.delete('/material-groups/:id', ({ params }) => {
+    const isLinked = materials.some((m) => m.group.id === params.id && !m.deletedAt)
+    if (isLinked) {
+      return HttpResponse.json(
+        { message: 'Não é possível remover o grupo, pois existem materiais vinculados a ele.' },
+        { status: 409 }
+      )
+    }
+
     const idx = groups.findIndex((g) => g.id === params.id)
     if (idx !== -1) groups.splice(idx, 1)
     return new HttpResponse(null, { status: 204 })
