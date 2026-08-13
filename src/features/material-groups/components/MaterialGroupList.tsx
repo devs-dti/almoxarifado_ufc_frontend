@@ -25,8 +25,9 @@ export function MaterialGroupList() {
     try {
       await deleteMutation.mutateAsync(id)
       toast.success('Grupo removido.')
-    } catch {
-      toast.error('Erro ao remover grupo.')
+    } catch (error: any) {
+      const message = error.response?.data?.message || 'Não foi possível remover. O grupo pode estar vinculado a um ou mais materiais.'
+      toast.error(message)
     } finally {
       setDeletingId(null)
     }
