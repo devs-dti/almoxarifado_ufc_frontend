@@ -40,7 +40,7 @@ export function AuditListFilters({
 
   return (
     <div className="bg-white border rounded-2xl p-4 shadow-sm flex flex-col gap-3">
-      <h3 className="text-sm font-semibold text-gray-800">Filtros de Busca e Download</h3>
+      <h3 className="text-sm font-semibold text-gray-800">Filtros de Busca</h3>
       <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3">
         <div className="flex flex-col gap-1.5 flex-1 min-w-[130px]">
           <label className="text-xs font-medium text-gray-500">Data Inicial</label>
@@ -87,14 +87,17 @@ export function AuditListFilters({
           </Button>
         )}
 
-        <div className="hidden sm:block w-px h-9 bg-gray-200 mx-1" />
-
-        <Button variant="outline" size="sm" onClick={onExportPdf} className="h-9 gap-2 shrink-0 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700">
-          <PdfIcon className="text-lg" /> {hasFilters ? 'PDF (Filtrado)' : 'PDF'}
-        </Button>
-        <Button variant="outline" size="sm" onClick={onExportExcel} className="h-9 gap-2 shrink-0 text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700">
-          <ExcelIcon className="text-lg" /> {hasFilters ? 'Excel (Filtrado)' : 'Excel'}
-        </Button>
+        <div className="flex flex-col gap-1.5 shrink-0 ml-auto sm:ml-2">
+          <label className="text-xs font-medium text-gray-500">Downloads</label>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" size="sm" onClick={onExportPdf} className="h-9 gap-2 shrink-0 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700">
+              <PdfIcon className="text-lg" /> {hasFilters ? 'PDF (Filtrado)' : 'PDF'}
+            </Button>
+            <Button variant="outline" size="sm" onClick={onExportExcel} className="h-9 gap-2 shrink-0 text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700">
+              <ExcelIcon className="text-lg" /> {hasFilters ? 'Excel (Filtrado)' : 'Excel'}
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   )

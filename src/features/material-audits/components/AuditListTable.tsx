@@ -18,10 +18,10 @@ import { Badge } from '@/components/ui/badge'
 import { PdfIcon, ExcelIcon } from './ExportIcons'
 import type { MaterialAudit, AuditStatus } from '../types'
 
-const statusMap: Record<AuditStatus, { label: string; variant: 'default' | 'secondary' | 'destructive' }> = {
-  IN_PROGRESS: { label: 'Em Andamento', variant: 'default' },
-  FINALIZED: { label: 'Finalizada', variant: 'secondary' },
-  CANCELED: { label: 'Cancelada', variant: 'destructive' },
+const statusMap: Record<AuditStatus, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'warning' | 'success' | 'error' }> = {
+  IN_PROGRESS: { label: 'Em Andamento', variant: 'warning' },
+  FINALIZED: { label: 'Finalizada', variant: 'success' },
+  CANCELED: { label: 'Cancelada', variant: 'error' },
 }
 
 interface AuditListTableProps {
@@ -86,15 +86,16 @@ export function AuditListTable({
                 </TableCell>
                 <TableCell className="text-right pr-6">
                   <div className="flex items-center justify-end gap-1">
+                    <Button variant="ghost" size="sm" onClick={() => router.push(`/dashboard/auditorias/${audit.id}`)} className="h-9 w-9 p-0 text-gray-400 hover:bg-gray-100 hover:text-brand" title="Ver Detalhes">
+                      <Eye size={20} />
+                    </Button>
                     <Button variant="ghost" size="sm" onClick={() => onExportIndividualPdf(audit.id)} className="h-9 w-9 p-0 text-red-600 hover:bg-red-50 hover:text-red-700" title="Baixar PDF">
                       <PdfIcon className="text-lg" />
                     </Button>
                     <Button variant="ghost" size="sm" onClick={() => onExportIndividualExcel(audit.id)} className="h-9 w-9 p-0 text-green-600 hover:bg-green-50 hover:text-green-700" title="Baixar Excel">
                       <ExcelIcon className="text-lg" />
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={() => router.push(`/dashboard/auditorias/${audit.id}`)} className="h-9 w-9 p-0 text-gray-400 hover:bg-gray-100 hover:text-brand" title="Ver Detalhes">
-                      <Eye size={20} />
-                    </Button>
+                    
                   </div>
                 </TableCell>
               </TableRow>

@@ -32,10 +32,10 @@ interface Props {
   id: string
 }
 
-const statusMap: Record<AuditStatus, { label: string; variant: 'default' | 'secondary' | 'destructive' }> = {
-  IN_PROGRESS: { label: 'Em Andamento', variant: 'default' },
-  FINALIZED: { label: 'Finalizada', variant: 'secondary' },
-  CANCELED: { label: 'Cancelada', variant: 'destructive' },
+const statusMap: Record<AuditStatus, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'warning' | 'success' | 'error' }> = {
+  IN_PROGRESS: { label: 'Em Andamento', variant: 'warning' },
+  FINALIZED: { label: 'Finalizada', variant: 'success' },
+  CANCELED: { label: 'Cancelada', variant: 'error' },
 }
 
 export function AuditDetails({ id }: Props) {
@@ -137,7 +137,7 @@ export function AuditDetails({ id }: Props) {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex">
-        <Button variant="default" size="sm" onClick={() => router.push('/dashboard/auditorias')} className="shrink-0 h-10 w-10 p-0 rounded-full bg-brand text-white hover:bg-brand/90 shadow-sm transition-colors">
+        <Button variant="ghost" size="sm" onClick={() => router.push('/dashboard/auditorias')} className="shrink-0 h-10 w-10 p-0 rounded-full !bg-purple-100 text-gray-900 hover:!bg-purple-200 hover:text-black shadow-sm transition-colors">
           <ArrowLeft size={20} />
         </Button>
       </div>
