@@ -1,20 +1,22 @@
 import { httpClient as api } from '@/infrastructure/http/client'
-import type { Transfer, CreateTransferPayload, ApproveTransferPayload, UpdateTransferStatusPayload } from '../types'
-import type { PaginatedResponse, PageParams } from '@/shared/types/pagination'
+import { unwrapPage } from '@/shared/lib/pagination'
+import type { EntityId } from '@/shared/types/id'
+import type { PageLike, PageParams } from '@/shared/types/pagination'
+import type { Transfer, CreateTransferPayload, ApproveTransferPayload, DisapproveTransferPayload } from '../types'
 
 export const transfersApi = {
   list: (params?: PageParams & { status?: string }) =>
-    api.get<PaginatedResponse<Transfer>>('/transfers', { params }).then((r) => r.data),
+    api.get<PageLike<Transfer>>('/transfers', { params }).then((r) => unwrapPage(r.data)),
 
-  get: (id: number) =>
+  get: (id: EntityId) =>
     api.get<Transfer>(`/transfers/${id}`).then((r) => r.data),
 
   create: (data: CreateTransferPayload) =>
     api.post<Transfer>('/transfers', data).then((r) => r.data),
 
-  approve: (id: number, data: ApproveTransferPayload) =>
+  approve: (id: EntityId, data: ApproveTransferPayload) =>
     api.patch<Transfer>(`/transfers/${id}/approve`, data).then((r) => r.data),
 
-  updateStatus: (id: number, data: UpdateTransferStatusPayload) =>
-    api.patch<Transfer>(`/transfers/${id}/status`, data).then((r) => r.data),
+  disapprove: (id: EntityId, data?: DisapproveTransferPayload) =>
+    api.patch<void>(`/transfers/${id}/disapprove`, data).then((r) => r.data),
 }

@@ -29,8 +29,8 @@ export function MaterialAuditList() {
     ...(statusFilter && { status: statusFilter as AuditStatus }),
   })
 
-  const audits = pageData?.data || []
-  const totalPages = pageData?.meta.totalPages || 0
+  const audits = pageData?.content || []
+  const totalPages = pageData?.totalPages || 0
 
   function clearFilters() {
     setStartDate('')
@@ -165,6 +165,5 @@ export function MaterialAuditList() {
     </div>
   )
 }
-
 
 

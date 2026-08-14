@@ -1,5 +1,6 @@
 import { httpClient } from '@/infrastructure/http/client'
-import type { PaginatedResponse, PageParams } from '@/shared/types/pagination'
+import { unwrapPage } from '@/shared/lib/pagination'
+import type { PageLike, PageParams } from '@/shared/types/pagination'
 import type {
   MaterialAudit,
   MaterialAuditDetails,
@@ -18,8 +19,8 @@ export type MaterialAuditListParams = PageParams & {
 export const materialAuditsApi = {
   list: (params?: MaterialAuditListParams) =>
     httpClient
-      .get<PaginatedResponse<MaterialAudit>>('/material-audits', { params })
-      .then((r) => r.data),
+      .get<PageLike<MaterialAudit>>('/material-audits', { params })
+      .then((r) => unwrapPage(r.data)),
 
   get: (id: string) =>
     httpClient

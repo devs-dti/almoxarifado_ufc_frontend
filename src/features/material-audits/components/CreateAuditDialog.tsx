@@ -20,11 +20,12 @@ import { Input } from '@/components/ui/input'
 import { useCreateMaterialAudit } from '../hooks'
 import { useMaterials } from '@/features/materials/hooks'
 import { useUsers } from '@/features/users/hooks'
+import type { EntityId } from '@/shared/types/id'
 
 export function CreateAuditDialog() {
   const [open, setOpen] = useState(false)
-  const [selectedMaterials, setSelectedMaterials] = useState<number[]>([])
-  const [selectedAuditors, setSelectedAuditors] = useState<number[]>([])
+  const [selectedMaterials, setSelectedMaterials] = useState<EntityId[]>([])
+  const [selectedAuditors, setSelectedAuditors] = useState<EntityId[]>([])
   const [searchMaterial, setSearchMaterial] = useState('')
 
   const { data: materialsData, isLoading: loadingMaterials } = useMaterials({ size: 1000 })
@@ -32,8 +33,8 @@ export function CreateAuditDialog() {
   
   const createAudit = useCreateMaterialAudit()
 
-  const materials = materialsData?.data || []
-  const users = usersData?.data || []
+  const materials = materialsData?.content || []
+  const users = usersData?.content || []
 
   const filteredMaterials = materials.filter(m => 
     m.name.toLowerCase().includes(searchMaterial.toLowerCase())
@@ -54,8 +55,8 @@ export function CreateAuditDialog() {
 
     createAudit.mutate(
       {
-        materialIds: selectedMaterials.map(String),
-        auditorIds: selectedAuditors.map(String),
+        materialIds: selectedMaterials,
+        auditorIds: selectedAuditors,
       },
       {
         onSuccess: () => {
@@ -72,13 +73,13 @@ export function CreateAuditDialog() {
     )
   }
 
-  function toggleMaterial(id: number) {
+  function toggleMaterial(id: EntityId) {
     setSelectedMaterials((prev) =>
       prev.includes(id) ? prev.filter((mId) => mId !== id) : [...prev, id]
     )
   }
 
-  function toggleAuditor(id: number) {
+  function toggleAuditor(id: EntityId) {
     setSelectedAuditors((prev) =>
       prev.includes(id) ? prev.filter((uId) => uId !== id) : [...prev, id]
     )

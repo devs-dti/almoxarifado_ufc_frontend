@@ -4,6 +4,9 @@ import { useState } from 'react'
 import { Pencil, Trash2, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import type { EntityId } from '@/shared/types/id'
+import { hasAnyRole } from '@/shared/lib/rbac'
+import { useAuthStore } from '@/store/useAuthStore'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,7 +24,9 @@ import type { Sector } from '../types'
 export function SectorList() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editing, setEditing] = useState<Sector | null>(null)
-  const [deletingId, setDeletingId] = useState<number | null>(null)
+  const [deletingId, setDeletingId] = useState<EntityId | null>(null)
+  const role = useAuthStore((s) => s.user?.role)
+  const canManage = hasAnyRole(role, ['ADMIN', 'MANAGER'])
 
   const { data: sectors = [], isLoading, isError } = useSectors()
   const deleteMutation = useDeleteSector()
@@ -42,10 +47,12 @@ export function SectorList() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Setores</h2>
-        <Button onClick={() => { setEditing(null); setDialogOpen(true) }} className="gap-1.5 rounded-xl px-3" size="sm">
-          <Plus size={15} />
-          Novo
-        </Button>
+        {canManage && (
+          <Button onClick={() => { setEditing(null); setDialogOpen(true) }} className="gap-1.5 rounded-xl px-3" size="sm">
+            <Plus size={15} />
+            Novo
+          </Button>
+        )}
       </div>
 
       {isLoading && (
@@ -68,24 +75,28 @@ export function SectorList() {
             <span className="font-semibold text-gray-900 text-sm">{sector.name}</span>
             {sector.description && <span className="text-xs text-gray-400">{sector.description}</span>}
           </div>
-          <div className="flex items-center gap-1 shrink-0 ml-2">
-            <button onClick={() => { setEditing(sector); setDialogOpen(true) }} className="p-2 rounded-xl text-gray-400 hover:text-brand hover:bg-purple-50 transition-colors" aria-label="Editar">
-              <Pencil size={15} />
-            </button>
-            <button onClick={() => setDeletingId(sector.id)} className="p-2 rounded-xl text-gray-400 hover:text-destructive hover:bg-red-50 transition-colors" aria-label="Remover">
-              <Trash2 size={15} />
-            </button>
-          </div>
+          {canManage && (
+            <div className="flex items-center gap-1 shrink-0 ml-2">
+              <button onClick={() => { setEditing(sector); setDialogOpen(true) }} className="p-2 rounded-xl text-gray-400 hover:text-brand hover:bg-purple-50 transition-colors" aria-label="Editar">
+                <Pencil size={15} />
+              </button>
+              <button onClick={() => setDeletingId(sector.id)} className="p-2 rounded-xl text-gray-400 hover:text-destructive hover:bg-red-50 transition-colors" aria-label="Remover">
+                <Trash2 size={15} />
+              </button>
+            </div>
+          )}
         </div>
       ))}
 
-      <SectorFormDialog
-        open={dialogOpen}
-        onOpenChange={(v) => { setDialogOpen(v); if (!v) setEditing(null) }}
-        editing={editing}
-      />
+      {canManage && (
+        <SectorFormDialog
+          open={dialogOpen}
+          onOpenChange={(v) => { setDialogOpen(v); if (!v) setEditing(null) }}
+          editing={editing}
+        />
+      )}
 
-      <AlertDialog open={deletingId !== null} onOpenChange={(v) => { if (!v) setDeletingId(null) }}>
+      <AlertDialog open={canManage && deletingId !== null} onOpenChange={(v) => { if (!v) setDeletingId(null) }}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Remover setor</AlertDialogTitle>

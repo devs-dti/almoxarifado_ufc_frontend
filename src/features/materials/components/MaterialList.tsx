@@ -11,6 +11,8 @@ import { useMaterials } from '../hooks'
 import { MaterialFormDialog } from './MaterialFormDialog'
 import { DeleteMaterialDialog } from './DeleteMaterialDialog'
 import { MATERIALS_PAGE_SIZE, MATERIALS_SKELETON_COUNT } from '../constants'
+import { hasAnyRole } from '@/shared/lib/rbac'
+import { useAuthStore } from '@/store/useAuthStore'
 import type { Material } from '../types'
 
 export function MaterialList() {
@@ -21,6 +23,9 @@ export function MaterialList() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editing, setEditing] = useState<Material | null>(null)
   const [deleting, setDeleting] = useState<Material | null>(null)
+  const role = useAuthStore((s) => s.user?.role)
+  const canWrite = hasAnyRole(role, ['ADMIN', 'MANAGER'])
+  const canDelete = hasAnyRole(role, ['ADMIN'])
 
   const { data: pageData, isLoading, isError } = useMaterials({
     page,
@@ -28,8 +33,8 @@ export function MaterialList() {
     name: debouncedSearch || undefined,
   })
 
-  const materials = pageData?.data || []
-  const totalPages = pageData?.meta.totalPages || 0
+  const materials = pageData?.content ?? []
+  const totalPages = pageData?.totalPages ?? 0
 
   function handleEdit(m: Material) {
     setEditing(m)
@@ -47,12 +52,14 @@ export function MaterialList() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Materiais</h2>
+          {canWrite && (
           <div className="md:hidden">
             <Button onClick={handleNew} className="gap-1.5 rounded-xl px-3 bg-brand hover:bg-brand/90 shrink-0" size="sm">
               <Plus size={15} />
               Novo
             </Button>
           </div>
+          )}
         </div>
         
         <div className="flex items-center gap-3 w-full md:w-auto">
@@ -65,12 +72,14 @@ export function MaterialList() {
               className="pl-8 h-8 rounded-lg text-xs w-full"
             />
           </div>
+          {canWrite && (
           <div className="hidden md:block">
             <Button onClick={handleNew} className="gap-1.5 rounded-xl px-3 bg-brand hover:bg-brand/90 shrink-0" size="sm">
               <Plus size={15} />
               Novo
             </Button>
           </div>
+          )}
         </div>
       </div>
 
@@ -124,22 +133,28 @@ export function MaterialList() {
               </div>
             </div>
 
-            <div className="flex items-center gap-1 shrink-0 ml-2">
-              <button
-                onClick={() => handleEdit(m)}
-                className="p-2 rounded-xl text-gray-400 hover:text-brand hover:bg-purple-50 transition-colors"
-                aria-label="Editar material"
-              >
-                <Pencil size={15} />
-              </button>
-              <button
-                onClick={() => setDeleting(m)}
-                className="p-2 rounded-xl text-gray-400 hover:text-destructive hover:bg-red-50 transition-colors"
-                aria-label="Remover material"
-              >
-                <Trash2 size={15} />
-              </button>
-            </div>
+            {(canWrite || canDelete) && (
+              <div className="flex items-center gap-1 shrink-0 ml-2">
+                {canWrite && (
+                  <button
+                    onClick={() => handleEdit(m)}
+                    className="p-2 rounded-xl text-gray-400 hover:text-brand hover:bg-purple-50 transition-colors"
+                    aria-label="Editar material"
+                  >
+                    <Pencil size={15} />
+                  </button>
+                )}
+                {canDelete && (
+                  <button
+                    onClick={() => setDeleting(m)}
+                    className="p-2 rounded-xl text-gray-400 hover:text-destructive hover:bg-red-50 transition-colors"
+                    aria-label="Remover material"
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         )
       })}
@@ -168,16 +183,20 @@ export function MaterialList() {
         </div>
       )}
 
-      <MaterialFormDialog
-        open={dialogOpen}
-        onOpenChange={(v) => { setDialogOpen(v); if (!v) setEditing(null) }}
-        editing={editing}
-      />
+      {canWrite && (
+        <MaterialFormDialog
+          open={dialogOpen}
+          onOpenChange={(v) => { setDialogOpen(v); if (!v) setEditing(null) }}
+          editing={editing}
+        />
+      )}
 
-      <DeleteMaterialDialog
-        material={deleting}
-        onOpenChange={(v) => { if (!v) setDeleting(null) }}
-      />
+      {canDelete && (
+        <DeleteMaterialDialog
+          material={deleting}
+          onOpenChange={(v) => { if (!v) setDeleting(null) }}
+        />
+      )}
     </div>
   )
 }

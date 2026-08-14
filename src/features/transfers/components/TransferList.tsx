@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { Plus, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { hasAnyRole } from '@/shared/lib/rbac'
+import { useAuthStore } from '@/store/useAuthStore'
 import { useTransfers } from '../hooks'
 import { TransferAccordion } from './TransferAccordion'
 import { CreateTransferDialog } from './CreateTransferDialog'
@@ -12,19 +14,23 @@ const PAGE_SIZE = 10
 export function TransferList() {
   const [page, setPage] = useState(0)
   const [createOpen, setCreateOpen] = useState(false)
+  const role = useAuthStore((s) => s.user?.role)
+  const canCreate = hasAnyRole(role, ['ADMIN', 'MANAGER', 'STAFF'])
 
   const { data, isLoading, isError } = useTransfers({ page, size: PAGE_SIZE })
-  const transfers = data?.data ?? []
-  const totalPages = data?.meta.totalPages ?? 0
+  const transfers = data?.content ?? []
+  const totalPages = data?.totalPages ?? 0
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Transferências</h2>
-        <Button onClick={() => setCreateOpen(true)} className="gap-1.5 rounded-xl px-3" size="sm">
-          <Plus size={15} />
-          Nova
-        </Button>
+        {canCreate && (
+          <Button onClick={() => setCreateOpen(true)} className="gap-1.5 rounded-xl px-3" size="sm">
+            <Plus size={15} />
+            Nova
+          </Button>
+        )}
       </div>
 
       {isLoading && (
@@ -73,7 +79,7 @@ export function TransferList() {
         </div>
       )}
 
-      <CreateTransferDialog open={createOpen} onOpenChange={setCreateOpen} />
+      {canCreate && <CreateTransferDialog open={createOpen} onOpenChange={setCreateOpen} />}
     </div>
   )
 }

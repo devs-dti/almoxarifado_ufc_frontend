@@ -5,6 +5,9 @@ import { Pencil, Trash2, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import type { EntityId } from '@/shared/types/id'
+import { hasAnyRole } from '@/shared/lib/rbac'
+import { useAuthStore } from '@/store/useAuthStore'
 import { useMeasurementUnitsList, useDeleteUnit } from '../hooks'
 import { UnitFormDialog } from './UnitFormDialog'
 import type { MeasurementUnit } from '../types'
@@ -12,12 +15,14 @@ import type { MeasurementUnit } from '../types'
 export function UnitList() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editing, setEditing] = useState<MeasurementUnit | null>(null)
-  const [deletingId, setDeletingId] = useState<number | null>(null)
+  const [deletingId, setDeletingId] = useState<EntityId | null>(null)
+  const role = useAuthStore((s) => s.user?.role)
+  const canManage = hasAnyRole(role, ['ADMIN', 'MANAGER'])
 
   const { data: units = [], isLoading, isError } = useMeasurementUnitsList()
   const deleteMutation = useDeleteUnit()
 
-  async function handleDelete(id: number) {
+  async function handleDelete(id: EntityId) {
     try {
       await deleteMutation.mutateAsync(id)
       toast.success('Unidade removida.')
@@ -32,10 +37,12 @@ export function UnitList() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Unidades de Medida</h2>
-        <Button onClick={() => { setEditing(null); setDialogOpen(true) }} className="gap-1.5 rounded-xl px-3" size="sm">
-          <Plus size={15} />
-          Nova
-        </Button>
+        {canManage && (
+          <Button onClick={() => { setEditing(null); setDialogOpen(true) }} className="gap-1.5 rounded-xl px-3" size="sm">
+            <Plus size={15} />
+            Nova
+          </Button>
+        )}
       </div>
 
       {isLoading && (
@@ -58,6 +65,7 @@ export function UnitList() {
             <Badge variant="secondary" className="text-[11px] rounded-full font-mono">{unit.abbreviation}</Badge>
             <span className="font-medium text-gray-900 text-sm">{unit.name}</span>
           </div>
+          {canManage && (
           <div className="flex items-center gap-1 shrink-0 ml-2">
             {deletingId === unit.id ? (
               <div className="flex items-center gap-1">
@@ -76,14 +84,17 @@ export function UnitList() {
               </>
             )}
           </div>
+          )}
         </div>
       ))}
 
-      <UnitFormDialog
-        open={dialogOpen}
-        onOpenChange={(v) => { setDialogOpen(v); if (!v) setEditing(null) }}
-        editing={editing}
-      />
+      {canManage && (
+        <UnitFormDialog
+          open={dialogOpen}
+          onOpenChange={(v) => { setDialogOpen(v); if (!v) setEditing(null) }}
+          editing={editing}
+        />
+      )}
     </div>
   )
 }
