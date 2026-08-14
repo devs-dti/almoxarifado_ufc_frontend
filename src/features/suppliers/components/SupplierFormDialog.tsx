@@ -26,22 +26,22 @@ export function SupplierFormDialog({ open, onOpenChange, editing }: Props) {
 
   const form = useForm<SupplierFormData>({
     resolver: zodResolver(supplierSchema),
-    defaultValues: { 
-      corporateName: '', 
-      cnpj: '', 
-      email: '', 
-      phone: '', 
-      address: { street: '', number: '', complement: '', city: '', state: '', cep: '' } 
+    defaultValues: {
+      corporateName: '',
+      cnpj: '',
+      email: '',
+      phone: '',
+      address: { street: '', number: '', complement: '', city: '', state: '', cep: '' }
     },
   })
 
   useEffect(() => {
     form.reset(
       editing
-        ? { 
-            corporateName: editing.corporateName, 
-            cnpj: editing.cnpj ?? '', 
-            email: editing.email ?? '', 
+        ? {
+            corporateName: editing.corporateName,
+            cnpj: editing.cnpj ?? '',
+            email: editing.email ?? '',
             phone: editing.phone ?? '',
             address: {
               street: editing.address?.street ?? '',
@@ -52,12 +52,12 @@ export function SupplierFormDialog({ open, onOpenChange, editing }: Props) {
               cep: editing.address?.cep ?? ''
             }
           }
-        : { 
-            corporateName: '', 
-            cnpj: '', 
-            email: '', 
-            phone: '', 
-            address: { street: '', number: '', complement: '', city: '', state: '', cep: '' } 
+        : {
+            corporateName: '',
+            cnpj: '',
+            email: '',
+            phone: '',
+            address: { street: '', number: '', complement: '', city: '', state: '', cep: '' }
           }
     )
   }, [editing, open, form])
@@ -85,7 +85,7 @@ export function SupplierFormDialog({ open, onOpenChange, editing }: Props) {
         }
       }
     }
-    
+
     if (watchCep && watchCep.length >= 9) {
       fetchCep(watchCep)
     }

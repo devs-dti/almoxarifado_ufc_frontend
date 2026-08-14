@@ -1,41 +1,37 @@
 import { httpClient } from '@/infrastructure/http/client'
-import type { PaginatedResponse, PageParams } from '@/shared/types/pagination'
+import { unwrapPage } from '@/shared/lib/pagination'
+import type { PageLike, PageParams } from '@/shared/types/pagination'
+import type { EntityId } from '@/shared/types/id'
 import type {
   Material,
   MaterialGroup,
   MeasurementUnit,
-  MaterialMovement,
   CreateMaterialPayload,
   UpdateMaterialPayload,
 } from '../types'
 
-type MaterialListParams = PageParams & { name?: string; groupId?: number }
+type MaterialListParams = PageParams & { name?: string; groupId?: EntityId }
 
 export const materialsApi = {
   list: (params?: MaterialListParams) =>
     httpClient
-      .get<PaginatedResponse<Material>>('/materials', { params })
-      .then((r) => r.data),
+      .get<PageLike<Material>>('/materials', { params })
+      .then((r) => unwrapPage(r.data)),
 
-  get: (id: number) =>
+  get: (id: EntityId) =>
     httpClient.get<Material>(`/materials/${id}`).then((r) => r.data),
 
   create: (data: CreateMaterialPayload) =>
     httpClient.post<Material>('/materials', data).then((r) => r.data),
 
-  update: (id: number, data: UpdateMaterialPayload) =>
+  update: (id: EntityId, data: UpdateMaterialPayload) =>
     httpClient.patch<Material>(`/materials/${id}`, data).then((r) => r.data),
 
-  delete: (id: number) => httpClient.delete(`/materials/${id}`),
-
-  movements: (id: number) =>
-    httpClient
-      .get<MaterialMovement[]>(`/materials/${id}/movements`)
-      .then((r) => r.data),
+  delete: (id: EntityId) => httpClient.delete(`/materials/${id}`),
 
   groups: () =>
-    httpClient.get<MaterialGroup[]>('/material-groups').then((r) => r.data),
+    httpClient.get<PageLike<MaterialGroup>>('/material-groups').then((r) => unwrapPage(r.data).content),
 
   units: () =>
-    httpClient.get<MeasurementUnit[]>('/measurement-units').then((r) => r.data),
+    httpClient.get<PageLike<MeasurementUnit>>('/measurement-units').then((r) => unwrapPage(r.data).content),
 }

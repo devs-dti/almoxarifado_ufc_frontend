@@ -38,7 +38,7 @@ export function ApproveTransferDialog({ transfer, onOpenChange }: Props) {
     resolver: zodResolver(approveTransferSchema),
     values: {
       items: transfer?.items.map((item) => ({
-        itemId: item.id,
+        transferItemId: item.id,
         approvedQuantity: item.requestedQuantity,
       })) ?? [],
     },

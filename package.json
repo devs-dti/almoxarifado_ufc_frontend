@@ -9,6 +9,8 @@
     "lint": "eslint . --config ./config/eslint.config.mjs",
     "lint:fix": "eslint . --config ./config/eslint.config.mjs --fix",
     "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:run": "vitest run",
     "prepare": "husky"
   },
   "dependencies": {

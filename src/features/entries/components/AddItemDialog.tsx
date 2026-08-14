@@ -29,23 +29,24 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useMaterials } from '@/features/materials/hooks'
+import type { EntityId } from '@/shared/types/id'
 import { useAddEntryItem } from '../hooks'
 import { addItemSchema, type AddItemValues } from '../schemas'
 
 type Props = {
-  entryId: number
+  entryId: EntityId
   open: boolean
   onOpenChange: (v: boolean) => void
 }
 
 export function AddItemDialog({ entryId, open, onOpenChange }: Props) {
   const { data: materialsPage } = useMaterials({ page: 0, size: 100 })
-  const materials = materialsPage?.data ?? []
+  const materials = materialsPage?.content ?? []
   const addItem = useAddEntryItem()
 
   const form = useForm<AddItemValues>({
     resolver: zodResolver(addItemSchema),
-    defaultValues: { materialId: 0, quantity: 1, unitPrice: 0, expiresAt: '' },
+    defaultValues: { materialId: '', quantity: 1, unitPrice: 0, expiresAt: '' },
   })
 
   async function onSubmit(data: AddItemValues) {
@@ -81,8 +82,8 @@ export function AddItemDialog({ entryId, open, onOpenChange }: Props) {
                 <FormItem>
                   <FormLabel>Material</FormLabel>
                   <Select
-                    value={field.value ? String(field.value) : ''}
-                    onValueChange={(v) => field.onChange(Number(v))}
+                    value={field.value}
+                    onValueChange={field.onChange}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -91,7 +92,7 @@ export function AddItemDialog({ entryId, open, onOpenChange }: Props) {
                     </FormControl>
                     <SelectContent>
                       {materials.map((m) => (
-                        <SelectItem key={m.id} value={String(m.id)}>
+                        <SelectItem key={m.id} value={m.id}>
                           {m.name}
                         </SelectItem>
                       ))}

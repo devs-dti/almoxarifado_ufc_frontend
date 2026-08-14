@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import type { EntityId } from '@/shared/types/id'
 import { suppliersApi } from '../api'
 import type { CreateSupplierPayload, UpdateSupplierPayload } from '../types'
 
@@ -8,7 +9,7 @@ export const suppliersKeys = {
 }
 
 export function useSuppliers() {
-  return useQuery({ queryKey: suppliersKeys.list(), queryFn: suppliersApi.list })
+  return useQuery({ queryKey: suppliersKeys.list(), queryFn: () => suppliersApi.list() })
 }
 
 export function useCreateSupplier() {
@@ -22,7 +23,7 @@ export function useCreateSupplier() {
 export function useUpdateSupplier() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: UpdateSupplierPayload }) => suppliersApi.update(id, data),
+    mutationFn: ({ id, data }: { id: EntityId; data: UpdateSupplierPayload }) => suppliersApi.update(id, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: suppliersKeys.all }),
   })
 }
@@ -30,7 +31,7 @@ export function useUpdateSupplier() {
 export function useDeleteSupplier() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (id: number) => suppliersApi.delete(id),
+    mutationFn: (id: EntityId) => suppliersApi.delete(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: suppliersKeys.all }),
   })
 }

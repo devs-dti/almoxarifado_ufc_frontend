@@ -1,12 +1,13 @@
 import { http, HttpResponse } from 'msw'
+import { mockId } from '../utils'
 
 export const reportsHandlers = [
   http.get('/reports/materials/inventory', () =>
     HttpResponse.json({
       materials: [
-        { materialId: 1, materialName: 'Papel A4', code: 'PAP-001', quantity: 500, totalValue: 12950, abcCurve: 'A' },
-        { materialId: 2, materialName: 'Caneta Azul', code: 'CAN-001', quantity: 80, totalValue: 240, abcCurve: 'C' },
-        { materialId: 3, materialName: 'Detergente 500ml', code: 'DET-001', quantity: 20, totalValue: 300, abcCurve: 'B' },
+        { materialId: mockId(41), materialName: 'Papel A4', code: 'PAP-001', quantity: 500, totalValue: 12950, abcCurve: 'A' },
+        { materialId: mockId(42), materialName: 'Caneta Azul', code: 'CAN-001', quantity: 80, totalValue: 240, abcCurve: 'C' },
+        { materialId: mockId(43), materialName: 'Detergente 500ml', code: 'DET-001', quantity: 20, totalValue: 300, abcCurve: 'B' },
       ],
       totalValue: 13490,
       generatedAt: new Date().toISOString(),
@@ -16,7 +17,7 @@ export const reportsHandlers = [
   http.get('/reports/materials/low-stock', () =>
     HttpResponse.json({
       materials: [
-        { materialId: 3, materialName: 'Detergente 500ml', code: 'DET-001', quantity: 20, minQuantity: 30 },
+        { materialId: mockId(43), materialName: 'Detergente 500ml', code: 'DET-001', quantity: 20, minQuantity: 30 },
       ],
     })
   ),
@@ -26,7 +27,7 @@ export const reportsHandlers = [
     const days = url.searchParams.get('days') ?? '30'
     return HttpResponse.json({
       lots: [
-        { lotId: 1, lotCode: 'LOT-001', materialId: 1, materialName: 'Papel A4', quantity: 100, expiresAt: '2025-07-15', daysUntilExpiry: Number(days) - 5 },
+        { lotId: mockId(71), lotCode: 'LOT-001', materialId: mockId(41), materialName: 'Papel A4', quantity: 100, expiresAt: '2025-07-15', daysUntilExpiry: Number(days) - 5 },
       ],
     })
   }),
@@ -36,10 +37,10 @@ export const reportsHandlers = [
       totalEntries: 3,
       totalValue: 15200,
       bySupplier: [
-        { supplierId: 1, supplierName: 'Papelaria Central', totalValue: 12950 },
+        { supplierId: mockId(1), supplierName: 'Papelaria Central', totalValue: 12950 },
       ],
       byGroup: [
-        { groupId: 1, groupName: 'Papelaria', totalValue: 12950 },
+        { groupId: mockId(21), groupName: 'Papelaria', totalValue: 12950 },
       ],
     })
   ),
@@ -48,8 +49,8 @@ export const reportsHandlers = [
     HttpResponse.json({
       totalTransfers: 5,
       bySector: [
-        { sectorId: 1, sectorName: 'TI', itemsConsumed: 50, totalCost: 1295 },
-        { sectorId: 2, sectorName: 'Administrativo', itemsConsumed: 30, totalCost: 450 },
+        { sectorId: mockId(1), sectorName: 'TI', itemsConsumed: 50, totalCost: 1295 },
+        { sectorId: mockId(2), sectorName: 'Administrativo', itemsConsumed: 30, totalCost: 450 },
       ],
     })
   ),

@@ -1,13 +1,15 @@
+import type { EntityId } from '@/shared/types/id'
+
 export type EntryStatus = 'PENDING' | 'FINISHED' | 'CANCELED'
 export type EntryType = 'SUPPLIER' | 'DONATION' | 'RETURN'
 
 export type EntryItem = {
-  id: number
-  materialId: number
+  id: EntityId
+  materialId: EntityId
   materialName: string
   quantity: number
   unitPrice: number
-  lotId?: number
+  lotId?: EntityId
   lotCode?: string
   expiresAt?: string | null
 }
@@ -19,12 +21,12 @@ export type EntryInvoice = {
 }
 
 export type Entry = {
-  id: number
+  id: EntityId
   status: EntryStatus
   type: EntryType
-  supplierId?: number
+  supplierId?: EntityId
   supplierName?: string
-  contractId?: number
+  contractId?: EntityId
   responsible?: string
   invoice?: EntryInvoice | null
   items: EntryItem[]
@@ -34,12 +36,12 @@ export type Entry = {
 
 export type CreateEntryPayload = {
   type: EntryType
-  supplierId?: number
-  contractId?: number
+  supplierId?: EntityId
+  contractId?: EntityId
 }
 
 export type AddEntryItemPayload = {
-  materialId: number
+  materialId: EntityId
   quantity: number
   unitPrice: number
   expiresAt?: string
