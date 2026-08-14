@@ -22,7 +22,19 @@ const materials: Material[] = [
   { id: mockId(44), name: 'Mouse USB', code: 'MOU-001', quantity: 15, minQuantity: 5, group: groups[2], unit: units[0] },
 ]
 
-let nextId = 5
+for (let i = 5; i <= 50; i++) {
+  materials.push({
+    id: mockId(40 + i),
+    name: `Material de Teste ${i}`,
+    code: `MAT-${String(i).padStart(3, '0')}`,
+    quantity: Math.floor(Math.random() * 1000),
+    minQuantity: Math.floor(Math.random() * 100),
+    group: groups[i % 3],
+    unit: units[i % 4],
+  })
+}
+
+let nextId = 91
 
 export const materialsHandlers = [
   http.get('/materials', ({ request }) => {
@@ -31,7 +43,15 @@ export const materialsHandlers = [
     const size = Number(url.searchParams.get('size') ?? 10)
     const active = materials.filter((m) => !m.deletedAt)
     const content = active.slice(page * size, page * size + size)
-    return HttpResponse.json({ content, totalElements: active.length, totalPages: Math.ceil(active.length / size), number: page, size })
+    return HttpResponse.json({ 
+      data: content, 
+      meta: {
+        page,
+        size,
+        totalElements: active.length, 
+        totalPages: Math.ceil(active.length / size)
+      }
+    })
   }),
 
   http.get('/materials/:id', ({ params }) => {

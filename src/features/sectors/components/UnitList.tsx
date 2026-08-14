@@ -34,9 +34,9 @@ export function UnitList() {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-gray-700">Unidades de Medida</h2>
+        <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Unidades de Medida</h2>
         {canManage && (
           <Button onClick={() => { setEditing(null); setDialogOpen(true) }} className="gap-1.5 rounded-xl px-3" size="sm">
             <Plus size={15} />

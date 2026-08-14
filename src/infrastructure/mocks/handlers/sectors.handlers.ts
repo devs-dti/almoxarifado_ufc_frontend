@@ -18,7 +18,7 @@ const units: MeasurementUnit[] = [
 ]
 
 let nextSectorId = 4
-let nextUnitId = 7
+let nextUnitId = 17
 
 export const sectorsHandlers = [
   http.get('/sectors', () => HttpResponse.json(sectors.filter((s) => !s.deletedAt))),

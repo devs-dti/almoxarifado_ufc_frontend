@@ -17,7 +17,15 @@ export const usersHandlers = [
     const size = Number(url.searchParams.get('size') ?? 10)
     const active = users.filter((u) => !u.deletedAt)
     const content = active.slice(page * size, page * size + size)
-    return HttpResponse.json({ content, totalElements: active.length, totalPages: Math.ceil(active.length / size), number: page, size })
+    return HttpResponse.json({ 
+      data: content, 
+      meta: {
+        page,
+        size,
+        totalElements: active.length, 
+        totalPages: Math.ceil(active.length / size)
+      }
+    })
   }),
 
   http.get('/users/:id', ({ params }) => {

@@ -25,7 +25,15 @@ export const transfersHandlers = [
     const page = Number(url.searchParams.get('page') ?? 0)
     const size = Number(url.searchParams.get('size') ?? 10)
     const content = transfers.slice(page * size, page * size + size)
-    return HttpResponse.json({ content, totalElements: transfers.length, totalPages: Math.ceil(transfers.length / size), number: page, size })
+    return HttpResponse.json({ 
+      data: content, 
+      meta: {
+        page,
+        size,
+        totalElements: transfers.length, 
+        totalPages: Math.ceil(transfers.length / size)
+      }
+    })
   }),
 
   http.get('/transfers/:id', ({ params }) => {

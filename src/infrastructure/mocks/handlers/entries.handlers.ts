@@ -34,7 +34,15 @@ export const entriesHandlers = [
     const page = Number(url.searchParams.get('page') ?? 0)
     const size = Number(url.searchParams.get('size') ?? 10)
     const content = entries.slice(page * size, page * size + size)
-    return HttpResponse.json({ content, totalElements: entries.length, totalPages: Math.ceil(entries.length / size), number: page, size })
+    return HttpResponse.json({ 
+      data: content, 
+      meta: {
+        page,
+        size,
+        totalElements: entries.length, 
+        totalPages: Math.ceil(entries.length / size)
+      }
+    })
   }),
 
   http.get('/entries/:id', ({ params }) => {
