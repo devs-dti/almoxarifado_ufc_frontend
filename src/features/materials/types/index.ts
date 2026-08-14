@@ -1,10 +1,7 @@
+import type { MaterialGroup } from '@/features/material-groups/types'
 import type { EntityId } from '@/shared/types/id'
 
-export type MaterialGroup = {
-  id: EntityId
-  name: string
-  deletedAt?: string | null
-}
+export type { MaterialGroup }
 
 export type MeasurementUnit = {
   id: EntityId

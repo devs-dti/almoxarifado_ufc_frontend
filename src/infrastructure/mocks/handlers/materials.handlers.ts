@@ -43,12 +43,12 @@ export const materialsHandlers = [
     const size = Number(url.searchParams.get('size') ?? 10)
     const active = materials.filter((m) => !m.deletedAt)
     const content = active.slice(page * size, page * size + size)
-    return HttpResponse.json({ 
-      data: content, 
+    return HttpResponse.json({
+      data: content,
       meta: {
         page,
         size,
-        totalElements: active.length, 
+        totalElements: active.length,
         totalPages: Math.ceil(active.length / size)
       }
     })
@@ -83,7 +83,35 @@ export const materialsHandlers = [
     return new HttpResponse(null, { status: 204 })
   }),
 
-  http.get('/material-groups', () => HttpResponse.json(groups)),
+  http.get('/materials/:id/movements', () => {
+    return HttpResponse.json([
+      { id: 1, type: 'ENTRY', quantity: 100, date: '2025-06-01', referenceId: 1 },
+      { id: 2, type: 'TRANSFER', quantity: 20, date: '2025-06-10', referenceId: 1 },
+    ])
+  }),
+
+  http.get('/material-groups', ({ request }) => {
+    const url = new URL(request.url)
+    const page = Number(url.searchParams.get('page') ?? 0)
+    const size = Number(url.searchParams.get('size') ?? 10)
+    const search = url.searchParams.get('search')?.toLowerCase() ?? ''
+
+    let active = groups
+    if (search) {
+      active = active.filter(g => g.name.toLowerCase().includes(search))
+    }
+
+    const content = active.slice(page * size, page * size + size)
+    return HttpResponse.json({
+      data: content,
+      meta: {
+        page,
+        size,
+        totalElements: active.length,
+        totalPages: Math.ceil(active.length / size)
+      }
+    })
+  }),
   http.post('/material-groups', async ({ request }) => {
     const body = await request.json() as { name: string }
     const g = { id: mockId(Date.now()), name: body.name }
@@ -98,7 +126,16 @@ export const materialsHandlers = [
     return HttpResponse.json(groups[idx])
   }),
   http.delete('/material-groups/:id', ({ params }) => {
-    const idx = groups.findIndex((g) => g.id === String(params.id))
+    const groupId = String(params.id)
+    const isLinked = materials.some((m) => m.group.id === groupId && !m.deletedAt)
+    if (isLinked) {
+      return HttpResponse.json(
+        { message: 'Não é possível remover o grupo, pois existem materiais vinculados a ele.' },
+        { status: 409 }
+      )
+    }
+
+    const idx = groups.findIndex((g) => g.id === groupId)
     if (idx !== -1) groups.splice(idx, 1)
     return new HttpResponse(null, { status: 204 })
   }),

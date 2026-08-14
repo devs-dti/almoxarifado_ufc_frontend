@@ -18,13 +18,6 @@ export function useMaterials(params?: Parameters<typeof materialsApi.list>[0]) {
   })
 }
 
-export function useMaterialGroups() {
-  return useQuery({
-    queryKey: materialsKeys.groups(),
-    queryFn: materialsApi.groups,
-    staleTime: Infinity,
-  })
-}
 
 export function useMeasurementUnits() {
   return useQuery({

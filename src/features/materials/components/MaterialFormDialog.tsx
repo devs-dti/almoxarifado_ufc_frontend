@@ -29,7 +29,8 @@ import {
 } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { useMaterialGroups, useMeasurementUnits, useCreateMaterial, useUpdateMaterial } from '../hooks'
+import { useMeasurementUnits, useCreateMaterial, useUpdateMaterial } from '../hooks'
+import { useMaterialGroups } from '@/features/material-groups/hooks'
 import { materialSchema, type MaterialFormData } from '../schemas'
 import type { Material } from '../types'
 
@@ -40,7 +41,8 @@ type Props = {
 }
 
 export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
-  const { data: groups = [] } = useMaterialGroups()
+  const { data: groupsResponse } = useMaterialGroups({ page: 0, size: 100 })
+  const groups = groupsResponse?.content || []
   const { data: units = [] } = useMeasurementUnits()
   const create = useCreateMaterial()
   const update = useUpdateMaterial()
@@ -56,7 +58,7 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
         name: editing.name,
         code: editing.code,
         minQuantity: editing.minQuantity,
-        groupId: editing.group.id,
+        groupId: String(editing.group.id),
         unitId: editing.unit.id,
       })
     } else {
