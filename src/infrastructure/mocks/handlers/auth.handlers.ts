@@ -1,9 +1,10 @@
 import { http, HttpResponse } from 'msw'
+import { mockId } from '../utils'
 
 const MOCK_TOKEN = 'mock-jwt-access-token'
 const MOCK_REFRESH = 'mock-jwt-refresh-token'
 
-const mockUser = { id: 1, name: 'Daniele Silva', email: 'admin@ufc.br', role: 'ADMIN' }
+const mockUser = { id: mockId(1), name: 'Daniele Silva', email: 'admin@ufc.br', role: 'ADMIN' }
 
 export const authHandlers = [
   http.post('/auth/login', async ({ request }) => {

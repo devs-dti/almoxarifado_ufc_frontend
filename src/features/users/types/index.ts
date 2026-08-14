@@ -1,9 +1,10 @@
 import type { Role } from '@/features/auth/types'
+import type { EntityId } from '@/shared/types/id'
 
 export type { Role }
 
 export type UserListItem = {
-  id: number
+  id: EntityId
   name: string
   email: string
   role: Role

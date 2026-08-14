@@ -5,6 +5,9 @@ import { Pencil, Trash2, Plus, ChevronLeft, ChevronRight } from 'lucide-react'
 import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import type { EntityId } from '@/shared/types/id'
+import { hasAnyRole } from '@/shared/lib/rbac'
+import { useAuthStore } from '@/store/useAuthStore'
 import { useUsers, useDeleteUser } from '../hooks'
 import { UserFormDialog } from './UserFormDialog'
 import type { UserListItem } from '../types'
@@ -27,14 +30,16 @@ export function UserList() {
   const [page, setPage] = useState(0)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editing, setEditing] = useState<UserListItem | null>(null)
-  const [deletingId, setDeletingId] = useState<number | null>(null)
+  const [deletingId, setDeletingId] = useState<EntityId | null>(null)
+  const role = useAuthStore((s) => s.user?.role)
+  const canManage = hasAnyRole(role, ['ADMIN'])
 
   const { data, isLoading, isError } = useUsers({ page, size: PAGE_SIZE })
   const users = data?.content ?? []
   const totalPages = data?.totalPages ?? 0
   const deleteMutation = useDeleteUser()
 
-  async function handleDelete(id: number) {
+  async function handleDelete(id: EntityId) {
     try {
       await deleteMutation.mutateAsync(id)
       toast.success('Usuário removido.')
@@ -49,10 +54,12 @@ export function UserList() {
     <div className="flex flex-col gap-4 p-4">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold text-gray-700">Usuários</h2>
-        <Button onClick={() => { setEditing(null); setDialogOpen(true) }} className="gap-1.5 rounded-xl px-3" size="sm">
-          <Plus size={15} />
-          Novo
-        </Button>
+        {canManage && (
+          <Button onClick={() => { setEditing(null); setDialogOpen(true) }} className="gap-1.5 rounded-xl px-3" size="sm">
+            <Plus size={15} />
+            Novo
+          </Button>
+        )}
       </div>
 
       {isLoading && (
@@ -80,6 +87,7 @@ export function UserList() {
             </div>
             <span className="text-xs text-gray-400">{user.email}</span>
           </div>
+          {canManage && (
           <div className="flex items-center gap-1 shrink-0 ml-2">
             {deletingId === user.id ? (
               <div className="flex items-center gap-1">
@@ -98,6 +106,7 @@ export function UserList() {
               </>
             )}
           </div>
+          )}
         </div>
       ))}
 
@@ -113,11 +122,13 @@ export function UserList() {
         </div>
       )}
 
-      <UserFormDialog
-        open={dialogOpen}
-        onOpenChange={(v) => { setDialogOpen(v); if (!v) setEditing(null) }}
-        editing={editing}
-      />
+      {canManage && (
+        <UserFormDialog
+          open={dialogOpen}
+          onOpenChange={(v) => { setDialogOpen(v); if (!v) setEditing(null) }}
+          editing={editing}
+        />
+      )}
     </div>
   )
 }

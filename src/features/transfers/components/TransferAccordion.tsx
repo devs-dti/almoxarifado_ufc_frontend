@@ -4,7 +4,9 @@ import { useState } from 'react'
 import { ChevronDown, ChevronUp, Check, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
-import { useUpdateTransferStatus } from '../hooks'
+import { hasAnyRole } from '@/shared/lib/rbac'
+import { useAuthStore } from '@/store/useAuthStore'
+import { useDisapproveTransfer } from '../hooks'
 import { ApproveTransferDialog } from './ApproveTransferDialog'
 import { formatDate } from '@/shared/lib/format'
 import type { Transfer, TransferStatus } from '../types'
@@ -32,13 +34,16 @@ type Props = {
 export function TransferAccordion({ transfer }: Props) {
   const [open, setOpen] = useState(false)
   const [approveOpen, setApproveOpen] = useState(false)
-  const updateStatus = useUpdateTransferStatus()
+  const disapprove = useDisapproveTransfer()
+  const role = useAuthStore((s) => s.user?.role)
+  const canApprove = hasAnyRole(role, ['MANAGER'])
+  const canDisapprove = hasAnyRole(role, ['ADMIN', 'MANAGER'])
 
   const isPending = transfer.status === 'PENDING'
 
   async function handleDeny() {
     try {
-      await updateStatus.mutateAsync({ id: transfer.id, data: { status: 'DENIED' } })
+      await disapprove.mutateAsync({ id: transfer.id })
       toast.success('Transferência negada.')
     } catch {
       toast.error('Erro ao negar transferência.')
@@ -47,7 +52,7 @@ export function TransferAccordion({ transfer }: Props) {
 
   async function handleCancel() {
     try {
-      await updateStatus.mutateAsync({ id: transfer.id, data: { status: 'CANCELED' } })
+      await disapprove.mutateAsync({ id: transfer.id })
       toast.success('Transferência cancelada.')
     } catch {
       toast.error('Erro ao cancelar transferência.')
@@ -114,45 +119,53 @@ export function TransferAccordion({ transfer }: Props) {
               ))}
             </div>
 
-            {isPending && (
-              <div className="grid grid-cols-3 gap-2 pt-1">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="gap-1 rounded-xl text-xs text-red-500 hover:text-red-600 border-red-200 hover:bg-red-50 col-span-1"
-                  onClick={handleCancel}
-                  disabled={updateStatus.isPending}
-                >
-                  <X size={12} />
-                  Cancelar
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="gap-1 rounded-xl text-xs col-span-1"
-                  onClick={handleDeny}
-                  disabled={updateStatus.isPending}
-                >
-                  Negar
-                </Button>
-                <Button
-                  size="sm"
-                  className="gap-1 rounded-xl text-xs bg-emerald-600 hover:bg-emerald-700 col-span-1"
-                  onClick={() => setApproveOpen(true)}
-                >
-                  <Check size={12} />
-                  Aprovar
-                </Button>
+            {isPending && (canDisapprove || canApprove) && (
+              <div className="grid grid-cols-2 gap-2 pt-1">
+                {canDisapprove && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1 rounded-xl text-xs text-red-500 hover:text-red-600 border-red-200 hover:bg-red-50"
+                    onClick={handleCancel}
+                    disabled={disapprove.isPending}
+                  >
+                    <X size={12} />
+                    Cancelar
+                  </Button>
+                )}
+                {canDisapprove && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1 rounded-xl text-xs"
+                    onClick={handleDeny}
+                    disabled={disapprove.isPending}
+                  >
+                    Negar
+                  </Button>
+                )}
+                {canApprove && (
+                  <Button
+                    size="sm"
+                    className="gap-1 rounded-xl text-xs bg-emerald-600 hover:bg-emerald-700"
+                    onClick={() => setApproveOpen(true)}
+                  >
+                    <Check size={12} />
+                    Aprovar
+                  </Button>
+                )}
               </div>
             )}
           </div>
         )}
       </div>
 
-      <ApproveTransferDialog
-        transfer={approveOpen ? transfer : null}
-        onOpenChange={setApproveOpen}
-      />
+      {canApprove && (
+        <ApproveTransferDialog
+          transfer={approveOpen ? transfer : null}
+          onOpenChange={setApproveOpen}
+        />
+      )}
     </>
   )
 }

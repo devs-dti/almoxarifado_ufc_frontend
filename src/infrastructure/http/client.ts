@@ -1,9 +1,9 @@
 import axios from "axios";
 
-// const useMocks = process.env.NEXT_PUBLIC_USE_MOCKS === 'true'
+const baseURL = process.env.NEXT_PUBLIC_API_URL ?? "/api/backend";
 
 export const httpClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL,
   headers: { "Content-Type": "application/json" },
   withCredentials: true,
 });

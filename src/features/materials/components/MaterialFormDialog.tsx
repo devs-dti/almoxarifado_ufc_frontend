@@ -47,7 +47,7 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
 
   const form = useForm<MaterialFormData>({
     resolver: zodResolver(materialSchema),
-    defaultValues: { name: '', code: '', minQuantity: 0, groupId: 0, unitId: 0 },
+    defaultValues: { name: '', code: '', minQuantity: 0, groupId: '', unitId: '' },
   })
 
   useEffect(() => {
@@ -60,7 +60,7 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
         unitId: editing.unit.id,
       })
     } else {
-      form.reset({ name: '', code: '', minQuantity: 0, groupId: 0, unitId: 0 })
+      form.reset({ name: '', code: '', minQuantity: 0, groupId: '', unitId: '' })
     }
   }, [editing, open])
 
@@ -139,8 +139,8 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
                 <FormItem>
                   <FormLabel>Grupo</FormLabel>
                   <Select
-                    onValueChange={(v) => field.onChange(Number(v))}
-                    value={field.value ? String(field.value) : ''}
+                    onValueChange={field.onChange}
+                    value={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -149,7 +149,7 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
                     </FormControl>
                     <SelectContent>
                       {groups.map((g) => (
-                        <SelectItem key={g.id} value={String(g.id)}>
+                        <SelectItem key={g.id} value={g.id}>
                           {g.name}
                         </SelectItem>
                       ))}
@@ -167,8 +167,8 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
                 <FormItem>
                   <FormLabel>Unidade de medida</FormLabel>
                   <Select
-                    onValueChange={(v) => field.onChange(Number(v))}
-                    value={field.value ? String(field.value) : ''}
+                    onValueChange={field.onChange}
+                    value={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -177,7 +177,7 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
                     </FormControl>
                     <SelectContent>
                       {units.map((u) => (
-                        <SelectItem key={u.id} value={String(u.id)}>
+                        <SelectItem key={u.id} value={u.id}>
                           {u.name} ({u.abbreviation})
                         </SelectItem>
                       ))}
