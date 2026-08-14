@@ -1,7 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { httpClient as api } from '@/infrastructure/http/client'
 import type { Company, CompanyDTO } from '../types'
-import type { PaginatedResponse, PageParams } from '@/shared/types/pagination'
+import { unwrapPage } from '@/shared/lib/pagination'
+import type { PageLike, PageParams } from '@/shared/types/pagination'
 
 type CompaniesPageParams = PageParams & {
   search?: string
@@ -12,18 +13,18 @@ type CompaniesPageParams = PageParams & {
 // ---------------------------------------------------------
 export const companiesApi = {
   list: (params?: CompaniesPageParams) =>
-    api.get<PaginatedResponse<Company>>('/companies', { params }).then((r) => r.data),
-  
+    api.get<PageLike<Company>>('/companies', { params }).then((r) => unwrapPage(r.data)),
+
   getById: (id: string) =>
     api.get<Company>(`/companies/${id}`).then((r) => r.data),
-    
+
   create: (data: CompanyDTO) =>
     api.post<Company>('/companies', data).then((r) => r.data),
-    
+
   update: (id: string, data: Partial<CompanyDTO>) =>
     api.patch<Company>(`/companies/${id}`, data).then((r) => r.data),
-    
-  delete: (id: string) => 
+
+  delete: (id: string) =>
     api.delete(`/companies/${id}`),
 }
 
@@ -64,7 +65,7 @@ export function useCreateCompany() {
 export function useUpdateCompany() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<CompanyDTO> }) => 
+    mutationFn: ({ id, data }: { id: string; data: Partial<CompanyDTO> }) =>
       companiesApi.update(id, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: companiesKeys.all })

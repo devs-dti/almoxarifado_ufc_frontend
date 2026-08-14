@@ -1,7 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { httpClient as api } from '@/infrastructure/http/client'
 import type { Contract, ContractDTO } from '../types'
-import type { PaginatedResponse, PageParams } from '@/shared/types/pagination'
+import { unwrapPage } from '@/shared/lib/pagination'
+import type { PageLike, PageParams } from '@/shared/types/pagination'
 
 type ContractsPageParams = PageParams & {
   search?: string
@@ -14,7 +15,7 @@ type ContractsPageParams = PageParams & {
 // ---------------------------------------------------------
 export const contractsApi = {
   list: (params?: ContractsPageParams) =>
-    api.get<PaginatedResponse<Contract>>('/contracts', { params }).then((r) => r.data),
+    api.get<PageLike<Contract>>('/contracts', { params }).then((r) => unwrapPage(r.data)),
   
   getById: (id: string) =>
     api.get<Contract>(`/contracts/${id}`).then((r) => r.data),

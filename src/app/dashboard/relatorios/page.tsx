@@ -15,7 +15,11 @@ export default function RelatoriosPage() {
   const [active, setActive] = useState<ReportKey>(null)
 
   return (
-    <div className="flex flex-col gap-4 p-4 animate-in fade-in duration-300">
+    <div className="flex-1 space-y-6 p-4 md:p-8 pt-6 animate-in fade-in duration-300">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Relatórios</h2>
+      </div>
       <OptionCard
         title="Relatório Geral de Materiais"
         icon={FileBarChart}

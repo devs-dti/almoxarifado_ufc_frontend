@@ -104,8 +104,8 @@ export function CreateEntryDialog({ open, onOpenChange }: Props) {
                   <FormItem>
                     <FormLabel>Fornecedor</FormLabel>
                     <Select
-                      value={field.value ? String(field.value) : ''}
-                      onValueChange={(v) => field.onChange(Number(v))}
+                      value={field.value ?? ''}
+                      onValueChange={field.onChange}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -114,7 +114,7 @@ export function CreateEntryDialog({ open, onOpenChange }: Props) {
                       </FormControl>
                       <SelectContent>
                         {suppliers.map((s) => (
-                          <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>
+                          <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>

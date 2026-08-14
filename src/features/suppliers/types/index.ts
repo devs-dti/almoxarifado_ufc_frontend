@@ -1,5 +1,7 @@
+import type { EntityId } from '@/shared/types/id'
+
 export type Supplier = {
-  id: number
+  id: EntityId
   name: string
   cnpj?: string
   email?: string

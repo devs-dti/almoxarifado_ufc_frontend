@@ -8,6 +8,7 @@ import { suppliersHandlers } from './handlers/suppliers.handlers'
 import { reportsHandlers } from './handlers/reports.handlers'
 import { contractsHandlers } from './handlers/contracts.handlers'
 import { companiesHandlers } from './handlers/companies.handlers'
+import { materialAuditsHandlers } from './handlers/material-audits.handlers'
 
 export const handlers = [
   ...authHandlers,
@@ -20,4 +21,5 @@ export const handlers = [
   ...reportsHandlers,
   ...contractsHandlers,
   ...companiesHandlers,
+  ...materialAuditsHandlers,
 ]

@@ -2,10 +2,10 @@ import axios from "axios";
 import { toast } from "sonner";
 import type { ApiError } from "@/shared/types/api";
 
-// const useMocks = process.env.NEXT_PUBLIC_USE_MOCKS === 'true'
+const baseURL = process.env.NEXT_PUBLIC_API_URL ?? "/api/backend";
 
 export const httpClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL,
   headers: { "Content-Type": "application/json" },
   withCredentials: true,
 });

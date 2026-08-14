@@ -10,30 +10,30 @@ const companies: Company[] = Array.from({ length: 15 }).map((_, i) => ({
 }))
 
 export const companiesHandlers = [
-  // Listar empresas 
+  // Listar empresas
   http.get('/companies', ({ request }) => {
     const url = new URL(request.url)
     const page = Number(url.searchParams.get('page') ?? 0)
     const size = Number(url.searchParams.get('size') ?? 10)
     const search = url.searchParams.get('search')
-    
+
     let activeCompanies = companies.filter((c) => !c.deletedAt)
 
     if (search) {
-      activeCompanies = activeCompanies.filter(c => 
-        c.name.toLowerCase().includes(search.toLowerCase()) || 
+      activeCompanies = activeCompanies.filter(c =>
+        c.name.toLowerCase().includes(search.toLowerCase()) ||
         c.sei.toLowerCase().includes(search.toLowerCase())
       )
     }
 
     const data = activeCompanies.slice(page * size, page * size + size)
-    
-    return HttpResponse.json({ 
-      data, 
+
+    return HttpResponse.json({
+      data,
       meta: {
         page,
         size,
-        totalElements: activeCompanies.length, 
+        totalElements: activeCompanies.length,
         totalPages: Math.ceil(activeCompanies.length / size)
       }
     })
@@ -63,10 +63,10 @@ export const companiesHandlers = [
   http.patch('/companies/:id', async ({ request, params }) => {
     const idx = companies.findIndex((c) => c.id === params.id && !c.deletedAt)
     if (idx === -1) return new HttpResponse(null, { status: 404 })
-    
+
     const body = await request.json() as Partial<CompanyDTO>
     companies[idx] = { ...companies[idx], ...body, updatedAt: new Date().toISOString() }
-    
+
     return HttpResponse.json(companies[idx])
   }),
 
@@ -74,11 +74,11 @@ export const companiesHandlers = [
   http.delete('/companies/:id', ({ params }) => {
     const idx = companies.findIndex((c) => c.id === params.id && !c.deletedAt)
     if (idx === -1) return new HttpResponse(null, { status: 404 })
-    
+
     // Simulate error if company has active contracts
     // We don't have real contract logic here, so we just allow delete.
     // If we wanted to test the error, we could hardcode an ID to fail.
-    
+
     companies[idx] = { ...companies[idx], deletedAt: new Date().toISOString() }
     return new HttpResponse(null, { status: 204 })
   }),

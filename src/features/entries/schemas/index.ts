@@ -2,11 +2,11 @@ import { z } from 'zod'
 
 export const createEntrySchema = z.object({
   type: z.enum(['SUPPLIER', 'DONATION', 'RETURN']),
-  supplierId: z.coerce.number().optional(),
+  supplierId: z.string().optional(),
 })
 
 export const addItemSchema = z.object({
-  materialId: z.coerce.number({ required_error: 'Selecione um material' }).min(1, 'Selecione um material'),
+  materialId: z.string({ required_error: 'Selecione um material' }).min(1, 'Selecione um material'),
   quantity: z.coerce.number({ required_error: 'Informe a quantidade' }).positive('Quantidade deve ser positiva'),
   unitPrice: z.coerce.number({ required_error: 'Informe o preço unitário' }).nonnegative('Preço não pode ser negativo'),
   expiresAt: z.string().optional(),

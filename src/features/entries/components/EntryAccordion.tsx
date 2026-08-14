@@ -4,6 +4,9 @@ import { useState } from 'react'
 import { ChevronDown, ChevronUp, Plus, Check, X, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import type { EntityId } from '@/shared/types/id'
+import { hasAnyRole } from '@/shared/lib/rbac'
+import { useAuthStore } from '@/store/useAuthStore'
 import { useFinishEntry, useCancelEntry, useRemoveEntryItem } from '../hooks'
 import { AddItemDialog } from './AddItemDialog'
 import { formatDate, formatCurrency } from '@/shared/lib/format'
@@ -37,6 +40,8 @@ export function EntryAccordion({ entry }: Props) {
   const finish = useFinishEntry()
   const cancel = useCancelEntry()
   const removeItem = useRemoveEntryItem()
+  const role = useAuthStore((s) => s.user?.role)
+  const canManage = hasAnyRole(role, ['MANAGER', 'STAFF'])
 
   const isPending = entry.status === 'PENDING'
   const total = entry.items.reduce((sum, i) => sum + i.quantity * i.unitPrice, 0)
@@ -59,7 +64,7 @@ export function EntryAccordion({ entry }: Props) {
     }
   }
 
-  async function handleRemoveItem(itemId: number) {
+  async function handleRemoveItem(itemId: EntityId) {
     try {
       await removeItem.mutateAsync({ entryId: entry.id, itemId })
       toast.success('Item removido.')
@@ -134,7 +139,7 @@ export function EntryAccordion({ entry }: Props) {
                         <span className="text-[10px] text-gray-300">Lote: {item.lotCode}</span>
                       )}
                     </div>
-                    {isPending && (
+                    {isPending && canManage && (
                       <button
                         onClick={() => handleRemoveItem(item.id)}
                         disabled={removeItem.isPending}
@@ -149,7 +154,7 @@ export function EntryAccordion({ entry }: Props) {
               </div>
             )}
 
-            {isPending && (
+            {isPending && canManage && (
               <div className="flex flex-col gap-2 pt-1">
                 <Button
                   size="sm"
@@ -187,11 +192,13 @@ export function EntryAccordion({ entry }: Props) {
         )}
       </div>
 
-      <AddItemDialog
-        entryId={entry.id}
-        open={addItemOpen}
-        onOpenChange={setAddItemOpen}
-      />
+      {canManage && (
+        <AddItemDialog
+          entryId={entry.id}
+          open={addItemOpen}
+          onOpenChange={setAddItemOpen}
+        />
+      )}
     </>
   )
 }

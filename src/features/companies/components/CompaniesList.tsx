@@ -13,7 +13,7 @@ export function CompaniesList() {
   const [page, setPage] = useState(0)
   const [search, setSearch] = useState('')
   const [debouncedSearch] = useDebounceValue(search, 300)
-  
+
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [companyToEdit, setCompanyToEdit] = useState<Company | null>(null)
 
@@ -23,8 +23,8 @@ export function CompaniesList() {
     search: debouncedSearch || undefined,
   })
 
-  const companies = pageData?.data || []
-  const totalPages = pageData?.meta.totalPages || 0
+  const companies = pageData?.content || []
+  const totalPages = pageData?.totalPages || 0
 
   const deleteCompany = useDeleteCompany()
 
@@ -57,12 +57,12 @@ export function CompaniesList() {
             </Button>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-3 w-full md:w-auto">
           <div className="relative flex-1 md:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
-            <Input 
-              placeholder="Buscar por SEI ou Nome..." 
+            <Input
+              placeholder="Buscar por SEI ou Nome..."
               className="pl-8 h-8 rounded-lg text-xs bg-white border-gray-200 shadow-sm w-full"
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(0) }}
@@ -156,7 +156,7 @@ export function CompaniesList() {
         </div>
       )}
 
-      <CompanyFormDialog 
+      <CompanyFormDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         company={companyToEdit}
