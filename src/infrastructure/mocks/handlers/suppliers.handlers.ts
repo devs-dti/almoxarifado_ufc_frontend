@@ -1,10 +1,22 @@
 import { http, HttpResponse } from 'msw'
 import { mockId } from '../utils'
-import type { Supplier } from '@/features/suppliers/types'
+import type { Supplier, CreateSupplierPayload } from '@/features/suppliers/types'
 
 const suppliers: Supplier[] = [
-  { id: mockId(1), name: 'Papelaria Central', cnpj: '12.345.678/0001-90', email: 'contato@papelaria.com' },
-  { id: mockId(2), name: 'Distribuidora UFC', cnpj: '98.765.432/0001-10', email: 'vendas@dist.com' },
+  {
+    id: mockId(1),
+    corporateName: 'Papelaria Central',
+    cnpj: '12.345.678/0001-90',
+    email: 'contato@papelaria.com',
+    address: { street: 'Rua A', number: '123', city: 'Sobral', state: 'CE', cep: '62000-000' },
+  },
+  {
+    id: mockId(2),
+    corporateName: 'Distribuidora UFC',
+    cnpj: '98.765.432/0001-10',
+    email: 'vendas@dist.com',
+    address: { street: 'Av B', number: '456', city: 'Sobral', state: 'CE', cep: '62010-000' },
+  },
 ]
 
 let nextId = 3
@@ -40,5 +52,3 @@ export const suppliersHandlers = [
     return new HttpResponse(null, { status: 204 })
   }),
 ]
-
-type CreateSupplierPayload = { name: string; cnpj?: string; email?: string; phone?: string }
