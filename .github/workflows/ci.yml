@@ -30,7 +30,7 @@ jobs:
         run: npm run typecheck
 
       - name: Rodar Testes
-        run: npm run test -- --run
+        run: npm run test:run
 
       - name: Gerar Build
         run: npm run build
