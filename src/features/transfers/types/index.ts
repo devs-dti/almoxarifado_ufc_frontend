@@ -1,3 +1,5 @@
+import type { EntityId } from '@/shared/types/id'
+
 export type TransferStatus =
   | 'PENDING'
   | 'APPROVED'
@@ -6,16 +8,16 @@ export type TransferStatus =
   | 'CANCELED'
 
 export type TransferItem = {
-  id: number
-  materialId: number
+  id: EntityId
+  materialId: EntityId
   materialName: string
   requestedQuantity: number
   approvedQuantity?: number
 }
 
 export type Transfer = {
-  id: number
-  sectorId: number
+  id: EntityId
+  sectorId: EntityId
   sectorName: string
   requestedBy: string
   status: TransferStatus
@@ -25,15 +27,14 @@ export type Transfer = {
 }
 
 export type CreateTransferPayload = {
-  sectorId: number
-  items: { materialId: number; requestedQuantity: number }[]
+  sectorId: EntityId
+  items: { materialId: EntityId; requestedQuantity: number }[]
 }
 
 export type ApproveTransferPayload = {
-  items: { itemId: number; approvedQuantity: number }[]
+  items: { transferItemId: EntityId; approvedQuantity: number }[]
 }
 
-export type UpdateTransferStatusPayload = {
-  status: 'CANCELED' | 'DENIED'
+export type DisapproveTransferPayload = {
   reason?: string
 }

@@ -1,7 +1,9 @@
+import type { EntityId } from '@/shared/types/id'
+
 export type Role = 'ADMIN' | 'MANAGER' | 'STAFF'
 
 export type User = {
-  id: number
+  id: EntityId
   name: string
   email: string
   role: Role

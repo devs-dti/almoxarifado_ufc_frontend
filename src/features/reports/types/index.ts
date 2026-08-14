@@ -1,5 +1,7 @@
+import type { EntityId } from '@/shared/types/id'
+
 export type InventoryMaterial = {
-  materialId: number
+  materialId: EntityId
   materialName: string
   code: string
   quantity: number
@@ -14,7 +16,7 @@ export type InventoryReport = {
 }
 
 export type LowStockMaterial = {
-  materialId: number
+  materialId: EntityId
   materialName: string
   code: string
   quantity: number
@@ -22,9 +24,9 @@ export type LowStockMaterial = {
 }
 
 export type ExpiringLot = {
-  lotId: number
+  lotId: EntityId
   lotCode: string
-  materialId: number
+  materialId: EntityId
   materialName: string
   quantity: number
   expiresAt: string
@@ -34,13 +36,13 @@ export type ExpiringLot = {
 export type EntriesSummary = {
   totalEntries: number
   totalValue: number
-  bySupplier: { supplierId: number; supplierName: string; totalValue: number }[]
-  byGroup: { groupId: number; groupName: string; totalValue: number }[]
+  bySupplier: { supplierId: EntityId; supplierName: string; totalValue: number }[]
+  byGroup: { groupId: EntityId; groupName: string; totalValue: number }[]
 }
 
 export type TransfersSummary = {
   totalTransfers: number
-  bySector: { sectorId: number; sectorName: string; itemsConsumed: number; totalCost: number }[]
+  bySector: { sectorId: EntityId; sectorName: string; itemsConsumed: number; totalCost: number }[]
 }
 
 export type ReportDateParams = {

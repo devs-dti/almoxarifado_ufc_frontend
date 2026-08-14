@@ -1,5 +1,7 @@
+import type { EntityId } from '@/shared/types/id'
+
 export type Sector = {
-  id: number
+  id: EntityId
   name: string
   description?: string
   deletedAt?: string | null
@@ -13,7 +15,7 @@ export type CreateSectorPayload = {
 export type UpdateSectorPayload = Partial<CreateSectorPayload>
 
 export type MeasurementUnit = {
-  id: number
+  id: EntityId
   name: string
   abbreviation: string
   deletedAt?: string | null
