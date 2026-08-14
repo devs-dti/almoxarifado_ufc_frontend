@@ -1,51 +1,38 @@
 'use client'
 
-import { useRef } from 'react'
-import { useToggle } from 'usehooks-ts'
-import { useRouter } from 'next/navigation'
-import { cn } from '@/lib/utils'
+import { useState } from 'react'
 import { FaBars } from 'react-icons/fa'
-import { LogOut } from 'lucide-react'
-import { useAuthStore } from '@/store/useAuthStore'
+import { cn } from '@/lib/utils'
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+} from '@/components/ui/sheet'
+import { SidebarContent } from './sidebar'
 
 type MenuProps = { className?: string }
 
 export default function Menu({ className }: MenuProps) {
-  const [open, toggleOpen, setOpen] = useToggle(false)
-  const menuRef = useRef<HTMLDivElement>(null)
-  const { logout } = useAuthStore()
-  const router = useRouter()
-
-  async function handleLogout() {
-    setOpen(false)
-    await logout()
-    router.push('/login')
-  }
+  const [open, setOpen] = useState(false)
 
   return (
-    <div ref={menuRef} className={cn('relative flex flex-row', className)}>
-      <button
-        onClick={() => toggleOpen()}
-        aria-label="Abrir menu"
-        className={`flex h-10 w-10 items-center justify-center rounded transition-colors duration-100${open ? ' bg-brand/10' : ''}`}
-      >
-        <FaBars className="text-gray-600" />
-      </button>
-
-      {open && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute z-50 right-0 mt-12 w-40 rounded-xl border border-gray-100 bg-white p-2 shadow-lg">
-            <button
-              onClick={handleLogout}
-              className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
-            >
-              <LogOut size={14} />
-              Sair
-            </button>
-          </div>
-        </>
-      )}
+    <div className={cn('relative flex flex-row lg:hidden', className)}>
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetTrigger asChild>
+          <button
+            aria-label="Abrir menu"
+            className={`flex h-10 w-10 items-center justify-center rounded transition-colors duration-100${open ? ' bg-brand/10' : ''}`}
+          >
+            <FaBars className="text-gray-600" />
+          </button>
+        </SheetTrigger>
+        
+        <SheetContent side="left" className="w-64 p-0 flex flex-col bg-white border-r-0">
+          <SheetTitle className="sr-only">Menu de Navegação</SheetTitle>
+          <SidebarContent onLinkClick={() => setOpen(false)} />
+        </SheetContent>
+      </Sheet>
     </div>
   )
 }

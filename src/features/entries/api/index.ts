@@ -1,34 +1,36 @@
 import { httpClient as api } from '@/infrastructure/http/client'
+import { unwrapPage } from '@/shared/lib/pagination'
+import type { EntityId } from '@/shared/types/id'
 import type {
   Entry,
   CreateEntryPayload,
   AddEntryItemPayload,
   AttachInvoicePayload,
 } from '../types'
-import type { PaginatedResponse, PageParams } from '@/shared/types/pagination'
+import type { PageLike, PageParams } from '@/shared/types/pagination'
 
 export const entriesApi = {
   list: (params?: PageParams & { status?: string }) =>
-    api.get<PaginatedResponse<Entry>>('/entries', { params }).then((r) => r.data),
+    api.get<PageLike<Entry>>('/entries', { params }).then((r) => unwrapPage(r.data)),
 
-  get: (id: number) =>
+  get: (id: EntityId) =>
     api.get<Entry>(`/entries/${id}`).then((r) => r.data),
 
   create: (data: CreateEntryPayload) =>
     api.post<Entry>('/entries', data).then((r) => r.data),
 
-  attachInvoice: (id: number, data: AttachInvoicePayload) =>
+  attachInvoice: (id: EntityId, data: AttachInvoicePayload) =>
     api.patch<Entry>(`/entries/${id}/details`, data).then((r) => r.data),
 
-  addItem: (id: number, data: AddEntryItemPayload) =>
+  addItem: (id: EntityId, data: AddEntryItemPayload) =>
     api.post<Entry['items'][number]>(`/entries/${id}/items`, data).then((r) => r.data),
 
-  removeItem: (entryId: number, itemId: number) =>
+  removeItem: (entryId: EntityId, itemId: EntityId) =>
     api.delete(`/entries/${entryId}/items/${itemId}`),
 
-  finish: (id: number) =>
+  finish: (id: EntityId) =>
     api.patch<Entry>(`/entries/${id}/finish`).then((r) => r.data),
 
-  cancel: (id: number) =>
+  cancel: (id: EntityId) =>
     api.patch<Entry>(`/entries/${id}/cancel`).then((r) => r.data),
 }
