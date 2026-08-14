@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw'
 import type { Transfer } from '@/features/transfers/types'
 
-let transfers: Transfer[] = [
+const transfers: Transfer[] = [
   {
     id: 1,
     sectorId: 1,

@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw'
 import type { Entry } from '@/features/entries/types'
 
-let entries: Entry[] = [
+const entries: Entry[] = [
   {
     id: 1,
     status: 'FINISHED',

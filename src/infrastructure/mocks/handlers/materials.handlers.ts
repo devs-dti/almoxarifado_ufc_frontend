@@ -14,7 +14,7 @@ const units = [
   { id: 4, name: 'Litro', abbreviation: 'L' },
 ]
 
-let materials: Material[] = [
+const materials: Material[] = [
   { id: 1, name: 'Papel A4', code: 'PAP-001', quantity: 500, minQuantity: 100, group: groups[0], unit: units[1] },
   { id: 2, name: 'Caneta Azul', code: 'CAN-001', quantity: 80, minQuantity: 50, group: groups[0], unit: units[0] },
   { id: 3, name: 'Detergente 500ml', code: 'DET-001', quantity: 20, minQuantity: 30, group: groups[1], unit: units[3] },
@@ -62,7 +62,7 @@ export const materialsHandlers = [
     return new HttpResponse(null, { status: 204 })
   }),
 
-  http.get('/materials/:id/movements', ({ params }) => {
+  http.get('/materials/:id/movements', () => {
     return HttpResponse.json([
       { id: 1, type: 'ENTRY', quantity: 100, date: '2025-06-01', referenceId: 1 },
       { id: 2, type: 'TRANSFER', quantity: 20, date: '2025-06-10', referenceId: 1 },

@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw'
 import type { UserListItem } from '@/features/users/types'
 
-let users: UserListItem[] = [
+const users: UserListItem[] = [
   { id: 1, name: 'Daniele Silva', email: 'admin@ufc.br', role: 'ADMIN' },
   { id: 2, name: 'João Guilherme', email: 'manager@ufc.br', role: 'MANAGER' },
   { id: 3, name: 'Maria Staff', email: 'staff@ufc.br', role: 'STAFF' },
