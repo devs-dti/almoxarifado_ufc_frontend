@@ -44,7 +44,7 @@ const navGroups = [
     items: [
       { label: 'Relatórios', href: '/dashboard/relatorios', icon: FileBarChart },
       { label: 'Contratos', href: '/dashboard/contracts', icon: FileSignature },
-      { label: 'Auditoria de Materiais', href: '/dashboard/auditoria', icon: ClipboardList },
+      { label: 'Auditoria de Materiais', href: '/dashboard/auditorias', icon: ClipboardList },
     ],
   },
 ]

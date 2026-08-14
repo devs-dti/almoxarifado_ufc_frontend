@@ -70,7 +70,7 @@ export function MaterialGroupFormDialog({
         toast.success('Grupo de materiais criado com sucesso!')
       }
       onOpenChange(false)
-    } catch (error) {
+    } catch {
       toast.error('Ocorreu um erro ao salvar o grupo de materiais.')
     }
   }

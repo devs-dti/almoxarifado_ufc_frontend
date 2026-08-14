@@ -1,14 +1,17 @@
 import type { MaterialGroup } from '@/features/material-groups/types'
+import type { EntityId } from '@/shared/types/id'
+
+export type { MaterialGroup }
 
 export type MeasurementUnit = {
-  id: number
+  id: EntityId
   name: string
   abbreviation: string
   deletedAt?: string | null
 }
 
 export type Material = {
-  id: number
+  id: EntityId
   name: string
   code: string
   quantity: number
@@ -22,16 +25,8 @@ export type CreateMaterialPayload = {
   name: string
   code: string
   minQuantity: number
-  groupId: string
-  unitId: number
+  groupId: EntityId
+  unitId: EntityId
 }
 
 export type UpdateMaterialPayload = Partial<CreateMaterialPayload>
-
-export type MaterialMovement = {
-  id: number
-  type: 'ENTRY' | 'TRANSFER'
-  quantity: number
-  date: string
-  referenceId: number
-}

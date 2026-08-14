@@ -1,5 +1,7 @@
+import type { EntityId } from '@/shared/types/id'
+
 export type MaterialGroup = {
-  id: string
+  id: EntityId
   name: string
   deletedAt?: string | null
 }

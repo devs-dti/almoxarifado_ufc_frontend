@@ -4,6 +4,9 @@ import { useState } from 'react'
 import { Pencil, Trash2, Plus, Mail, Phone } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import type { EntityId } from '@/shared/types/id'
+import { hasAnyRole } from '@/shared/lib/rbac'
+import { useAuthStore } from '@/store/useAuthStore'
 import { useSuppliers, useDeleteSupplier } from '../hooks'
 import { SupplierFormDialog } from './SupplierFormDialog'
 import type { Supplier } from '../types'
@@ -11,12 +14,14 @@ import type { Supplier } from '../types'
 export function SupplierList() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editing, setEditing] = useState<Supplier | null>(null)
-  const [deletingId, setDeletingId] = useState<number | null>(null)
+  const [deletingId, setDeletingId] = useState<EntityId | null>(null)
+  const role = useAuthStore((s) => s.user?.role)
+  const canManage = hasAnyRole(role, ['ADMIN', 'MANAGER'])
 
   const { data: suppliers = [], isLoading, isError } = useSuppliers()
   const deleteMutation = useDeleteSupplier()
 
-  async function handleDelete(id: number) {
+  async function handleDelete(id: EntityId) {
     try {
       await deleteMutation.mutateAsync(id)
       toast.success('Fornecedor removido.')
@@ -28,13 +33,15 @@ export function SupplierList() {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-gray-700">Fornecedores</h2>
-        <Button onClick={() => { setEditing(null); setDialogOpen(true) }} className="gap-1.5 rounded-xl px-3" size="sm">
-          <Plus size={15} />
-          Novo
-        </Button>
+        <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Fornecedores</h2>
+        {canManage && (
+          <Button onClick={() => { setEditing(null); setDialogOpen(true) }} className="gap-1.5 rounded-xl px-3" size="sm">
+            <Plus size={15} />
+            Novo
+          </Button>
+        )}
       </div>
 
       {isLoading && (
@@ -54,7 +61,7 @@ export function SupplierList() {
       {!isLoading && suppliers.map((supplier) => (
         <div key={supplier.id} className="bg-white rounded-2xl border border-gray-100 px-4 py-3 flex items-start justify-between shadow-sm">
           <div className="flex flex-col gap-1 min-w-0">
-            <span className="font-semibold text-gray-900 text-sm">{supplier.name}</span>
+            <span className="font-semibold text-gray-900 text-sm">{supplier.corporateName}</span>
             {supplier.cnpj && <span className="text-xs text-gray-400 font-mono">{supplier.cnpj}</span>}
             <div className="flex items-center gap-3 flex-wrap">
               {supplier.email && (
@@ -69,6 +76,7 @@ export function SupplierList() {
               )}
             </div>
           </div>
+          {canManage && (
           <div className="flex items-center gap-1 shrink-0 ml-2">
             {deletingId === supplier.id ? (
               <div className="flex items-center gap-1">
@@ -87,14 +95,17 @@ export function SupplierList() {
               </>
             )}
           </div>
+          )}
         </div>
       ))}
 
-      <SupplierFormDialog
-        open={dialogOpen}
-        onOpenChange={(v) => { setDialogOpen(v); if (!v) setEditing(null) }}
-        editing={editing}
-      />
+      {canManage && (
+        <SupplierFormDialog
+          open={dialogOpen}
+          onOpenChange={(v) => { setDialogOpen(v); if (!v) setEditing(null) }}
+          editing={editing}
+        />
+      )}
     </div>
   )
 }

@@ -38,11 +38,11 @@ export function ContractsList({ search, statusFilter, companyNameFilter, onView,
   if (isLoading) return <div className="p-4 text-center text-slate-500">Carregando contratos...</div>
   if (error) return <div className="p-4 text-center text-red-500">Erro ao carregar contratos.</div>
 
-  const contracts = pageData?.data || []
-  const totalPages = pageData?.meta.totalPages || 0
+  const contracts = pageData?.content || []
+  const totalPages = pageData?.totalPages || 0
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       {contracts.length === 0 ? (
         <div className="p-8 text-center text-slate-500 bg-white rounded-xl border border-gray-100 shadow-sm mt-2">
           Nenhum contrato encontrado.

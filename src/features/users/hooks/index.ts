@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import type { EntityId } from '@/shared/types/id'
 import { usersApi } from '../api'
 import type { CreateUserPayload, UpdateUserPayload } from '../types'
 
@@ -25,7 +26,7 @@ export function useCreateUser() {
 export function useUpdateUser() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: UpdateUserPayload }) => usersApi.update(id, data),
+    mutationFn: ({ id, data }: { id: EntityId; data: UpdateUserPayload }) => usersApi.update(id, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: usersKeys.all }),
   })
 }
@@ -33,7 +34,7 @@ export function useUpdateUser() {
 export function useDeleteUser() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (id: number) => usersApi.delete(id),
+    mutationFn: (id: EntityId) => usersApi.delete(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: usersKeys.all }),
   })
 }

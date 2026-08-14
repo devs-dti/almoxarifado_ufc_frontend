@@ -1,11 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import type { EntityId } from '@/shared/types/id'
 import { entriesApi } from '../api'
 import type { CreateEntryPayload, AddEntryItemPayload, AttachInvoicePayload } from '../types'
 
 export const entriesKeys = {
   all: ['entries'] as const,
   list: (params?: object) => ['entries', 'list', params] as const,
-  detail: (id: number) => ['entries', id] as const,
+  detail: (id: EntityId) => ['entries', id] as const,
 }
 
 export function useEntries(params?: Parameters<typeof entriesApi.list>[0]) {
@@ -15,11 +16,11 @@ export function useEntries(params?: Parameters<typeof entriesApi.list>[0]) {
   })
 }
 
-export function useEntry(id: number) {
+export function useEntry(id: EntityId) {
   return useQuery({
     queryKey: entriesKeys.detail(id),
     queryFn: () => entriesApi.get(id),
-    enabled: id > 0,
+    enabled: id.length > 0,
   })
 }
 
@@ -34,7 +35,7 @@ export function useCreateEntry() {
 export function useAttachInvoice() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: AttachInvoicePayload }) =>
+    mutationFn: ({ id, data }: { id: EntityId; data: AttachInvoicePayload }) =>
       entriesApi.attachInvoice(id, data),
     onSuccess: (_, { id }) => qc.invalidateQueries({ queryKey: entriesKeys.detail(id) }),
   })
@@ -43,7 +44,7 @@ export function useAttachInvoice() {
 export function useAddEntryItem() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ entryId, data }: { entryId: number; data: AddEntryItemPayload }) =>
+    mutationFn: ({ entryId, data }: { entryId: EntityId; data: AddEntryItemPayload }) =>
       entriesApi.addItem(entryId, data),
     onSuccess: (_, { entryId }) => {
       qc.invalidateQueries({ queryKey: entriesKeys.detail(entryId) })
@@ -55,7 +56,7 @@ export function useAddEntryItem() {
 export function useRemoveEntryItem() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ entryId, itemId }: { entryId: number; itemId: number }) =>
+    mutationFn: ({ entryId, itemId }: { entryId: EntityId; itemId: EntityId }) =>
       entriesApi.removeItem(entryId, itemId),
     onSuccess: (_, { entryId }) => {
       qc.invalidateQueries({ queryKey: entriesKeys.detail(entryId) })
@@ -67,7 +68,7 @@ export function useRemoveEntryItem() {
 export function useFinishEntry() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (id: number) => entriesApi.finish(id),
+    mutationFn: (id: EntityId) => entriesApi.finish(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: entriesKeys.all }),
   })
 }
@@ -75,7 +76,7 @@ export function useFinishEntry() {
 export function useCancelEntry() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (id: number) => entriesApi.cancel(id),
+    mutationFn: (id: EntityId) => entriesApi.cancel(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: entriesKeys.all }),
   })
 }
