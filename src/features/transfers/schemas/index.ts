@@ -1,17 +1,17 @@
 import { z } from 'zod'
 
 export const transferItemSchema = z.object({
-  materialId: z.coerce.number().min(1, 'Selecione um material'),
+  materialId: z.string().min(1, 'Selecione um material'),
   requestedQuantity: z.coerce.number().positive('Quantidade deve ser positiva'),
 })
 
 export const createTransferSchema = z.object({
-  sectorId: z.coerce.number().min(1, 'Selecione um setor'),
+  sectorId: z.string().min(1, 'Selecione um setor'),
   items: z.array(transferItemSchema).min(1, 'Adicione ao menos um item'),
 })
 
 export const approveItemSchema = z.object({
-  itemId: z.number(),
+  transferItemId: z.string(),
   approvedQuantity: z.coerce.number().nonnegative('Quantidade não pode ser negativa'),
 })
 

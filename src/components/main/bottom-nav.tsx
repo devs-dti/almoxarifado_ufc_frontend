@@ -9,14 +9,13 @@ const items = [
   { label: 'Entradas', href: '/dashboard/entradas', icon: ArrowDownCircle },
   { label: 'Saídas', href: '/dashboard/transferencias', icon: ArrowUpCircle },
   { label: 'Relatórios', href: '/dashboard/relatorios', icon: FileBarChart },
-  { label: 'Mais', href: '/dashboard/setores', icon: LayoutGrid },
 ]
 
 export function BottomNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-100 flex md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-100 flex md:hidden h-14">
       {items.map(({ label, href, icon: Icon }) => {
         const isActive = pathname.startsWith(href)
         return (

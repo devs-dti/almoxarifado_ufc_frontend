@@ -41,13 +41,13 @@ type Props = {
 
 export function CreateTransferDialog({ open, onOpenChange }: Props) {
   const { data: materialsPage } = useMaterials({ page: 0, size: 100 })
-  const materials = materialsPage?.data ?? []
+  const materials = materialsPage?.content ?? []
   const { data: sectors = [] } = useSectors()
   const create = useCreateTransfer()
 
   const form = useForm<CreateTransferValues>({
     resolver: zodResolver(createTransferSchema),
-    defaultValues: { sectorId: 0, items: [{ materialId: 0, requestedQuantity: 1 }] },
+    defaultValues: { sectorId: '', items: [{ materialId: '', requestedQuantity: 1 }] },
   })
 
   const { fields, append, remove } = useFieldArray({ control: form.control, name: 'items' })
@@ -83,8 +83,8 @@ export function CreateTransferDialog({ open, onOpenChange }: Props) {
                 <FormItem>
                   <FormLabel>Setor</FormLabel>
                   <Select
-                    value={field.value ? String(field.value) : ''}
-                    onValueChange={(v) => field.onChange(Number(v))}
+                    value={field.value}
+                    onValueChange={field.onChange}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -93,7 +93,7 @@ export function CreateTransferDialog({ open, onOpenChange }: Props) {
                     </FormControl>
                     <SelectContent>
                       {sectors.map((s) => (
-                        <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>
+                        <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -114,8 +114,8 @@ export function CreateTransferDialog({ open, onOpenChange }: Props) {
                       render={({ field }) => (
                         <FormItem>
                           <Select
-                            value={field.value ? String(field.value) : ''}
-                            onValueChange={(v) => field.onChange(Number(v))}
+                            value={field.value}
+                            onValueChange={field.onChange}
                           >
                             <FormControl>
                               <SelectTrigger className="text-xs">
@@ -124,7 +124,7 @@ export function CreateTransferDialog({ open, onOpenChange }: Props) {
                             </FormControl>
                             <SelectContent>
                               {materials.map((m) => (
-                                <SelectItem key={m.id} value={String(m.id)}>
+                                <SelectItem key={m.id} value={m.id}>
                                   {m.name}
                                 </SelectItem>
                               ))}
@@ -168,7 +168,7 @@ export function CreateTransferDialog({ open, onOpenChange }: Props) {
 
               <button
                 type="button"
-                onClick={() => append({ materialId: 0, requestedQuantity: 1 })}
+                onClick={() => append({ materialId: '', requestedQuantity: 1 })}
                 className="flex items-center gap-1.5 text-xs text-brand hover:text-brand-hover font-medium py-1"
               >
                 <Plus size={13} />

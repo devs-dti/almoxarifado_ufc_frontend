@@ -1,4 +1,12 @@
 export type PaginatedResponse<T> = {
+  content: T[]
+  totalElements: number
+  totalPages: number
+  number: number
+  size: number
+}
+
+export type BackendPageResponse<T> = {
   data: T[]
   meta: {
     page: number
@@ -7,6 +15,8 @@ export type PaginatedResponse<T> = {
     totalPages: number
   }
 }
+
+export type PageLike<T> = PaginatedResponse<T> | BackendPageResponse<T> | T[]
 
 export type PageParams = {
   page?: number
