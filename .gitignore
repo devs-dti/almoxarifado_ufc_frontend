@@ -41,3 +41,7 @@ yarn-error.log*
 next-env.d.ts
 .plan/
 audits.json
+schemas_dump.txt
+swagger_live.json
+swagger2.json
+swagger.json
