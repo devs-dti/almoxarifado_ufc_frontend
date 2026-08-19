@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+schemas_dump.txt
+swagger.json
+swagger2.json
+swagger_live.json
