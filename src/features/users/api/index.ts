@@ -4,16 +4,7 @@ import type { EntityId } from '@/shared/types/id'
 import type { UserListItem, CreateUserPayload, UpdateUserPayload, UserDetail } from '../types'
 import type { PageLike, PageParams } from '@/shared/types/pagination'
 
-function buildFormData(data: Record<string, any>): FormData {
-  const fd = new FormData()
-  Object.entries(data).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== '') {
-      fd.append(key, value instanceof File ? value : String(value))
-    }
-  })
-  return fd
-}
-
+import { buildFormData } from '@/shared/lib/form-data'
 export const usersApi = {
   list: (params?: PageParams) =>
     api.get<PageLike<UserListItem>>('/users', { params }).then((r) => unwrapPage(r.data)),

@@ -1,4 +1,5 @@
 import { httpClient } from '@/infrastructure/http/client'
+import { buildFormData } from '@/shared/lib/form-data'
 import { unwrapPage } from '@/shared/lib/pagination'
 import type { PageLike, PageParams } from '@/shared/types/pagination'
 import type { EntityId } from '@/shared/types/id'
@@ -22,10 +23,14 @@ export const materialsApi = {
     httpClient.get<Material>(`/materials/${id}`).then((r) => r.data),
 
   create: (data: CreateMaterialPayload) =>
-    httpClient.post<Material>('/materials', data).then((r) => r.data),
+    httpClient.post<Material>('/materials', buildFormData(data), {
+      headers: { 'Content-Type': undefined }
+    }).then((r) => r.data),
 
   update: (id: EntityId, data: UpdateMaterialPayload) =>
-    httpClient.patch<Material>(`/materials/${id}`, data).then((r) => r.data),
+    httpClient.patch<Material>(`/materials/${id}`, buildFormData(data), {
+      headers: { 'Content-Type': undefined }
+    }).then((r) => r.data),
 
   delete: (id: EntityId) => httpClient.delete(`/materials/${id}`),
 

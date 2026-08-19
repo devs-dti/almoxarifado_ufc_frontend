@@ -13,20 +13,23 @@ export type MeasurementUnit = {
 export type Material = {
   id: EntityId
   name: string
-  code: string
-  quantity: number
+  internalCode: string
+  description?: string | null
+  imageUrl?: string | null
   minQuantity: number
-  group: MaterialGroup
-  unit: MeasurementUnit
+  materialGroupName: string
+  measurementUnitName: string
   deletedAt?: string | null
 }
 
 export type CreateMaterialPayload = {
   name: string
-  code: string
+  internalCode: string
+  description?: string
   minQuantity: number
-  groupId: EntityId
-  unitId: EntityId
+  materialGroupId: EntityId
+  measurementUnitId: EntityId
+  file?: File
 }
 
 export type UpdateMaterialPayload = Partial<CreateMaterialPayload>
