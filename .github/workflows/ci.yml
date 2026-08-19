@@ -1,0 +1,36 @@
+name: CI Checklist
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Checar Lint
+        run: npm run lint
+
+      - name: Checar Tipos (Typecheck)
+        run: npm run typecheck
+
+      - name: Rodar Testes
+        run: npm run test:run
+
+      - name: Gerar Build
+        run: npm run build

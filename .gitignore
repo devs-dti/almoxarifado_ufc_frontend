@@ -39,7 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+<<<<<<< HEAD
 schemas_dump.txt
 swagger.json
 swagger2.json
 swagger_live.json
+=======
+.plan/
+audits.json
+>>>>>>> origin/main
