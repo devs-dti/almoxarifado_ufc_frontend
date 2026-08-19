@@ -3,7 +3,7 @@ import type { InventoryReport, LowStockMaterial, ExpiringLot, EntriesSummary, Tr
 
 export const reportsApi = {
   inventory: () =>
-    api.get<InventoryReport>('/reports/materials/inventory').then((r) => r.data),
+    api.get<InventoryReport>('/reports/materials').then((r) => r.data),
 
   lowStock: () =>
     api.get<{ materials: LowStockMaterial[] }>('/reports/materials/low-stock').then((r) => r.data),
@@ -15,5 +15,5 @@ export const reportsApi = {
     api.get<EntriesSummary>('/reports/entries/summary').then((r) => r.data),
 
   transfersSummary: () =>
-    api.get<TransfersSummary>('/reports/transfers/summary').then((r) => r.data),
+    api.get<TransfersSummary>('/reports/transfer/summary').then((r) => r.data),
 }
