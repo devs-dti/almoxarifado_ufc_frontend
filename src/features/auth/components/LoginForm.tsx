@@ -31,8 +31,8 @@ export function LoginForm() {
       await login(data)
       toast.success('Login bem-sucedido!')
       router.push('/dashboard')
-    } catch (err) {
-      toast.error(parseApiError(err))
+    } catch (err: any) {
+      // O erro já é tratado globalmente pelo interceptor do Axios em client.ts
     }
   }
 

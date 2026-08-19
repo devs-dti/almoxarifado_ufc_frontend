@@ -14,7 +14,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="pt-BR">
       <body className="min-h-screen bg-background antialiased overflow-x-hidden">
         <Providers>{children}</Providers>
-        <Toaster />
       </body>
     </html>
   )

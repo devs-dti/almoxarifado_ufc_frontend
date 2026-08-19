@@ -27,8 +27,8 @@ export function RegisterForm() {
       await usersApi.create({ name: data.name, email: data.email, password: data.password, role: 'STAFF' })
       toast.success('Conta criada! Faça login para continuar.')
       form.reset()
-    } catch (err) {
-      toast.error(parseApiError(err, 'Erro ao criar conta. Tente novamente.'))
+    } catch (err: any) {
+      // O erro já é tratado globalmente pelo interceptor do Axios em client.ts
     }
   }
 
