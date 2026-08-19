@@ -5,7 +5,7 @@ const RESET_PASSWORD_PREFIX = '/reset-password'
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
-  const token = req.cookies.get('auth-token')?.value
+  const token = req.cookies.get('accessCookie')?.value
 
   if (pathname === '/') {
     return NextResponse.redirect(new URL(token ? '/dashboard' : '/login', req.url))

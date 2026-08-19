@@ -10,11 +10,7 @@ export type User = {
   deletedAt?: string | null
 }
 
-export type AuthResponse = {
-  token: string
-  refreshToken?: string
-  user: User
-}
+export type AuthResponse = User
 
 export type LoginPayload = {
   email: string
