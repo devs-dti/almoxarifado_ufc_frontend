@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Upload } from 'lucide-react'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
@@ -170,16 +170,25 @@ export function UserFormDialog({ open, onOpenChange, editing }: Props) {
                   <FormItem className="col-span-2">
                     <FormLabel>Foto do Usuário</FormLabel>
                     <FormControl>
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        className="rounded-xl"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0]
-                          if (file) onChange(file)
-                        }}
-                        {...field}
-                      />
+                      <div className="flex items-center gap-3">
+                        <label className="cursor-pointer bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2.5 rounded-xl text-sm transition-colors shadow-sm flex items-center gap-2 font-medium">
+                          <Upload size={16} className="text-brand" />
+                          Escolher arquivo
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0]
+                              if (file) onChange(file)
+                            }}
+                            {...field}
+                          />
+                        </label>
+                        <span className="text-sm text-gray-500 truncate max-w-[250px]" title={value instanceof File ? value.name : ''}>
+                          {value instanceof File ? value.name : 'Nenhum arquivo escolhido'}
+                        </span>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
