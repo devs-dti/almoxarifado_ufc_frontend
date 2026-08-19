@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { PasswordInput } from '@/shared/components/PasswordInput'
+import { formatCPF } from '@/shared/lib/format'
 import { useSectors } from '@/features/sectors/hooks'
 import { useCreateUser, useUpdateUser, useUser } from '../hooks'
 import { createUserSchema, updateUserSchema } from '../schemas'
@@ -111,7 +112,14 @@ export function UserFormDialog({ open, onOpenChange, editing }: Props) {
                 <FormField control={form.control} name="cpf" render={({ field }) => (
                   <FormItem>
                     <FormLabel>CPF</FormLabel>
-                    <FormControl><Input className="rounded-xl" {...field} /></FormControl>
+                    <FormControl>
+                      <Input 
+                        className="rounded-xl" 
+                        {...field} 
+                        value={formatCPF(field.value ?? '')}
+                        onChange={(e) => field.onChange(e.target.value.replace(/\D/g, '').slice(0, 11))}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
