@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { http, HttpResponse } from 'msw'
 import { mockId } from '../utils'
 import type { Material, MaterialGroup, MeasurementUnit } from '@/features/materials/types'

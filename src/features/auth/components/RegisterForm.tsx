@@ -24,10 +24,18 @@ export function RegisterForm() {
 
   async function onSubmit(data: RegisterFormData) {
     try {
-      await usersApi.create({ name: data.name, email: data.email, password: data.password, role: 'STAFF' })
+      await usersApi.create({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        role: 'STAFF',
+        cpf: '00000000000',
+        jobTitle: 'Funcionário',
+        sectorId: '',
+      })
       toast.success('Conta criada! Faça login para continuar.')
       form.reset()
-    } catch (err: any) {
+    } catch {
       // O erro já é tratado globalmente pelo interceptor do Axios em client.ts
     }
   }

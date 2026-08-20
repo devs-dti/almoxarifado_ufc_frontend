@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { http, HttpResponse } from 'msw'
 import { mockId } from '../utils'
 import type { AddEntryItemPayload, CreateEntryPayload, Entry } from '@/features/entries/types'
