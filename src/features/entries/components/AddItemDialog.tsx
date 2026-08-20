@@ -31,7 +31,13 @@ import { Button } from '@/components/ui/button'
 import { useMaterials } from '@/features/materials/hooks'
 import type { EntityId } from '@/shared/types/id'
 import { useAddEntryItem } from '../hooks'
-import { addItemSchema, type AddItemValues } from '../schemas'
+import { addEntryItemSchema, type AddEntryItemInput } from '../schemas'
+
+const EXPIRATION_LABELS: Record<string, string> = {
+  DATED: 'Com Validade',
+  NON_EXPIRING: 'Sem Validade',
+  INDEFINITE: 'Indeterminado',
+}
 
 type Props = {
   entryId: EntityId
@@ -44,19 +50,18 @@ export function AddItemDialog({ entryId, open, onOpenChange }: Props) {
   const materials = materialsPage?.content ?? []
   const addItem = useAddEntryItem()
 
-  const form = useForm<AddItemValues>({
-    resolver: zodResolver(addItemSchema),
-    defaultValues: { materialId: '', quantity: 1, unitPrice: 0, expiresAt: '' },
+  const form = useForm<AddEntryItemInput>({
+    resolver: zodResolver(addEntryItemSchema),
+    defaultValues: { materialId: '', quantity: 1, expirationType: 'DATED', validity: '' },
   })
 
-  async function onSubmit(data: AddItemValues) {
+  const expirationType = form.watch('expirationType')
+
+  async function onSubmit(data: AddEntryItemInput) {
     try {
       await addItem.mutateAsync({
         entryId,
-        data: {
-          ...data,
-          expiresAt: data.expiresAt || undefined,
-        },
+        data: data as any,
       })
       toast.success('Item adicionado!')
       form.reset()
@@ -119,32 +124,43 @@ export function AddItemDialog({ entryId, open, onOpenChange }: Props) {
               />
               <FormField
                 control={form.control}
-                name="unitPrice"
+                name="expirationType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Preço Unit. (R$)</FormLabel>
-                    <FormControl>
-                      <Input type="number" step="0.01" className="rounded-xl" {...field} />
-                    </FormControl>
+                    <FormLabel>Tipo de Validade</FormLabel>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione..." />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {Object.entries(EXPIRATION_LABELS).map(([v, l]) => (
+                          <SelectItem key={v} value={v}>{l}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="expiresAt"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Vencimento (opcional)</FormLabel>
-                  <FormControl>
-                    <Input type="date" className="rounded-xl" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {expirationType === 'DATED' && (
+              <FormField
+                control={form.control}
+                name="validity"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Data de Validade</FormLabel>
+                    <FormControl>
+                      <Input type="date" className="rounded-xl" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             <DialogFooter className="pt-2">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

@@ -1,54 +1,51 @@
 import type { EntityId } from '@/shared/types/id'
 
 export type EntryStatus = 'PENDING' | 'FINISHED' | 'CANCELED'
-export type EntryType = 'SUPPLIER' | 'DONATION' | 'RETURN'
+export type EntryType = 'SUPPLIER' | 'DONATION' | 'INVENTORY_ADJUSTMENT' | 'RETURN' | 'OTHERS'
+export type ExpirationType = 'DATED' | 'NON_EXPIRING' | 'INDEFINITE'
 
 export type EntryItem = {
   id: EntityId
-  materialId: EntityId
   materialName: string
-  quantity: number
-  unitPrice: number
-  lotId?: EntityId
   lotCode?: string
-  expiresAt?: string | null
+  quantity: number
+  expirationType: ExpirationType
+  expirationDate?: string | null
 }
 
-export type EntryInvoice = {
-  number: string
-  issueDate: string
-  value: number
+export type SupplierDetails = {
+  supplierId: EntityId
+  invoiceNumber: string
+  invoiceIssueDate: string
+  totalAmount: number
+  biddingCode: string
+  commitmentNote: string
 }
 
 export type Entry = {
   id: EntityId
+  arrivalAt: string
+  entryType: EntryType
   status: EntryStatus
-  type: EntryType
-  supplierId?: EntityId
-  supplierName?: string
-  contractId?: EntityId
   responsible?: string
-  invoice?: EntryInvoice | null
+  notes?: string
   items: EntryItem[]
-  createdAt: string
-  finishedAt?: string | null
 }
 
 export type CreateEntryPayload = {
-  type: EntryType
-  supplierId?: EntityId
-  contractId?: EntityId
+  arrivalAt: string
+  entryType: EntryType
+  notes?: string
+  supplierDetails?: SupplierDetails
+  supplierDetailsConsistent?: boolean
 }
 
 export type AddEntryItemPayload = {
   materialId: EntityId
   quantity: number
-  unitPrice: number
-  expiresAt?: string
+  expirationType: ExpirationType
+  validity?: string
+  validityConsistentWithExpirationType?: boolean
 }
 
-export type AttachInvoicePayload = {
-  number: string
-  issueDate: string
-  value: number
-}
+export type UpdateEntryDetailsPayload = CreateEntryPayload
