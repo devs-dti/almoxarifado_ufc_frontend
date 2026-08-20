@@ -12,7 +12,6 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { PasswordInput } from '@/shared/components/PasswordInput'
-import { parseApiError } from '@/shared/lib/parseApiError'
 import { useAuthStore } from '@/store/useAuthStore'
 import { loginSchema } from '../schemas'
 import { AUTH_INPUT_CLASS } from '../constants'
@@ -51,7 +50,7 @@ export function LoginForm() {
       await login(data)
       toast.success('Login bem-sucedido!')
       router.push('/dashboard')
-    } catch (err: any) {
+    } catch {
       // O erro já é tratado globalmente pelo interceptor do Axios em client.ts
     }
   }

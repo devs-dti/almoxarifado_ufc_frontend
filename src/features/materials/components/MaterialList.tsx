@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Search, Pencil, Trash2, TriangleAlert, Plus, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Search, Pencil, Trash2, Plus, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useDebounceValue } from 'usehooks-ts'
 
 import { Input } from '@/components/ui/input'

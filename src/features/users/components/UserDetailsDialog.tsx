@@ -1,7 +1,7 @@
 'use client'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Loader2, User as UserIcon, Shield, Briefcase, Mail, Building2, Fingerprint } from 'lucide-react'
+import { Loader2, User as UserIcon, Mail, Building2, Fingerprint } from 'lucide-react'
 import type { EntityId } from '@/shared/types/id'
 import { useUser } from '../hooks'
 import { formatCPF } from '@/shared/lib/format'

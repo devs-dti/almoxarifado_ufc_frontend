@@ -3,7 +3,6 @@
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Toaster } from 'sonner'
-import { useEffect } from 'react'
 import { queryClient } from '@/shared/lib/query-client'
 import { setupAuthInterceptors } from '@/infrastructure/http/interceptors/auth.interceptor'
 import { MSWProvider } from './MSWProvider'

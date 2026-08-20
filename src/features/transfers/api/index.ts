@@ -2,7 +2,7 @@ import { httpClient as api } from '@/infrastructure/http/client'
 import { unwrapPage } from '@/shared/lib/pagination'
 import type { EntityId } from '@/shared/types/id'
 import type { PageLike, PageParams } from '@/shared/types/pagination'
-import type { Transfer, CreateTransferPayload, ApproveTransferPayload, DisapproveTransferPayload } from '../types'
+import type { Transfer, CreateTransferPayload, ApproveTransferPayload } from '../types'
 
 export const transfersApi = {
   list: (params?: PageParams & { status?: string }) =>

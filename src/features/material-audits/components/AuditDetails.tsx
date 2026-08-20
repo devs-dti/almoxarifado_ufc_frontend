@@ -6,7 +6,6 @@ import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { ArrowLeft, Save, CheckCircle, Ban, Download } from 'lucide-react'
 import { toast } from 'sonner'
-import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -116,7 +115,7 @@ export function AuditDetails({ id }: Props) {
       a.href = url
       a.download = `auditoria-${id}.pdf`
       a.click()
-    } catch (e) {
+    } catch {
       toast.error('Erro ao exportar PDF')
     }
   }
@@ -129,7 +128,7 @@ export function AuditDetails({ id }: Props) {
       a.href = url
       a.download = `auditoria-${id}.xlsx`
       a.click()
-    } catch (e) {
+    } catch {
       toast.error('Erro ao exportar Excel')
     }
   }
