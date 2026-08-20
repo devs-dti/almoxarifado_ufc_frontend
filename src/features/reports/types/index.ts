@@ -1,51 +1,71 @@
-import type { EntityId } from '@/shared/types/id'
+import type { PageParams } from '@/shared/types/pagination'
 
-export type InventoryMaterial = {
-  materialId: EntityId
-  materialName: string
-  code: string
-  quantity: number
-  totalValue: number
-  abcCurve: 'A' | 'B' | 'C'
+// 1. Relação Geral de Estoque
+export type MaterialStockReportItem = {
+  invoiceNumber?: string
+  expirationDate?: string
+  currentLotQuantity?: number
+  materialName?: string
+  lotCode?: string
+  measurementUnitDescription?: string
 }
 
-export type InventoryReport = {
-  materials: InventoryMaterial[]
-  totalValue: number
-  generatedAt: string
+export type InventoryReportParams = PageParams
+
+// 2. Falta de Estoque / Baixo Estoque
+export type OutOfStockReportItem = {
+  materialName?: string
+  measurementUnit?: string
+  quantity?: number
 }
 
-export type LowStockMaterial = {
-  materialId: EntityId
-  materialName: string
-  code: string
-  quantity: number
-  minQuantity: number
+export type LowStockReportParams = PageParams & {
+  includeExpired?: boolean
 }
 
-export type ExpiringLot = {
-  lotId: EntityId
-  lotCode: string
-  materialId: EntityId
-  materialName: string
-  quantity: number
-  expiresAt: string
-  daysUntilExpiry: number
+// 3. Controle de Vencimento
+export type ExpirationReportItem = {
+  expirationDate?: string
+  materialName?: string
+  measurementUnit?: string
+  quantity?: number
+  lotCode?: string
 }
 
-export type EntriesSummary = {
-  totalEntries: number
-  totalValue: number
-  bySupplier: { supplierId: EntityId; supplierName: string; totalValue: number }[]
-  byGroup: { groupId: EntityId; groupName: string; totalValue: number }[]
+export type ExpiringReportParams = PageParams & {
+  maxExpirationDate?: string
+  materialName?: string
 }
 
-export type TransfersSummary = {
-  totalTransfers: number
-  bySector: { sectorId: EntityId; sectorName: string; itemsConsumed: number; totalCost: number }[]
+// 4. Registro de Entradas
+export type EntryReportItem = {
+  entryDate?: string
+  materialName?: string
+  measurementUnit?: string
+  quantity?: number
 }
 
-export type ReportDateParams = {
-  startDate: string
-  endDate: string
+export type EntryType = 'SUPPLIER' | 'DONATION' | 'INVENTORY_ADJUSTMENT' | 'RETURN' | 'OTHERS'
+
+export type EntriesReportParams = PageParams & {
+  startDate?: string
+  endDate?: string
+  type?: EntryType
+  materialName?: string
+}
+
+// 5. Registro de Saídas / Transferências
+export type ExitReportItem = {
+  exitDate?: string
+  currentStock?: number
+  materialName?: string
+  measurementUnit?: string
+  quantity?: number
+}
+
+export type TransfersReportParams = PageParams & {
+  startDate?: string
+  endDate?: string
+  sectorId?: string
+  materialName?: string
 }

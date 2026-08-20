@@ -1,19 +1,58 @@
 import { httpClient as api } from '@/infrastructure/http/client'
-import type { InventoryReport, LowStockMaterial, ExpiringLot, EntriesSummary, TransfersSummary } from '../types'
+import { unwrapPage } from '@/shared/lib/pagination'
+import { downloadFile } from '@/shared/lib/download'
+import type { PaginatedResponse, PageLike } from '@/shared/types/pagination'
+import type {
+  MaterialStockReportItem,
+  OutOfStockReportItem,
+  ExpirationReportItem,
+  EntryReportItem,
+  ExitReportItem,
+  InventoryReportParams,
+  LowStockReportParams,
+  ExpiringReportParams,
+  EntriesReportParams,
+  TransfersReportParams,
+} from '../types'
+
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
 
 export const reportsApi = {
-  inventory: () =>
-    api.get<InventoryReport>('/reports/materials/inventory').then((r) => r.data),
+  // 1. Relação Geral de Estoque
+  inventory: (params?: InventoryReportParams): Promise<PaginatedResponse<MaterialStockReportItem>> =>
+    api.get<PageLike<MaterialStockReportItem>>('/reports/materials', { params }).then((r) => unwrapPage(r.data)),
+  exportInventoryPdf: () => downloadFile(`${baseUrl}/reports/materials/export/pdf`, 'Relacao_Estoque.pdf'),
+  exportInventoryExcel: () => downloadFile(`${baseUrl}/reports/materials/export/excel`, 'Relacao_Estoque.xlsx'),
 
-  lowStock: () =>
-    api.get<{ materials: LowStockMaterial[] }>('/reports/materials/low-stock').then((r) => r.data),
+  // 2. Falta de Estoque / Baixo Estoque
+  lowStock: (params?: LowStockReportParams): Promise<PaginatedResponse<OutOfStockReportItem>> =>
+    api.get<PageLike<OutOfStockReportItem>>('/reports/materials/low-stock', { params }).then((r) => unwrapPage(r.data)),
+  exportLowStockPdf: (params?: Omit<LowStockReportParams, 'page' | 'size' | 'sort'>) =>
+    downloadFile(`${baseUrl}/reports/materials/low-stock/export/pdf`, 'Estoque_Zerado_Baixo.pdf', params as Record<string, unknown>),
+  exportLowStockExcel: (params?: Omit<LowStockReportParams, 'page' | 'size' | 'sort'>) =>
+    downloadFile(`${baseUrl}/reports/materials/low-stock/export/excel`, 'Estoque_Zerado_Baixo.xlsx', params as Record<string, unknown>),
 
-  expiring: (days: number) =>
-    api.get<{ lots: ExpiringLot[] }>('/reports/materials/expiring', { params: { days } }).then((r) => r.data),
+  // 3. Controle de Vencimentos
+  expiring: (params?: ExpiringReportParams): Promise<PaginatedResponse<ExpirationReportItem>> =>
+    api.get<PageLike<ExpirationReportItem>>('/reports/materials/expiring', { params }).then((r) => unwrapPage(r.data)),
+  exportExpiringPdf: (params?: Omit<ExpiringReportParams, 'page' | 'size' | 'sort'>) =>
+    downloadFile(`${baseUrl}/reports/materials/expiring/export/pdf`, 'Controle_Vencimentos.pdf', params as Record<string, unknown>),
+  exportExpiringExcel: (params?: Omit<ExpiringReportParams, 'page' | 'size' | 'sort'>) =>
+    downloadFile(`${baseUrl}/reports/materials/expiring/export/excel`, 'Controle_Vencimentos.xlsx', params as Record<string, unknown>),
 
-  entriesSummary: () =>
-    api.get<EntriesSummary>('/reports/entries/summary').then((r) => r.data),
+  // 4. Registro de Entradas
+  entries: (params?: EntriesReportParams): Promise<PaginatedResponse<EntryReportItem>> =>
+    api.get<PageLike<EntryReportItem>>('/reports/entries/summary', { params }).then((r) => unwrapPage(r.data)),
+  exportEntriesPdf: (params?: Omit<EntriesReportParams, 'page' | 'size' | 'sort'>) =>
+    downloadFile(`${baseUrl}/reports/entries/export/pdf`, 'Registro_Entradas.pdf', params as Record<string, unknown>),
+  exportEntriesExcel: (params?: Omit<EntriesReportParams, 'page' | 'size' | 'sort'>) =>
+    downloadFile(`${baseUrl}/reports/entries/export/excel`, 'Registro_Entradas.xlsx', params as Record<string, unknown>),
 
-  transfersSummary: () =>
-    api.get<TransfersSummary>('/reports/transfers/summary').then((r) => r.data),
+  // 5. Registro de Saídas / Transferências
+  transfers: (params?: TransfersReportParams): Promise<PaginatedResponse<ExitReportItem>> =>
+    api.get<PageLike<ExitReportItem>>('/reports/transfer/summary', { params }).then((r) => unwrapPage(r.data)),
+  exportTransfersPdf: (params?: Omit<TransfersReportParams, 'page' | 'size' | 'sort'>) =>
+    downloadFile(`${baseUrl}/reports/transfer/export/pdf`, 'Registro_Transferencias.pdf', params as Record<string, unknown>),
+  exportTransfersExcel: (params?: Omit<TransfersReportParams, 'page' | 'size' | 'sort'>) =>
+    downloadFile(`${baseUrl}/reports/transfer/export/excel`, 'Registro_Transferencias.xlsx', params as Record<string, unknown>),
 }

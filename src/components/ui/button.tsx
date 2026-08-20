@@ -4,7 +4,7 @@ import React from "react";
 type ButtonProps =
   React.ButtonHTMLAttributes<HTMLButtonElement> & {
     variant?: "default" | "ghost" | "outline" | "destructive";
-    size?: "sm" | "md" | "lg";
+    size?: "sm" | "md" | "lg" | "icon";
   };
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -13,7 +13,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       "inline-flex items-center justify-center font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/50 select-none";
 
     const sizeClass =
-      size === "sm"
+      size === "icon"
+        ? "h-7 w-7 p-0 text-xs rounded-lg"
+        : size === "sm"
         ? "h-8 px-3 text-xs rounded-lg gap-1.5"
         : size === "lg"
         ? "h-11 px-6 text-sm rounded-xl gap-2"
