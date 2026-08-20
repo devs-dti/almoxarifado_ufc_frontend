@@ -6,24 +6,29 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { hasAnyRole } from '@/shared/lib/rbac'
 import { useAuthStore } from '@/store/useAuthStore'
-import { useDisapproveTransfer } from '../hooks'
+import { useDisapproveTransfer, useTransfer } from '../hooks'
 import { ApproveTransferDialog } from './ApproveTransferDialog'
 import { formatDate } from '@/shared/lib/format'
-import type { Transfer, TransferStatus } from '../types'
+import type { Transfer, TransferStatus, TransferType } from '../types'
 
 const STATUS_LABELS: Record<TransferStatus, string> = {
   PENDING: 'Pendente',
-  APPROVED: 'Aprovada',
-  PARTIALLY_APPROVED: 'Parcial',
-  DENIED: 'Negada',
+  FINISHED: 'Finalizada',
   CANCELED: 'Cancelada',
+}
+
+const EXIT_TYPE_LABELS: Record<TransferType, string> = {
+  SECTOR: 'Setor',
+  CLAIM: 'Requisição',
+  DONATION: 'Doação',
+  EXPIRATION: 'Vencimento',
+  OTHERS: 'Outros',
+  INVENTORY_ADJUSTMENT: 'Ajuste',
 }
 
 const STATUS_COLORS: Record<TransferStatus, string> = {
   PENDING: 'text-amber-600 bg-amber-50 border-amber-200',
-  APPROVED: 'text-emerald-600 bg-emerald-50 border-emerald-200',
-  PARTIALLY_APPROVED: 'text-blue-600 bg-blue-50 border-blue-200',
-  DENIED: 'text-red-500 bg-red-50 border-red-200',
+  FINISHED: 'text-emerald-600 bg-emerald-50 border-emerald-200',
   CANCELED: 'text-gray-400 bg-gray-50 border-gray-200',
 }
 
@@ -39,23 +44,16 @@ export function TransferAccordion({ transfer }: Props) {
   const canApprove = hasAnyRole(role, ['MANAGER'])
   const canDisapprove = hasAnyRole(role, ['ADMIN', 'MANAGER'])
 
+  const { data: detail, isLoading: isLoadingDetail } = useTransfer(transfer.id, { enabled: open })
+
   const isPending = transfer.status === 'PENDING'
 
   async function handleDeny() {
     try {
-      await disapprove.mutateAsync({ id: transfer.id })
-      toast.success('Transferência negada.')
+      await disapprove.mutateAsync(transfer.id)
+      toast.success('Transferência reprovada.')
     } catch {
-      toast.error('Erro ao negar transferência.')
-    }
-  }
-
-  async function handleCancel() {
-    try {
-      await disapprove.mutateAsync({ id: transfer.id })
-      toast.success('Transferência cancelada.')
-    } catch {
-      toast.error('Erro ao cancelar transferência.')
+      toast.error('Erro ao reprovar transferência.')
     }
   }
 
@@ -69,7 +67,7 @@ export function TransferAccordion({ transfer }: Props) {
           <div className="flex flex-col gap-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="font-semibold text-gray-900 text-sm">
-                Transferência #{transfer.id}
+                Transferência
               </span>
               <span
                 className={`text-[10px] font-semibold border rounded-full px-2 py-0.5 ${STATUS_COLORS[transfer.status]}`}
@@ -78,15 +76,27 @@ export function TransferAccordion({ transfer }: Props) {
               </span>
             </div>
             <div className="flex items-center gap-2 text-xs text-gray-400">
-              <span>{transfer.sectorName}</span>
-              <span className="text-gray-200">·</span>
-              <span>{transfer.requestedBy}</span>
+              <span className="font-medium text-gray-700">{EXIT_TYPE_LABELS[transfer.exitType]}</span>
+              {transfer.sector && (
+                <>
+                  <span className="text-gray-200">·</span>
+                  <span>{transfer.sector}</span>
+                </>
+              )}
+              {transfer.requester && (
+                <>
+                  <span className="text-gray-200">·</span>
+                  <span>{transfer.requester}</span>
+                </>
+              )}
               <span className="text-gray-200">·</span>
               <span>{formatDate(transfer.createdAt)}</span>
             </div>
-            <span className="text-xs text-gray-500">
-              {transfer.items.length} {transfer.items.length === 1 ? 'item' : 'itens'}
-            </span>
+            {detail?.items && (
+              <span className="text-xs text-gray-500">
+                {detail.items.length} {detail.items.length === 1 ? 'item' : 'itens'}
+              </span>
+            )}
           </div>
           <div className="shrink-0 ml-2 text-gray-400">
             {open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -95,29 +105,28 @@ export function TransferAccordion({ transfer }: Props) {
 
         {open && (
           <div className="border-t border-gray-100 px-4 pb-4 pt-3 flex flex-col gap-3">
-            <div className="flex flex-col gap-2">
-              {transfer.items.map((item) => (
+            {isLoadingDetail ? (
+              <div className="flex flex-col gap-2 animate-pulse">
+                <div className="h-10 bg-gray-100 rounded-xl w-full" />
+                <div className="h-10 bg-gray-100 rounded-xl w-full" />
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {detail?.items?.map((item) => (
                 <div
                   key={item.id}
                   className="flex items-center justify-between bg-gray-50 rounded-xl px-3 py-2"
                 >
                   <span className="text-xs font-medium text-gray-800 truncate">
-                    {item.materialName}
+                    {item.name}
                   </span>
                   <div className="flex items-center gap-2 text-[10px] text-gray-400 shrink-0 ml-2">
-                    <span>Solicitado: {item.requestedQuantity}</span>
-                    {item.approvedQuantity !== undefined && (
-                      <>
-                        <span className="text-gray-200">·</span>
-                        <span className="text-emerald-600 font-medium">
-                          Aprovado: {item.approvedQuantity}
-                        </span>
-                      </>
-                    )}
+                    <span>Qtd: {item.quantity} {item.measurementUnit}</span>
                   </div>
                 </div>
               ))}
             </div>
+            )}
 
             {isPending && (canDisapprove || canApprove) && (
               <div className="grid grid-cols-2 gap-2 pt-1">
@@ -126,22 +135,11 @@ export function TransferAccordion({ transfer }: Props) {
                     size="sm"
                     variant="outline"
                     className="gap-1 rounded-xl text-xs text-red-500 hover:text-red-600 border-red-200 hover:bg-red-50"
-                    onClick={handleCancel}
-                    disabled={disapprove.isPending}
-                  >
-                    <X size={12} />
-                    Cancelar
-                  </Button>
-                )}
-                {canDisapprove && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="gap-1 rounded-xl text-xs"
                     onClick={handleDeny}
                     disabled={disapprove.isPending}
                   >
-                    Negar
+                    <X size={12} />
+                    Reprovar
                   </Button>
                 )}
                 {canApprove && (
@@ -160,9 +158,9 @@ export function TransferAccordion({ transfer }: Props) {
         )}
       </div>
 
-      {canApprove && (
+      {canApprove && detail && (
         <ApproveTransferDialog
-          transfer={approveOpen ? transfer : null}
+          transfer={approveOpen ? detail : null}
           onOpenChange={setApproveOpen}
         />
       )}

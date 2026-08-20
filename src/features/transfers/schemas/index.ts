@@ -6,8 +6,26 @@ export const transferItemSchema = z.object({
 })
 
 export const createTransferSchema = z.object({
-  sectorId: z.string().min(1, 'Selecione um setor'),
+  exitType: z.enum([
+    'SECTOR',
+    'CLAIM',
+    'DONATION',
+    'EXPIRATION',
+    'OTHERS',
+    'INVENTORY_ADJUSTMENT'
+  ], { required_error: 'Selecione o tipo de saída' }),
+  notes: z.string().min(1, 'Observações são obrigatórias'),
   items: z.array(transferItemSchema).min(1, 'Adicione ao menos um item'),
+}).superRefine((data, ctx) => {
+  const ids = data.items.map(item => item.materialId)
+  const uniqueIds = new Set(ids)
+  if (uniqueIds.size !== ids.length) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Você não pode adicionar o mesmo material mais de uma vez na mesma saída.',
+      path: ['items'],
+    })
+  }
 })
 
 export const approveItemSchema = z.object({

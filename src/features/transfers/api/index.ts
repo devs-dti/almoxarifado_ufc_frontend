@@ -17,6 +17,6 @@ export const transfersApi = {
   approve: (id: EntityId, data: ApproveTransferPayload) =>
     api.patch<Transfer>(`/transfers/${id}/approve`, data).then((r) => r.data),
 
-  disapprove: (id: EntityId, data?: DisapproveTransferPayload) =>
-    api.patch<void>(`/transfers/${id}/disapprove`, data).then((r) => r.data),
+  disapprove: (id: EntityId) =>
+    api.patch<void>(`/transfers/${id}/disapprove`).then((r) => r.data),
 }
