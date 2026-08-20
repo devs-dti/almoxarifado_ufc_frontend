@@ -20,6 +20,18 @@ export function setupAuthInterceptors() {
     async (error) => {
       const original = error.config as typeof error.config & { _retry?: boolean }
       
+      // Se for 403 em requisição GET (cookie expirado), desloga e redireciona
+      // Mas NÃO faz isso em POST/PUT/DELETE (são erros de permissão legítimos)
+      if (
+        error.response?.status === 403 &&
+        original.method?.toLowerCase() === 'get' &&
+        !original.url?.includes('/auth/')
+      ) {
+        useAuthStore.getState().setAuth(null)
+        if (typeof window !== 'undefined') window.location.href = '/login?clear=1'
+        return Promise.reject(error)
+      }
+
       // Apenas intercepta 401 que não sejam do próprio refresh ou do login
       if (
         error.response?.status !== 401 || 

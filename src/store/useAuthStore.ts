@@ -39,9 +39,10 @@ export const useAuthStore = create<AuthState>()(
         try {
           await httpClient.post('/auth/logout')
         } catch {
-          // ignore
+          // Cookie pode já ter expirado — ignora o erro
         }
         set({ user: null, loading: false })
+        if (typeof window !== 'undefined') window.location.href = '/login'
       },
 
       isAuthenticated: () => Boolean(get().user),
