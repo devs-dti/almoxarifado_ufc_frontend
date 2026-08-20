@@ -16,10 +16,13 @@ httpClient.interceptors.response.use(
     // Tenta extrair a mensagem do erro da API
     const apiError = error.response?.data as ApiError;
     const message = apiError?.message || error.message || "Erro desconhecido ao processar requisição.";
+
     // Dispara o toast de erro (padrão Sonner) apenas se não for erro de autenticação/autorização ou logout
-    const isAuthError = error.response?.status === 401 || error.response?.status === 403
-    const isLogout = error.config?.url?.includes('/auth/logout')
-    if (!isAuthError && !isLogout) {
+    const isAuthError = error.response?.status === 401 || error.response?.status === 403;
+    const isLogout = error.config?.url?.includes('/auth/logout');
+    const isAuthCheck = error.config?.url?.includes('/auth/me') || error.config?.url?.includes('/auth/refresh-token');
+
+    if (!isAuthError && !isLogout && !isAuthCheck) {
       toast.error("Erro na Requisição", {
         description: message,
       });

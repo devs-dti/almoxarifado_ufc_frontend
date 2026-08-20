@@ -7,6 +7,11 @@ export type User = {
   name: string
   email: string
   role: Role
+  jobTitle?: string
+  imageUrl?: string | null
+  enabled?: boolean
+  createdAt?: string
+  updatedAt?: string
   deletedAt?: string | null
 }
 

@@ -61,8 +61,7 @@ export function setupAuthInterceptors() {
       } catch (err) {
         processQueue(err)
         useAuthStore.getState().logout()
-        // Adicione apenas esta linha para evitar que a tela fique congelada:
-      if (typeof window !== 'undefined') window.location.href = '/login'
+        if (typeof window !== 'undefined') window.location.href = '/login'
         return Promise.reject(err)
       } finally {
         isRefreshing = false
