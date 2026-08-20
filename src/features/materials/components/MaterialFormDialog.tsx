@@ -44,8 +44,8 @@ type Props = {
 
 export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
   const { data: groupsResponse } = useMaterialGroups({ page: 0, size: 100 })
-  const groups = groupsResponse?.content || []
-  const { data: units = [] } = useMeasurementUnits()
+  const groups = groupsResponse?.content
+  const { data: units } = useMeasurementUnits()
   const create = useCreateMaterial()
   const update = useUpdateMaterial()
 
@@ -56,8 +56,8 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
 
   useEffect(() => {
     if (editing) {
-      const matchedGroup = groupsResponse?.content?.find(g => g.name === editing.materialGroupName)
-      const matchedUnit = units.find(u => u.name === editing.measurementUnitName)
+      const matchedGroup = groups?.find(g => g.name === editing.materialGroupName)
+      const matchedUnit = units?.find(u => u.name === editing.measurementUnitName)
       form.reset({
         name: editing.name,
         internalCode: editing.internalCode,
@@ -69,7 +69,7 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
     } else {
       form.reset({ name: '', internalCode: '', description: '', minQuantity: 0, materialGroupId: '', measurementUnitId: '' })
     }
-  }, [editing, open, form, groupsResponse?.content, units])
+  }, [editing, open, form, groups, units])
 
   async function onSubmit(data: MaterialFormData) {
     try {
@@ -169,7 +169,7 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {groups.map((g) => (
+                      {groups?.map((g) => (
                         <SelectItem key={g.id} value={g.id}>
                           {g.name}
                         </SelectItem>
@@ -197,7 +197,7 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {units.map((u) => (
+                      {units?.map((u) => (
                         <SelectItem key={u.id} value={u.id}>
                           {u.name} ({u.abbreviation})
                         </SelectItem>

@@ -3,13 +3,12 @@ import type { EntityId } from '@/shared/types/id'
 export type Sector = {
   id: EntityId
   name: string
-  description?: string
-  deletedAt?: string | null
+  code: string
 }
 
 export type CreateSectorPayload = {
   name: string
-  description?: string
+  code: string
 }
 
 export type UpdateSectorPayload = Partial<CreateSectorPayload>

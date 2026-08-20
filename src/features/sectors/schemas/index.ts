@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export const sectorSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
-  description: z.string().optional(),
+  code: z.string().min(1, 'Código é obrigatório'),
 })
 
 export const unitSchema = z.object({
