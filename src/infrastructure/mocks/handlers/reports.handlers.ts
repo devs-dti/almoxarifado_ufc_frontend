@@ -1,18 +1,27 @@
 import { http, HttpResponse } from 'msw'
 import { mockId } from '../utils'
 
+const inventoryData = {
+  materials: [
+    { materialId: mockId(41), materialName: 'Papel A4', code: 'PAP-001', quantity: 500, totalValue: 12950, abcCurve: 'A' },
+    { materialId: mockId(42), materialName: 'Caneta Azul', code: 'CAN-001', quantity: 80, totalValue: 240, abcCurve: 'C' },
+    { materialId: mockId(43), materialName: 'Detergente 500ml', code: 'DET-001', quantity: 20, totalValue: 300, abcCurve: 'B' },
+  ],
+  totalValue: 13490,
+  generatedAt: new Date().toISOString(),
+}
+
+const transfersSummaryData = {
+  totalTransfers: 5,
+  bySector: [
+    { sectorId: mockId(1), sectorName: 'TI', itemsConsumed: 50, totalCost: 1295 },
+    { sectorId: mockId(2), sectorName: 'Administrativo', itemsConsumed: 30, totalCost: 450 },
+  ],
+}
+
 export const reportsHandlers = [
-  http.get('/reports/materials/inventory', () =>
-    HttpResponse.json({
-      materials: [
-        { materialId: mockId(41), materialName: 'Papel A4', code: 'PAP-001', quantity: 500, totalValue: 12950, abcCurve: 'A' },
-        { materialId: mockId(42), materialName: 'Caneta Azul', code: 'CAN-001', quantity: 80, totalValue: 240, abcCurve: 'C' },
-        { materialId: mockId(43), materialName: 'Detergente 500ml', code: 'DET-001', quantity: 20, totalValue: 300, abcCurve: 'B' },
-      ],
-      totalValue: 13490,
-      generatedAt: new Date().toISOString(),
-    })
-  ),
+  http.get('/reports/materials/inventory', () => HttpResponse.json(inventoryData)),
+  http.get('/reports/materials', () => HttpResponse.json(inventoryData)),
 
   http.get('/reports/materials/low-stock', () =>
     HttpResponse.json({
@@ -45,13 +54,6 @@ export const reportsHandlers = [
     })
   ),
 
-  http.get('/reports/transfers/summary', () =>
-    HttpResponse.json({
-      totalTransfers: 5,
-      bySector: [
-        { sectorId: mockId(1), sectorName: 'TI', itemsConsumed: 50, totalCost: 1295 },
-        { sectorId: mockId(2), sectorName: 'Administrativo', itemsConsumed: 30, totalCost: 450 },
-      ],
-    })
-  ),
+  http.get('/reports/transfers/summary', () => HttpResponse.json(transfersSummaryData)),
+  http.get('/reports/transfer/summary', () => HttpResponse.json(transfersSummaryData)),
 ]

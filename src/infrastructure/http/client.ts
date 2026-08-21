@@ -2,12 +2,22 @@ import axios from "axios";
 import { toast } from "sonner";
 import type { ApiError } from "@/shared/types/api";
 
+import Cookies from "js-cookie";
+
 const baseURL = process.env.NEXT_PUBLIC_API_URL ?? "/api/backend";
 
 export const httpClient = axios.create({
   baseURL,
   headers: { "Content-Type": "application/json" },
   withCredentials: true,
+});
+
+httpClient.interceptors.request.use((config) => {
+  const token = Cookies.get("auth-token");
+  if (token && !config.headers.Authorization) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 httpClient.interceptors.response.use(
@@ -31,8 +41,12 @@ httpClient.interceptors.response.use(
         document.cookie = "auth-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         
         // Só redireciona se não estiver na tela de login, para evitar loop
-        if (window.location.pathname !== "/login") {
-          window.location.href = "/login";
+        if (window.location?.pathname !== "/login") {
+          try {
+            window.location.href = "/login";
+          } catch {
+            // jsdom navigation fallback
+          }
         }
       }
     }
