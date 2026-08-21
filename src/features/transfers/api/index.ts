@@ -2,7 +2,7 @@ import { httpClient as api } from '@/infrastructure/http/client'
 import { unwrapPage } from '@/shared/lib/pagination'
 import type { EntityId } from '@/shared/types/id'
 import type { PageLike, PageParams } from '@/shared/types/pagination'
-import type { Transfer, CreateTransferPayload, ApproveTransferPayload, DisapproveTransferPayload } from '../types'
+import type { Transfer, CreateTransferPayload, ApproveTransferPayload } from '../types'
 
 export const transfersApi = {
   list: (params?: PageParams & { status?: string }) =>
@@ -17,6 +17,6 @@ export const transfersApi = {
   approve: (id: EntityId, data: ApproveTransferPayload) =>
     api.patch<Transfer>(`/transfers/${id}/approve`, data).then((r) => r.data),
 
-  disapprove: (id: EntityId, data?: DisapproveTransferPayload) =>
-    api.patch<void>(`/transfers/${id}/disapprove`, data).then((r) => r.data),
+  disapprove: (id: EntityId) =>
+    api.patch<void>(`/transfers/${id}/disapprove`).then((r) => r.data),
 }

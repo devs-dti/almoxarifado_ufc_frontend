@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Package, ArrowDownCircle, ArrowUpCircle, FileBarChart, LayoutGrid } from 'lucide-react'
+import { Package, ArrowDownCircle, ArrowUpCircle, FileBarChart } from 'lucide-react'
 
 const items = [
   { label: 'Materiais', href: '/dashboard/materiais', icon: Package },

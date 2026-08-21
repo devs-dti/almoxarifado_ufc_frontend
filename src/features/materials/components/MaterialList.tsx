@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Search, Pencil, Trash2, TriangleAlert, Plus, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Search, Pencil, Trash2, Plus, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useDebounceValue } from 'usehooks-ts'
 
 import { Input } from '@/components/ui/input'
@@ -103,30 +103,37 @@ export function MaterialList() {
         </div>
       )}
 
-      {!isLoading && materials.map((m) => {
-        const isLowStock = m.quantity <= m.minQuantity
-        return (
+      {!isLoading && materials.map((m) => (
           <div
             key={m.id}
             className="bg-white rounded-2xl border border-gray-100 px-4 py-3 flex items-start justify-between shadow-sm"
           >
             <div className="flex flex-col gap-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-semibold text-gray-900 text-sm truncate">{m.name}</span>
-                {isLowStock && (
-                  <span className="flex items-center gap-1 text-[10px] font-semibold text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">
-                    <TriangleAlert size={10} />
-                    Estoque baixo
-                  </span>
+              <div className="flex items-center gap-3 flex-wrap">
+                {m.imageUrl ? (
+                  <img src={m.imageUrl} alt={m.name} className="w-10 h-10 rounded-full object-cover border border-gray-200" />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-brand/10 text-brand flex items-center justify-center border border-brand/20">
+                    <span className="text-xs font-bold uppercase">{m.name.substring(0, 2)}</span>
+                  </div>
                 )}
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold text-gray-900 text-sm truncate">{m.name}</span>
+                  </div>
+                  <span className="text-xs text-gray-400">
+                    {m.internalCode}
+                    {m.description && <span className="text-gray-300 mx-1">·</span>}
+                    {m.description && <span className="text-gray-500 truncate max-w-[150px] inline-block align-bottom">{m.description}</span>}
+                  </span>
+                </div>
               </div>
-              <span className="text-xs text-gray-400">{m.code}</span>
               <div className="flex items-center gap-2 mt-1 flex-wrap">
                 <Badge variant="secondary" className="text-[10px] rounded-full">
-                  {m.group.name}
+                  {m.materialGroupName}
                 </Badge>
                 <span className="text-xs text-gray-500">
-                  {m.quantity} {m.unit.abbreviation}
+                  {m.measurementUnitName}
                   <span className="text-gray-300 mx-1">·</span>
                   mín {m.minQuantity}
                 </span>
@@ -156,8 +163,8 @@ export function MaterialList() {
               </div>
             )}
           </div>
-        )
-      })}
+        ))
+      }
 
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-3 pt-2">

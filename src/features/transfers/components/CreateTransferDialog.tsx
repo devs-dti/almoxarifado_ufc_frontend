@@ -28,11 +28,21 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { useMaterials } from '@/features/materials/hooks'
-import { useSectors } from '@/features/sectors/hooks'
 import { useCreateTransfer } from '../hooks'
 import { createTransferSchema, type CreateTransferValues } from '../schemas'
+import type { TransferType } from '../types'
+
+const EXIT_TYPE_LABELS: Record<TransferType, string> = {
+  SECTOR: 'Setor',
+  CLAIM: 'Requisição',
+  DONATION: 'Doação',
+  EXPIRATION: 'Vencimento',
+  OTHERS: 'Outros',
+  INVENTORY_ADJUSTMENT: 'Ajuste de Estoque',
+}
 
 type Props = {
   open: boolean
@@ -42,12 +52,11 @@ type Props = {
 export function CreateTransferDialog({ open, onOpenChange }: Props) {
   const { data: materialsPage } = useMaterials({ page: 0, size: 100 })
   const materials = materialsPage?.content ?? []
-  const { data: sectors = [] } = useSectors()
   const create = useCreateTransfer()
 
   const form = useForm<CreateTransferValues>({
     resolver: zodResolver(createTransferSchema),
-    defaultValues: { sectorId: '', items: [{ materialId: '', requestedQuantity: 1 }] },
+    defaultValues: { exitType: 'SECTOR', notes: '', items: [{ materialId: '', requestedQuantity: 1 }] },
   })
 
   const { fields, append, remove } = useFieldArray({ control: form.control, name: 'items' })
@@ -78,22 +87,22 @@ export function CreateTransferDialog({ open, onOpenChange }: Props) {
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4 pt-2">
             <FormField
               control={form.control}
-              name="sectorId"
+              name="exitType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Setor</FormLabel>
+                  <FormLabel>Tipo de Saída</FormLabel>
                   <Select
                     value={field.value}
                     onValueChange={field.onChange}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione o setor" />
+                        <SelectValue placeholder="Selecione o tipo" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {sectors.map((s) => (
-                        <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                      {Object.entries(EXIT_TYPE_LABELS).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>{label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -102,8 +111,38 @@ export function CreateTransferDialog({ open, onOpenChange }: Props) {
               )}
             />
 
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Observações</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Motivo da saída, número do documento, etc."
+                      className="rounded-xl resize-none"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <div className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-gray-700">Itens</span>
+              <div className="flex flex-col">
+                <span className="text-sm font-medium text-gray-700">Itens</span>
+                {form.formState.errors.items?.root?.message && (
+                  <span className="text-xs text-destructive font-medium mt-1">
+                    {form.formState.errors.items.root.message}
+                  </span>
+                )}
+                {form.formState.errors.items?.message && (
+                  <span className="text-xs text-destructive font-medium mt-1">
+                    {form.formState.errors.items.message as string}
+                  </span>
+                )}
+              </div>
 
               {fields.map((field, index) => (
                 <div key={field.id} className="flex items-start gap-2 bg-gray-50 rounded-xl p-3">

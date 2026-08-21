@@ -73,7 +73,7 @@ export function SectorList() {
         <div key={sector.id} className="bg-white rounded-2xl border border-gray-100 px-4 py-3 flex items-center justify-between shadow-sm">
           <div className="flex flex-col gap-0.5 min-w-0">
             <span className="font-semibold text-gray-900 text-sm">{sector.name}</span>
-            {sector.description && <span className="text-xs text-gray-400">{sector.description}</span>}
+            {sector.code && <span className="text-xs text-gray-400">Código: {sector.code}</span>}
           </div>
           {canManage && (
             <div className="flex items-center gap-1 shrink-0 ml-2">

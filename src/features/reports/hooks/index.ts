@@ -1,47 +1,54 @@
 import { useQuery } from '@tanstack/react-query'
 import { reportsApi } from '../api'
+import type {
+  InventoryReportParams,
+  LowStockReportParams,
+  ExpiringReportParams,
+  EntriesReportParams,
+  TransfersReportParams,
+} from '../types'
 
-export function useInventoryReport(enabled: boolean) {
+export function useInventoryReport(params: InventoryReportParams = {}, enabled = true) {
   return useQuery({
-    queryKey: ['reports', 'inventory'],
-    queryFn: reportsApi.inventory,
+    queryKey: ['reports', 'inventory', params],
+    queryFn: () => reportsApi.inventory(params),
     enabled,
-    staleTime: 60_000,
+    staleTime: 30_000,
   })
 }
 
-export function useLowStockReport(enabled: boolean) {
+export function useLowStockReport(params: LowStockReportParams = {}, enabled = true) {
   return useQuery({
-    queryKey: ['reports', 'low-stock'],
-    queryFn: reportsApi.lowStock,
+    queryKey: ['reports', 'low-stock', params],
+    queryFn: () => reportsApi.lowStock(params),
     enabled,
-    staleTime: 60_000,
+    staleTime: 30_000,
   })
 }
 
-export function useExpiringReport(days: number, enabled: boolean) {
+export function useExpiringReport(params: ExpiringReportParams = {}, enabled = true) {
   return useQuery({
-    queryKey: ['reports', 'expiring', days],
-    queryFn: () => reportsApi.expiring(days),
+    queryKey: ['reports', 'expiring', params],
+    queryFn: () => reportsApi.expiring(params),
     enabled,
-    staleTime: 60_000,
+    staleTime: 30_000,
   })
 }
 
-export function useEntriesSummary(enabled: boolean) {
+export function useEntriesSummary(params: EntriesReportParams = {}, enabled = true) {
   return useQuery({
-    queryKey: ['reports', 'entries-summary'],
-    queryFn: reportsApi.entriesSummary,
+    queryKey: ['reports', 'entries', params],
+    queryFn: () => reportsApi.entries(params),
     enabled,
-    staleTime: 60_000,
+    staleTime: 30_000,
   })
 }
 
-export function useTransfersSummary(enabled: boolean) {
+export function useTransfersSummary(params: TransfersReportParams = {}, enabled = true) {
   return useQuery({
-    queryKey: ['reports', 'transfers-summary'],
-    queryFn: reportsApi.transfersSummary,
+    queryKey: ['reports', 'transfers', params],
+    queryFn: () => reportsApi.transfers(params),
     enabled,
-    staleTime: 60_000,
+    staleTime: 30_000,
   })
 }

@@ -18,39 +18,46 @@ export default function RelatoriosPage() {
     <div className="flex-1 space-y-6 p-4 md:p-8 pt-6 animate-in fade-in duration-300">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Relatórios</h2>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Relatórios & Registros</h2>
+          <p className="text-sm text-gray-500 mt-1">
+            Consulte o histórico de movimentações, validades e exporte dados em PDF ou Excel
+          </p>
+        </div>
       </div>
-      <OptionCard
-        title="Relatório Geral de Materiais"
-        icon={FileBarChart}
-        iconColor="text-brand"
-        onClick={() => setActive('inventory')}
-      />
-      <OptionCard
-        title="Materiais em Falta"
-        icon={TriangleAlert}
-        iconColor="text-brand"
-        onClick={() => setActive('low-stock')}
-      />
-      <OptionCard
-        title="Vencimento de Materiais"
-        icon={CalendarDays}
-        iconColor="text-brand"
-        titleColor="text-brand"
-        onClick={() => setActive('expiring')}
-      />
-      <OptionCard
-        title="Resumo de Entradas"
-        icon={PackageOpen}
-        iconColor="text-brand"
-        onClick={() => setActive('entries')}
-      />
-      <OptionCard
-        title="Resumo de Transferências"
-        icon={ArrowRightLeft}
-        iconColor="text-brand"
-        onClick={() => setActive('transfers')}
-      />
+
+      <div className="grid grid-cols-1 gap-4">
+        <OptionCard
+          title="Relação Geral de Itens em Estoque"
+          icon={FileBarChart}
+          iconColor="text-brand"
+          onClick={() => setActive('inventory')}
+        />
+        <OptionCard
+          title="Materiais com Estoque Zerado ou Baixo"
+          icon={TriangleAlert}
+          iconColor="text-amber-500"
+          onClick={() => setActive('low-stock')}
+        />
+        <OptionCard
+          title="Controle de Vencimentos por Lote"
+          icon={CalendarDays}
+          iconColor="text-purple-600"
+          onClick={() => setActive('expiring')}
+        />
+        <OptionCard
+          title="Histórico e Registro de Entradas"
+          icon={PackageOpen}
+          iconColor="text-emerald-600"
+          onClick={() => setActive('entries')}
+        />
+        <OptionCard
+          title="Histórico e Registro de Transferências / Saídas"
+          icon={ArrowRightLeft}
+          iconColor="text-blue-600"
+          onClick={() => setActive('transfers')}
+        />
+      </div>
 
       <InventoryReportDialog open={active === 'inventory'} onOpenChange={(v) => !v && setActive(null)} />
       <LowStockReportDialog open={active === 'low-stock'} onOpenChange={(v) => !v && setActive(null)} />

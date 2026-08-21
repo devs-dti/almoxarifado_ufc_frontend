@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Pencil, Trash2, Plus, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Pencil, Trash2, Plus, ChevronLeft, ChevronRight, User as UserIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import type { EntityId } from '@/shared/types/id'
@@ -9,6 +9,7 @@ import { hasAnyRole } from '@/shared/lib/rbac'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useUsers, useDeleteUser } from '../hooks'
 import { UserFormDialog } from './UserFormDialog'
+import { UserDetailsDialog } from './UserDetailsDialog'
 import type { UserListItem } from '../types'
 
 const ROLE_LABELS: Record<string, string> = {
@@ -30,6 +31,7 @@ export function UserList() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editing, setEditing] = useState<UserListItem | null>(null)
   const [deletingId, setDeletingId] = useState<EntityId | null>(null)
+  const [viewDetailsId, setViewDetailsId] = useState<EntityId | null>(null)
   const role = useAuthStore((s) => s.user?.role)
   const canManage = hasAnyRole(role, ['ADMIN'])
 
@@ -75,16 +77,34 @@ export function UserList() {
         <div className="text-center py-12 text-gray-400 text-sm">Nenhum usuário encontrado.</div>
       )}
 
-      {!isLoading && users.map((user) => (
-        <div key={user.id} className="bg-white rounded-2xl border border-gray-100 px-4 py-3 flex items-center justify-between shadow-sm">
-          <div className="flex flex-col gap-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-semibold text-gray-900 text-sm">{user.name}</span>
-              <span className={`text-[10px] font-semibold border rounded-full px-2 py-0.5 ${ROLE_COLORS[user.role] ?? ''}`}>
-                {ROLE_LABELS[user.role] ?? user.role}
-              </span>
+      {!isLoading && users.map((user: UserListItem) => (
+        <div key={user.id} className="bg-white rounded-2xl border border-gray-100 px-4 py-3 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex flex-col gap-1 min-w-0 flex-1 cursor-pointer" onClick={() => setViewDetailsId(user.id)}>
+            <div className="flex items-center gap-3 flex-wrap hover:opacity-80 transition-opacity">
+              {user.imageUrl ? (
+                <img src={user.imageUrl} alt={user.name} className="w-10 h-10 rounded-full object-cover border border-gray-200" />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-brand/10 text-brand flex items-center justify-center border border-brand/20">
+                  <UserIcon size={18} />
+                </div>
+              )}
+              <div className="flex flex-col">
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-gray-900 text-sm">{user.name}</span>
+                  <span className={`text-[10px] font-semibold border rounded-full px-2 py-0.5 ${ROLE_COLORS[user.role] ?? ''}`}>
+                    {ROLE_LABELS[user.role] ?? user.role}
+                  </span>
+                  {user.enabled !== undefined && (
+                    <span className={`text-[10px] font-semibold border rounded-full px-2 py-0.5 ${user.enabled ? 'text-green-600 bg-green-50 border-green-200' : 'text-red-600 bg-red-50 border-red-200'}`}>
+                      {user.enabled ? 'Ativo' : 'Inativo'}
+                    </span>
+                  )}
+                </div>
+                <span className="text-xs text-gray-400">
+                  {user.email} {user.jobTitle ? `• ${user.jobTitle}` : ''}
+                </span>
+              </div>
             </div>
-            <span className="text-xs text-gray-400">{user.email}</span>
           </div>
           {canManage && (
           <div className="flex items-center gap-1 shrink-0 ml-2">
@@ -128,6 +148,11 @@ export function UserList() {
           editing={editing}
         />
       )}
+
+      <UserDetailsDialog 
+        userId={viewDetailsId} 
+        onClose={() => setViewDetailsId(null)} 
+      />
     </div>
   )
 }

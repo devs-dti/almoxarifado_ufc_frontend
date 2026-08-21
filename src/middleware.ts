@@ -4,8 +4,14 @@ const PUBLIC_ROUTES = ['/login', '/forgot-password']
 const RESET_PASSWORD_PREFIX = '/reset-password'
 
 export function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl
-  const token = req.cookies.get('auth-token')?.value
+  const { pathname, searchParams } = req.nextUrl
+  const token = req.cookies.get('accessCookie')?.value
+
+  if (searchParams.get('clear') === '1') {
+    const response = NextResponse.redirect(new URL('/login', req.url))
+    response.cookies.delete('accessCookie')
+    return response
+  }
 
   if (pathname === '/') {
     return NextResponse.redirect(new URL(token ? '/dashboard' : '/login', req.url))

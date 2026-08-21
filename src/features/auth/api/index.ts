@@ -7,7 +7,7 @@ export const authApi = {
 
   logout: () => httpClient.post('/auth/logout'),
 
-  me: () => httpClient.get<AuthResponse['user']>('/auth/me').then((r) => r.data),
+  me: () => httpClient.get<AuthResponse>('/auth/me').then((r) => r.data),
 
   refreshToken: () =>
     httpClient.post<{ token: string }>('/auth/refresh-token').then((r) => r.data),

@@ -5,7 +5,7 @@ import type {
   Entry,
   CreateEntryPayload,
   AddEntryItemPayload,
-  AttachInvoicePayload,
+  UpdateEntryDetailsPayload,
 } from '../types'
 import type { PageLike, PageParams } from '@/shared/types/pagination'
 
@@ -19,7 +19,7 @@ export const entriesApi = {
   create: (data: CreateEntryPayload) =>
     api.post<Entry>('/entries', data).then((r) => r.data),
 
-  attachInvoice: (id: EntityId, data: AttachInvoicePayload) =>
+  updateDetails: (id: EntityId, data: UpdateEntryDetailsPayload) =>
     api.patch<Entry>(`/entries/${id}/details`, data).then((r) => r.data),
 
   addItem: (id: EntityId, data: AddEntryItemPayload) =>

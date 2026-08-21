@@ -9,7 +9,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { PasswordInput } from '@/shared/components/PasswordInput'
-import { parseApiError } from '@/shared/lib/parseApiError'
 import { usersApi } from '@/features/users/api'
 import { registerSchema } from '../schemas'
 import { AUTH_INPUT_CLASS } from '../constants'
@@ -24,10 +23,18 @@ export function RegisterForm() {
 
   async function onSubmit(data: RegisterFormData) {
     try {
-      await usersApi.create({ name: data.name, email: data.email, password: data.password, role: 'STAFF' })
+      await usersApi.create({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        role: 'STAFF',
+        cpf: '00000000000',
+        jobTitle: 'Funcionário',
+        sectorId: '',
+      })
       toast.success('Conta criada! Faça login para continuar.')
       form.reset()
-    } catch (err: any) {
+    } catch {
       // O erro já é tratado globalmente pelo interceptor do Axios em client.ts
     }
   }

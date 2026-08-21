@@ -9,7 +9,7 @@ import { hasAnyRole } from '@/shared/lib/rbac'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useFinishEntry, useCancelEntry, useRemoveEntryItem } from '../hooks'
 import { AddItemDialog } from './AddItemDialog'
-import { formatDate, formatCurrency } from '@/shared/lib/format'
+import { formatDate } from '@/shared/lib/format'
 import type { Entry, EntryStatus } from '../types'
 
 const STATUS_LABELS: Record<EntryStatus, string> = {
@@ -27,7 +27,15 @@ const STATUS_COLORS: Record<EntryStatus, string> = {
 const TYPE_LABELS: Record<string, string> = {
   SUPPLIER: 'Fornecedor',
   DONATION: 'Doação',
+  INVENTORY_ADJUSTMENT: 'Ajuste de Estoque',
   RETURN: 'Devolução',
+  OTHERS: 'Outros',
+}
+
+const EXPIRATION_LABELS: Record<string, string> = {
+  DATED: 'Vence em',
+  NON_EXPIRING: 'Sem Validade',
+  INDEFINITE: 'Indeterminado',
 }
 
 type Props = {
@@ -41,10 +49,9 @@ export function EntryAccordion({ entry }: Props) {
   const cancel = useCancelEntry()
   const removeItem = useRemoveEntryItem()
   const role = useAuthStore((s) => s.user?.role)
-  const canManage = hasAnyRole(role, ['MANAGER', 'STAFF'])
+  const canManage = hasAnyRole(role, ['ADMIN', 'MANAGER', 'STAFF'])
 
   const isPending = entry.status === 'PENDING'
-  const total = entry.items.reduce((sum, i) => sum + i.quantity * i.unitPrice, 0)
 
   async function handleFinish() {
     try {
@@ -91,25 +98,19 @@ export function EntryAccordion({ entry }: Props) {
                 {STATUS_LABELS[entry.status]}
               </span>
             </div>
-            <div className="flex items-center gap-2 text-xs text-gray-400">
-              <span>{TYPE_LABELS[entry.type] ?? entry.type}</span>
-              {entry.supplierName && (
+            <div className="flex items-center gap-2 flex-wrap mt-1 text-xs text-gray-500">
+              <span>{TYPE_LABELS[entry.entryType] ?? entry.entryType}</span>
+              {entry.responsible && (
                 <>
                   <span className="text-gray-200">·</span>
-                  <span>{entry.supplierName}</span>
+                  <span>Resp: {entry.responsible}</span>
                 </>
               )}
               <span className="text-gray-200">·</span>
-              <span>{formatDate(entry.createdAt)}</span>
+              <span>Chegada: {formatDate(entry.arrivalAt)}</span>
             </div>
-            <div className="flex items-center gap-2 text-xs text-gray-500">
+            <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
               <span>{entry.items.length} {entry.items.length === 1 ? 'item' : 'itens'}</span>
-              {total > 0 && (
-                <>
-                  <span className="text-gray-200">·</span>
-                  <span>{formatCurrency(total)}</span>
-                </>
-              )}
             </div>
           </div>
           <div className="shrink-0 ml-2 text-gray-400">
@@ -119,6 +120,12 @@ export function EntryAccordion({ entry }: Props) {
 
         {open && (
           <div className="border-t border-gray-100 px-4 pb-4 pt-3 flex flex-col gap-3">
+            {entry.notes && (
+              <p className="text-xs text-gray-500 bg-gray-50 p-2 rounded-lg italic">
+                Observações: {entry.notes}
+              </p>
+            )}
+
             {entry.items.length === 0 ? (
               <p className="text-xs text-gray-400 text-center py-2">Nenhum item adicionado.</p>
             ) : (
@@ -132,11 +139,13 @@ export function EntryAccordion({ entry }: Props) {
                       <span className="text-xs font-medium text-gray-800 truncate">
                         {item.materialName}
                       </span>
-                      <span className="text-[10px] text-gray-400">
-                        {item.quantity} un · {formatCurrency(item.unitPrice)} each · {formatCurrency(item.quantity * item.unitPrice)}
+                      <span className="text-[10px] text-gray-500">
+                        {item.quantity} un
+                        <span className="text-gray-300 mx-1">·</span>
+                        {EXPIRATION_LABELS[item.expirationType]} {item.expirationDate ? formatDate(item.expirationDate) : ''}
                       </span>
                       {item.lotCode && (
-                        <span className="text-[10px] text-gray-300">Lote: {item.lotCode}</span>
+                        <span className="text-[10px] text-gray-400">Lote: {item.lotCode}</span>
                       )}
                     </div>
                     {isPending && canManage && (

@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { EntityId } from '@/shared/types/id'
 import { entriesApi } from '../api'
-import type { CreateEntryPayload, AddEntryItemPayload, AttachInvoicePayload } from '../types'
+import type { CreateEntryPayload, AddEntryItemPayload } from '../types'
 
 export const entriesKeys = {
   all: ['entries'] as const,
@@ -32,14 +32,6 @@ export function useCreateEntry() {
   })
 }
 
-export function useAttachInvoice() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: ({ id, data }: { id: EntityId; data: AttachInvoicePayload }) =>
-      entriesApi.attachInvoice(id, data),
-    onSuccess: (_, { id }) => qc.invalidateQueries({ queryKey: entriesKeys.detail(id) }),
-  })
-}
 
 export function useAddEntryItem() {
   const qc = useQueryClient()

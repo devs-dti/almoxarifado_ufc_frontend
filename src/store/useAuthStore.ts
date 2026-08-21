@@ -1,16 +1,12 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import Cookies from 'js-cookie'
 import { httpClient } from '@/infrastructure/http/client'
-import type { User, LoginPayload, AuthResponse } from '@/features/auth/types'
-
-const AUTH_COOKIE = 'auth-token'
+import type { User, LoginPayload } from '@/features/auth/types'
 
 type AuthState = {
-  token: string | null
   user: User | null
   loading: boolean
-  setAuth: (token: string | null, user: User | null) => void
+  setAuth: (user: User | null) => void
   login: (data: LoginPayload) => Promise<void>
   logout: () => Promise<void>
   isAuthenticated: () => boolean
@@ -20,26 +16,19 @@ type AuthState = {
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
-      token: null,
       user: null,
       loading: false,
 
-      setAuth: (token, user) => {
-        if (token) {
-          Cookies.set(AUTH_COOKIE, token, { sameSite: 'strict' })
-        } else {
-          Cookies.remove(AUTH_COOKIE)
-        }
-        set({ token, user })
+      setAuth: (user) => {
+        set({ user })
       },
 
       login: async (data: LoginPayload) => {
         set({ loading: true })
         try {
-          const res = await httpClient.post<AuthResponse>('/auth/login', data)
-          const { token, user } = res.data
-          Cookies.set(AUTH_COOKIE, token, { sameSite: 'strict' })
-          set({ token, user, loading: false })
+          const res = await httpClient.post<User>('/auth/login', data)
+          const user = res.data
+          set({ user, loading: false })
         } catch (err) {
           set({ loading: false })
           throw err
@@ -50,13 +39,13 @@ export const useAuthStore = create<AuthState>()(
         try {
           await httpClient.post('/auth/logout')
         } catch {
-          // ignore — clear local state regardless
+          // Cookie pode já ter expirado — ignora o erro
         }
-        Cookies.remove(AUTH_COOKIE)
-        set({ token: null, user: null, loading: false })
+        set({ user: null, loading: false })
+        if (typeof window !== 'undefined') window.location.href = '/login'
       },
 
-      isAuthenticated: () => Boolean(get().token),
+      isAuthenticated: () => Boolean(get().user),
 
       fetchMe: async () => {
         set({ loading: true })
@@ -71,12 +60,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
-      partialize: (state) => ({ token: state.token, user: state.user }),
-      onRehydrateStorage: () => (state) => {
-        if (state?.token) {
-          Cookies.set(AUTH_COOKIE, state.token, { sameSite: 'strict' })
-        }
-      },
+      partialize: (state) => ({ user: state.user }),
     }
   )
 )

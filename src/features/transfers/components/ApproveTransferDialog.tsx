@@ -39,7 +39,7 @@ export function ApproveTransferDialog({ transfer, onOpenChange }: Props) {
     values: {
       items: transfer?.items.map((item) => ({
         transferItemId: item.id,
-        approvedQuantity: item.requestedQuantity,
+        approvedQuantity: item.quantity,
       })) ?? [],
     },
   })
@@ -64,7 +64,7 @@ export function ApproveTransferDialog({ transfer, onOpenChange }: Props) {
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle>Aprovar Transferência #{transfer?.id}</DialogTitle>
+          <DialogTitle>Aprovar Transferência</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -72,9 +72,9 @@ export function ApproveTransferDialog({ transfer, onOpenChange }: Props) {
             {transfer?.items.map((item, index) => (
               <div key={item.id} className="bg-gray-50 rounded-xl p-3 flex flex-col gap-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-gray-800">{item.materialName}</span>
+                  <span className="text-xs font-medium text-gray-800">{item.name}</span>
                   <span className="text-[10px] text-gray-400">
-                    Solicitado: {item.requestedQuantity}
+                    Solicitado: {item.quantity} {item.measurementUnit}
                   </span>
                 </div>
                 <FormField
@@ -88,7 +88,7 @@ export function ApproveTransferDialog({ transfer, onOpenChange }: Props) {
                           type="number"
                           step="0.01"
                           min={0}
-                          max={item.requestedQuantity}
+                          max={item.quantity}
                           className="rounded-xl text-xs"
                           {...field}
                         />

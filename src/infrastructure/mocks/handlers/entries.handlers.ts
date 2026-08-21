@@ -1,28 +1,31 @@
 import { http, HttpResponse } from 'msw'
 import { mockId } from '../utils'
-import type { AddEntryItemPayload, CreateEntryPayload, Entry } from '@/features/entries/types'
+import type { AddEntryItemPayload, CreateEntryPayload, Entry, EntryItem } from '@/features/entries/types'
 
 const entries: Entry[] = [
   {
     id: mockId(51),
     status: 'FINISHED',
-    type: 'SUPPLIER',
-    supplierId: mockId(1),
-    supplierName: 'Papelaria Central',
+    entryType: 'SUPPLIER',
     responsible: 'Daniele Silva',
     items: [
-      { id: mockId(61), materialId: mockId(41), materialName: 'Papel A4', quantity: 100, unitPrice: 25.9, lotId: mockId(71), lotCode: 'LOT-001' },
+      {
+        id: mockId(61),
+        materialName: 'Papel A4',
+        quantity: 100,
+        lotCode: 'LOT-001',
+        expirationType: 'NON_EXPIRING',
+      },
     ],
-    createdAt: '2025-06-01T10:00:00Z',
-    finishedAt: '2025-06-01T11:00:00Z',
+    arrivalAt: '2025-06-01T10:00:00Z',
   },
   {
     id: mockId(52),
     status: 'PENDING',
-    type: 'DONATION',
+    entryType: 'DONATION',
     responsible: 'João Silva',
     items: [],
-    createdAt: '2025-09-26T08:00:00Z',
+    arrivalAt: '2025-09-26T08:00:00Z',
   },
 ]
 
@@ -34,14 +37,14 @@ export const entriesHandlers = [
     const page = Number(url.searchParams.get('page') ?? 0)
     const size = Number(url.searchParams.get('size') ?? 10)
     const content = entries.slice(page * size, page * size + size)
-    return HttpResponse.json({ 
-      data: content, 
+    return HttpResponse.json({
+      data: content,
       meta: {
         page,
         size,
-        totalElements: entries.length, 
-        totalPages: Math.ceil(entries.length / size)
-      }
+        totalElements: entries.length,
+        totalPages: Math.ceil(entries.length / size),
+      },
     })
   }),
 
@@ -51,8 +54,16 @@ export const entriesHandlers = [
   }),
 
   http.post('/entries', async ({ request }) => {
-    const body = await request.json() as CreateEntryPayload
-    const entry: Entry = { id: mockId(nextId++), status: 'PENDING', type: body.type, supplierId: body.supplierId, items: [], createdAt: new Date().toISOString() }
+    const body = (await request.json()) as CreateEntryPayload
+    const entry: Entry = {
+      id: mockId(nextId++),
+      status: 'PENDING',
+      entryType: body.entryType,
+      arrivalAt: body.arrivalAt || new Date().toISOString(),
+      notes: body.notes,
+      responsible: 'Usuário Conectado',
+      items: [],
+    }
     entries.push(entry)
     return HttpResponse.json(entry, { status: 201 })
   }),
@@ -60,16 +71,28 @@ export const entriesHandlers = [
   http.patch('/entries/:id/details', async ({ request, params }) => {
     const idx = entries.findIndex((e) => e.id === String(params.id))
     if (idx === -1) return new HttpResponse(null, { status: 404 })
-    const body = await request.json() as Entry['invoice']
-    entries[idx] = { ...entries[idx], invoice: body }
+    const body = (await request.json()) as Partial<CreateEntryPayload>
+    entries[idx] = {
+      ...entries[idx],
+      arrivalAt: body.arrivalAt || entries[idx].arrivalAt,
+      entryType: body.entryType || entries[idx].entryType,
+      notes: body.notes !== undefined ? body.notes : entries[idx].notes,
+    }
     return HttpResponse.json(entries[idx])
   }),
 
   http.post('/entries/:id/items', async ({ request, params }) => {
     const idx = entries.findIndex((e) => e.id === String(params.id))
     if (idx === -1) return new HttpResponse(null, { status: 404 })
-    const body = await request.json() as AddEntryItemPayload
-    const item = { id: mockId(Date.now()), materialId: body.materialId, materialName: 'Material', quantity: body.quantity, unitPrice: body.unitPrice }
+    const body = (await request.json()) as AddEntryItemPayload
+    const item: EntryItem = {
+      id: mockId(Date.now()),
+      materialName: 'Material Teste',
+      quantity: body.quantity,
+      expirationType: body.expirationType,
+      expirationDate: body.validity || null,
+      lotCode: `LOT-${Math.floor(Math.random() * 1000)}`,
+    }
     entries[idx].items.push(item)
     return HttpResponse.json(item, { status: 201 })
   }),
@@ -84,7 +107,7 @@ export const entriesHandlers = [
   http.patch('/entries/:id/finish', ({ params }) => {
     const idx = entries.findIndex((e) => e.id === String(params.id))
     if (idx === -1) return new HttpResponse(null, { status: 404 })
-    entries[idx] = { ...entries[idx], status: 'FINISHED', finishedAt: new Date().toISOString() }
+    entries[idx] = { ...entries[idx], status: 'FINISHED' }
     return HttpResponse.json(entries[idx])
   }),
 
