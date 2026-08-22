@@ -5,7 +5,7 @@ export type Role = 'ADMIN' | 'MANAGER' | 'STAFF'
 export type User = {
   id: EntityId
   name: string
-  email: string
+  email?: string
   role: Role
   jobTitle?: string
   imageUrl?: string | null
