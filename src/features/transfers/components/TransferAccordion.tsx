@@ -41,7 +41,7 @@ export function TransferAccordion({ transfer }: Props) {
   const [approveOpen, setApproveOpen] = useState(false)
   const disapprove = useDisapproveTransfer()
   const role = useAuthStore((s) => s.user?.role)
-  const canApprove = hasAnyRole(role, ['MANAGER'])
+  const canApprove = hasAnyRole(role, ['ADMIN', 'MANAGER'])
   const canDisapprove = hasAnyRole(role, ['ADMIN', 'MANAGER'])
 
   const { data: detail, isLoading: isLoadingDetail } = useTransfer(transfer.id, { enabled: open })

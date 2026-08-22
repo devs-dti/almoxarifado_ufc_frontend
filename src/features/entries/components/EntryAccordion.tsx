@@ -49,7 +49,7 @@ export function EntryAccordion({ entry }: Props) {
   const cancel = useCancelEntry()
   const removeItem = useRemoveEntryItem()
   const role = useAuthStore((s) => s.user?.role)
-  const canManage = hasAnyRole(role, ['ADMIN', 'MANAGER', 'STAFF'])
+  const canManage = hasAnyRole(role, ['ADMIN', 'MANAGER'])
 
   const isPending = entry.status === 'PENDING'
 

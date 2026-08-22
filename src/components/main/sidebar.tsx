@@ -19,32 +19,49 @@ import {
   HelpCircle,
 } from 'lucide-react'
 
-const navGroups = [
+import type { Role } from '@/features/auth/types'
+import { hasAnyRole } from '@/shared/lib/rbac'
+
+interface NavItem {
+  label: string
+  href: string
+  icon: typeof Package
+  roles?: Role[]
+}
+
+interface NavGroup {
+  label: string
+  items: NavItem[]
+  roles?: Role[]
+}
+
+const navGroups: NavGroup[] = [
   {
     label: 'Principal',
     items: [
       { label: 'Materiais', href: '/dashboard/materiais', icon: Package },
-      { label: 'Entradas', href: '/dashboard/entradas', icon: ArrowDownCircle },
+      { label: 'Entradas', href: '/dashboard/entradas', icon: ArrowDownCircle, roles: ['ADMIN', 'MANAGER'] },
       { label: 'Transferências', href: '/dashboard/transferencias', icon: ArrowUpCircle },
     ],
   },
   {
     label: 'Cadastros',
+    roles: ['ADMIN', 'MANAGER'],
     items: [
-      { label: 'Setores', href: '/dashboard/setores', icon: Building2 },
-      { label: 'Grupos de Materiais', href: '/dashboard/grupos', icon: Layers },
-      { label: 'Unidades de Medida', href: '/dashboard/unidades-de-medida', icon: Ruler },
-      { label: 'Fornecedores', href: '/dashboard/fornecedores', icon: Truck },
-      { label: 'Empresas', href: '/dashboard/companies', icon: Building2 },
-      { label: 'Usuários', href: '/dashboard/usuarios', icon: Users },
+      { label: 'Setores', href: '/dashboard/setores', icon: Building2, roles: ['ADMIN', 'MANAGER'] },
+      { label: 'Grupos de Materiais', href: '/dashboard/grupos', icon: Layers, roles: ['ADMIN', 'MANAGER'] },
+      { label: 'Unidades de Medida', href: '/dashboard/unidades-de-medida', icon: Ruler, roles: ['ADMIN', 'MANAGER'] },
+      { label: 'Fornecedores', href: '/dashboard/fornecedores', icon: Truck, roles: ['ADMIN', 'MANAGER'] },
+      { label: 'Empresas', href: '/dashboard/companies', icon: Building2, roles: ['ADMIN', 'MANAGER'] },
+      { label: 'Usuários', href: '/dashboard/usuarios', icon: Users, roles: ['ADMIN'] },
     ],
   },
   {
     label: 'Gestão',
     items: [
-      { label: 'Relatórios', href: '/dashboard/relatorios', icon: FileBarChart },
-      { label: 'Contratos', href: '/dashboard/contracts', icon: FileSignature },
-      { label: 'Auditoria de Materiais', href: '/dashboard/auditorias', icon: ClipboardList },
+      { label: 'Relatórios', href: '/dashboard/relatorios', icon: FileBarChart, roles: ['ADMIN', 'MANAGER'] },
+      { label: 'Contratos', href: '/dashboard/contracts', icon: FileSignature, roles: ['ADMIN', 'MANAGER'] },
+      { label: 'Auditoria de Materiais', href: '/dashboard/auditorias', icon: ClipboardList, roles: ['ADMIN', 'MANAGER'] },
       { label: 'FAQ', href: '/dashboard/faq', icon: HelpCircle },
     ],
   },
@@ -53,6 +70,15 @@ const navGroups = [
 export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
   const pathname = usePathname()
   const { user, logout } = useAuthStore()
+  const role = user?.role
+
+  const filteredGroups = navGroups
+    .filter((group) => !group.roles || (role && hasAnyRole(role, group.roles)))
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => !item.roles || (role && hasAnyRole(role, item.roles))),
+    }))
+    .filter((group) => group.items.length > 0)
 
   return (
     <>
@@ -69,7 +95,7 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto py-4 px-3 flex flex-col gap-5">
-        {navGroups.map((group) => (
+        {filteredGroups.map((group) => (
           <div key={group.label} className="flex flex-col gap-0.5">
             <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-2 mb-1">
               {group.label}

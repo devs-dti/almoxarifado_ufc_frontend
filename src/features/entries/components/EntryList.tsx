@@ -15,7 +15,7 @@ export function EntryList() {
   const [page, setPage] = useState(0)
   const [createOpen, setCreateOpen] = useState(false)
   const role = useAuthStore((s) => s.user?.role)
-  const canCreate = hasAnyRole(role, ['ADMIN', 'MANAGER', 'STAFF'])
+  const canCreate = hasAnyRole(role, ['ADMIN', 'MANAGER'])
 
   const { data, isLoading, isError } = useEntries({ page, size: PAGE_SIZE })
   const entries = data?.content ?? []
