@@ -1,15 +1,20 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useAuthStore } from '@/store/useAuthStore'
 
 export function AuthInit() {
-  const { user, fetchMe } = useAuthStore()
+  const initialized = useRef(false)
 
   useEffect(() => {
-    if (!user) return
-    fetchMe().catch(() => {
-      // token invalid — logout handled by interceptor 401 flow
+    if (initialized.current) return
+    initialized.current = true
+
+    const currentUser = useAuthStore.getState().user
+    if (!currentUser) return
+
+    useAuthStore.getState().fetchMe().catch(() => {
+      // Sessão inválida — logout tratado pelo interceptor 401
     })
   }, [])
 

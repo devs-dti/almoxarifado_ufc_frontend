@@ -15,7 +15,7 @@ import { PasswordInput } from '@/shared/components/PasswordInput'
 import { formatCPF } from '@/shared/lib/format'
 import { useSectors } from '@/features/sectors/hooks'
 import { useCreateUser, useUpdateUser, useUser } from '../hooks'
-import { createUserSchema, updateUserSchema } from '../schemas'
+import { userFormDialogSchema, type UserFormDialogData } from '../schemas'
 import type { UserListItem } from '../types'
 
 const ROLE_LABELS: Record<string, string> = {
@@ -24,9 +24,9 @@ const ROLE_LABELS: Record<string, string> = {
   STAFF: 'Colaborador',
 }
 
-type Props = {
+interface Props {
   open: boolean
-  onOpenChange: (v: boolean) => void
+  onOpenChange: (open: boolean) => void
   editing?: UserListItem | null
 }
 
@@ -37,10 +37,9 @@ export function UserFormDialog({ open, onOpenChange, editing }: Props) {
   const { data: userDetail, isLoading: isLoadingUser } = useUser(editing?.id ?? '', { enabled: !!editing && open })
 
   const isEditing = !!editing
-  const schema = isEditing ? updateUserSchema : createUserSchema
 
-  const form = useForm<any>({
-    resolver: zodResolver(schema as any),
+  const form = useForm<UserFormDialogData>({
+    resolver: zodResolver(userFormDialogSchema),
     defaultValues: { name: '', email: '', password: '', role: 'STAFF', cpf: '', jobTitle: '', sectorId: '' },
   })
 
@@ -65,13 +64,32 @@ export function UserFormDialog({ open, onOpenChange, editing }: Props) {
     }
   }, [isEditing, userDetail, form])
 
-  async function onSubmit(data: any) {
+  async function onSubmit(data: UserFormDialogData) {
     try {
       if (isEditing) {
-        await update.mutateAsync({ id: editing.id, data })
+        await update.mutateAsync({
+          id: editing.id,
+          data: {
+            ...data,
+            password: data.password || undefined,
+          },
+        })
         toast.success('Usuário atualizado!')
       } else {
-        await create.mutateAsync(data)
+        if (!data.password) {
+          toast.error('Senha é obrigatória para cadastro de novo usuário.')
+          return
+        }
+        await create.mutateAsync({
+          name: data.name,
+          email: data.email,
+          password: data.password,
+          cpf: data.cpf,
+          jobTitle: data.jobTitle,
+          sectorId: data.sectorId,
+          role: data.role,
+          file: data.file,
+        })
         toast.success('Usuário cadastrado!')
       }
       onOpenChange(false)
@@ -138,7 +156,7 @@ export function UserFormDialog({ open, onOpenChange, editing }: Props) {
                     <Select value={field.value} onValueChange={field.onChange}>
                       <FormControl><SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger></FormControl>
                       <SelectContent>
-                        {sectors.map((s: any) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                        {sectors.map((s) => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
                       </SelectContent>
                     </Select>
                     <FormMessage />

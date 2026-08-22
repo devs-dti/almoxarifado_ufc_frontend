@@ -1,4 +1,4 @@
-export function buildFormData(data: Record<string, any>): FormData {
+export function buildFormData(data: Record<string, unknown>): FormData {
   const fd = new FormData()
   Object.entries(data).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== '') {

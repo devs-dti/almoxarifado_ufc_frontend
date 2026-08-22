@@ -32,6 +32,7 @@ import { useMaterials } from '@/features/materials/hooks'
 import type { EntityId } from '@/shared/types/id'
 import { useAddEntryItem } from '../hooks'
 import { addEntryItemSchema, type AddEntryItemInput } from '../schemas'
+import type { AddEntryItemPayload } from '../types'
 
 const EXPIRATION_LABELS: Record<string, string> = {
   DATED: 'Com Validade',
@@ -61,7 +62,7 @@ export function AddItemDialog({ entryId, open, onOpenChange }: Props) {
     try {
       await addItem.mutateAsync({
         entryId,
-        data: data as any,
+        data: data as unknown as AddEntryItemPayload,
       })
       toast.success('Item adicionado!')
       form.reset()
