@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const PUBLIC_ROUTES = ['/', '/login', '/forgot-password']
+const PUBLIC_ROUTES = ['/', '/login', '/forgot-password', '/faq']
 const RESET_PASSWORD_PREFIX = '/reset-password'
 
 export function middleware(req: NextRequest) {
@@ -28,5 +28,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next|api|favicon\\.ico|mockServiceWorker\\.js|.*\\.png|.*\\.svg).*)'],
+  matcher: ['/((?!_next|api|favicon\\.ico|mockServiceWorker\\.js|.*\\.(?:png|jpg|jpeg|webp|svg|ico)).*)'],
 }
