@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const PUBLIC_ROUTES = ['/', '/login', '/forgot-password', '/faq']
+const PUBLIC_ROUTES = ['/', '/login', '/forgot-password', '/faq', '/desenvolvedores']
 const RESET_PASSWORD_PREFIX = '/reset-password'
 
 export function middleware(req: NextRequest) {

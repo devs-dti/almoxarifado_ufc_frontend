@@ -42,10 +42,6 @@ export default function DashboardLayout({
           <span className="text-xs text-gray-400 font-medium">
             Desenvolvido pela <strong className="text-gray-500 font-bold">DTI-UFC</strong>
           </span>
-          <span className="text-gray-300 text-[10px]">•</span>
-          <Link href="/dashboard/faq" className="text-xs text-brand hover:underline font-semibold">
-            Sobre
-          </Link>
         </div>
 
         <div className="shrink-0">

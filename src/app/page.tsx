@@ -28,9 +28,9 @@ export default function LandingPage() {
             <a href="#recursos" className="hover:text-[#7C3AED] transition-colors">
               Recursos
             </a>
-            <a href="#desenvolvedores" className="hover:text-[#7C3AED] transition-colors">
+            <Link href="/desenvolvedores" className="hover:text-[#7C3AED] transition-colors">
               Desenvolvedores
-            </a>
+            </Link>
             <Link href="/faq" className="hover:text-[#7C3AED] transition-colors">
               FAQ
             </Link>
@@ -199,7 +199,7 @@ export default function LandingPage() {
               <ul className="space-y-2.5 text-xs text-slate-500">
                 <li><a href="#sobre" className="hover:text-[#7C3AED] transition-colors">Sobre</a></li>
                 <li><a href="#recursos" className="hover:text-[#7C3AED] transition-colors">Recursos</a></li>
-                <li><a href="#desenvolvedores" className="hover:text-[#7C3AED] transition-colors">Desenvolvedores</a></li>
+                <li><Link href="/desenvolvedores" className="hover:text-[#7C3AED] transition-colors">Desenvolvedores</Link></li>
                 <li><Link href="/faq" className="hover:text-[#7C3AED] transition-colors">FAQ</Link></li>
               </ul>
             </div>

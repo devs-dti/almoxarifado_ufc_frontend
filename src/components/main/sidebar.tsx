@@ -72,13 +72,15 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
   const { user, logout } = useAuthStore()
   const role = user?.role
 
-  const filteredGroups = navGroups
-    .filter((group) => !group.roles || (role && hasAnyRole(role, group.roles)))
-    .map((group) => ({
-      ...group,
-      items: group.items.filter((item) => !item.roles || (role && hasAnyRole(role, item.roles))),
-    }))
-    .filter((group) => group.items.length > 0)
+  const filteredGroups = !role
+    ? []
+    : navGroups
+        .filter((group) => !group.roles || hasAnyRole(role, group.roles))
+        .map((group) => ({
+          ...group,
+          items: group.items.filter((item) => !item.roles || hasAnyRole(role, item.roles)),
+        }))
+        .filter((group) => group.items.length > 0)
 
   return (
     <>

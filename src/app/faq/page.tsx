@@ -82,7 +82,7 @@ export default function PublicFAQPage() {
             <Link href="/#recursos" className="hover:text-[#7C3AED] transition-colors">
               Recursos
             </Link>
-            <Link href="/#desenvolvedores" className="hover:text-[#7C3AED] transition-colors">
+            <Link href="/desenvolvedores" className="hover:text-[#7C3AED] transition-colors">
               Desenvolvedores
             </Link>
             <span className="text-[#7C3AED] font-semibold">
