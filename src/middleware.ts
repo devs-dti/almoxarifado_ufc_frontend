@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const PUBLIC_ROUTES = ['/login', '/forgot-password']
+const PUBLIC_ROUTES = ['/', '/login', '/forgot-password']
 const RESET_PASSWORD_PREFIX = '/reset-password'
 
 export function middleware(req: NextRequest) {
@@ -11,10 +11,6 @@ export function middleware(req: NextRequest) {
     const response = NextResponse.redirect(new URL('/login', req.url))
     response.cookies.delete('accessCookie')
     return response
-  }
-
-  if (pathname === '/') {
-    return NextResponse.redirect(new URL(token ? '/dashboard' : '/login', req.url))
   }
 
   const isPublic =
