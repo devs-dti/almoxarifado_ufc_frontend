@@ -30,7 +30,7 @@ export function UnitFormDialog({ open, onOpenChange, editing }: Props) {
 
   useEffect(() => {
     form.reset(editing ? { name: editing.name, abbreviation: editing.abbreviation } : { name: '', abbreviation: '' })
-  }, [editing, open])
+  }, [editing, open, form])
 
   async function onSubmit(data: UnitFormData) {
     try {

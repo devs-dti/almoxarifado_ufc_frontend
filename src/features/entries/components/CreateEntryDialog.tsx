@@ -32,6 +32,7 @@ import { Button } from '@/components/ui/button'
 import { useSuppliers } from '@/features/suppliers/hooks'
 import { useCreateEntry } from '../hooks'
 import { createEntrySchema, type CreateEntryInput } from '../schemas'
+import type { CreateEntryPayload } from '../types'
 
 const TYPE_LABELS: Record<string, string> = {
   SUPPLIER: 'Fornecedor',
@@ -71,7 +72,7 @@ export function CreateEntryDialog({ open, onOpenChange }: Props) {
 
   async function onSubmit(data: CreateEntryInput) {
     try {
-      await create.mutateAsync(data as any)
+      await create.mutateAsync(data as unknown as CreateEntryPayload)
       toast.success('Entrada criada!')
       form.reset()
       onOpenChange(false)

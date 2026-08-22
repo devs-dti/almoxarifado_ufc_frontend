@@ -84,10 +84,8 @@ export const contractsHandlers = [
   http.post('/contracts', async ({ request }) => {
     const body = await request.json() as ContractDTO
     const company = MOCK_COMPANIES.find(c => c.id === body.companyId)
-    // Extract everything except companyId from body to build Contract
-    const { companyId, ...restBody } = body
     const newContract: Contract = {
-      ...restBody,
+      ...body,
       companyName: company?.name || 'Unknown',
       id: crypto.randomUUID(),
       createdAt: new Date().toISOString(),
@@ -137,11 +135,9 @@ export const contractsHandlers = [
       if (company) updatedCompanyName = company.name
     }
     
-    const { companyId, ...restBody } = body
-
     contracts[idx] = { 
       ...contracts[idx], 
-      ...restBody, 
+      ...body, 
       companyName: updatedCompanyName,
       updatedAt: new Date().toISOString() 
     }

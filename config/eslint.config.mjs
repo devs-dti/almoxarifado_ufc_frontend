@@ -18,6 +18,7 @@ const eslintConfig = [
       "build/**",
       "coverage/**",
       "next-env.d.ts",
+      "public/**",
     ],
   },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
@@ -26,6 +27,7 @@ const eslintConfig = [
     rules: {
       "@typescript-eslint/no-unused-vars": "warn",
       "@typescript-eslint/no-explicit-any": "warn",
+      "@next/next/no-img-element": "off",
     },
   },
 ];
