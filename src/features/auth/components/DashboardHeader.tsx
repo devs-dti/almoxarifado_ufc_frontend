@@ -25,7 +25,10 @@ export function DashboardHeader() {
       </div>
 
       {/* Desktop: compact user chip (shown in top bar via layout) */}
-      <div className="hidden lg:flex items-center gap-2.5">
+      <Link
+        href="/dashboard/perfil"
+        className="hidden lg:flex items-center gap-2.5 hover:opacity-80 transition-opacity"
+      >
         <div className="w-7 h-7 rounded-full bg-brand/15 flex items-center justify-center">
           <span className="text-[11px] font-bold text-brand">
             {user?.name?.charAt(0).toUpperCase() ?? 'U'}
@@ -35,7 +38,7 @@ export function DashboardHeader() {
           <span className="text-[13px] font-semibold text-gray-800">{firstName}</span>
           <span className="text-[10px] text-gray-400">{user?.email ?? ''}</span>
         </div>
-      </div>
+      </Link>
     </>
   )
 }

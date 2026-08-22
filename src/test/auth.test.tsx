@@ -10,6 +10,7 @@ import { LoginForm } from '@/features/auth/components/LoginForm'
 import { RegisterForm } from '@/features/auth/components/RegisterForm'
 import { DashboardHeader } from '@/features/auth/components/DashboardHeader'
 import { AuthInit } from '@/features/auth/components/AuthInit'
+import { ProfileView } from '@/features/auth/components/ProfileView'
 import { usersApi } from '@/features/users/api'
 import { renderWithProviders } from '@/test/render'
 import { mockPush } from '@/test/setup'
@@ -281,6 +282,71 @@ describe('Auth Flow', () => {
       renderWithProviders(<AuthInit />)
 
       expect(fetchMeSpy).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('ProfileView Component', () => {
+    it('renders user details, badges, and roles correctly', async () => {
+      useAuthStore.setState({
+        user: {
+          id: '1',
+          name: 'Daniele Silva',
+          email: 'admin@ufc.br',
+          role: 'ADMIN',
+          jobTitle: 'Coordenadora Geral',
+          enabled: true,
+          createdAt: '2025-01-01T08:00:00Z',
+          updatedAt: '2025-01-02T10:00:00Z',
+        },
+      })
+
+      renderWithProviders(<ProfileView />)
+
+      expect(await screen.findByRole('heading', { name: 'Meu Perfil' })).toBeInTheDocument()
+      expect((await screen.findAllByText(/daniele silva/i)).length).toBeGreaterThan(0)
+      expect(screen.getByText(/admin@ufc\.br/i)).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /editar perfil/i })).toBeInTheDocument()
+    })
+
+    it('opens EditProfileDialog and updates profile details', async () => {
+      const user = userEvent.setup()
+      const toastSuccessSpy = vi.spyOn(toast, 'success')
+      const updateSpy = vi.spyOn(usersApi, 'update').mockResolvedValueOnce({
+        id: '1',
+        name: 'Daniele Silva Editada',
+        jobTitle: 'Gerente Geral',
+        email: 'admin@ufc.br',
+        role: 'ADMIN',
+      })
+
+      useAuthStore.setState({
+        user: {
+          id: '1',
+          name: 'Daniele Silva',
+          email: 'admin@ufc.br',
+          role: 'ADMIN',
+          jobTitle: 'Coordenadora Geral',
+        },
+      })
+
+      renderWithProviders(<ProfileView />)
+
+      const editBtn = await screen.findByRole('button', { name: /editar perfil/i })
+      await user.click(editBtn)
+
+      expect(screen.getByRole('heading', { name: 'Editar Perfil' })).toBeInTheDocument()
+
+      const nameInput = screen.getByPlaceholderText('Seu nome completo')
+      await user.clear(nameInput)
+      await user.type(nameInput, 'Daniele Silva Editada')
+
+      const submitBtn = screen.getByRole('button', { name: /salvar alterações/i })
+      await user.click(submitBtn)
+
+      await waitFor(() => {
+        expect(updateSpy).toHaveBeenCalled()
+        expect(toastSuccessSpy).toHaveBeenCalledWith('Perfil atualizado com sucesso!')
+      })
     })
   })
 })

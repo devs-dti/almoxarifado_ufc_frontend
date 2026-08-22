@@ -16,8 +16,8 @@ export function useProfile() {
   const query = useQuery<User>({
     queryKey: authKeys.me(),
     queryFn: authApi.me,
-    initialData: storeUser ?? undefined,
-    staleTime: 1000 * 60 * 5, // 5 minutos
+    placeholderData: storeUser ?? undefined,
+    staleTime: 0,
   })
 
   useEffect(() => {

@@ -1,5 +1,4 @@
 import { http, HttpResponse } from 'msw'
-import { mockId } from '../utils'
 
 const MOCK_TOKEN = 'mock-jwt-access-token'
 

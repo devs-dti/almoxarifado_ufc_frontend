@@ -16,6 +16,7 @@ import {
   FileSignature,
   ClipboardList,
   Layers,
+  HelpCircle,
 } from 'lucide-react'
 
 const navGroups = [
@@ -44,6 +45,7 @@ const navGroups = [
       { label: 'Relatórios', href: '/dashboard/relatorios', icon: FileBarChart },
       { label: 'Contratos', href: '/dashboard/contracts', icon: FileSignature },
       { label: 'Auditoria de Materiais', href: '/dashboard/auditorias', icon: ClipboardList },
+      { label: 'FAQ', href: '/dashboard/faq', icon: HelpCircle },
     ],
   },
 ]
