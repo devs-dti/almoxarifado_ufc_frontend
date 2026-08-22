@@ -159,7 +159,7 @@ export const materialAuditsHandlers = [
       createdAt: new Date().toISOString(),
       finishedAt: null,
       auditors: (body.auditorIds || []).map(id => ({ id, name: `Auditor ${id}` })),
-      items: body.materialIds.map((mId, idx) => ({
+      items: body.materialIds.map((mId) => ({
         id: `item-${crypto.randomUUID()}`,
         materialId: mId,
         materialName: `Material ${mId}`,

@@ -30,7 +30,7 @@ export function SectorFormDialog({ open, onOpenChange, editing }: Props) {
 
   useEffect(() => {
     form.reset(editing ? { name: editing.name, code: editing.code ?? '' } : { name: '', code: '' })
-  }, [editing, open])
+  }, [editing, open, form])
 
   async function onSubmit(data: SectorFormData) {
     try {

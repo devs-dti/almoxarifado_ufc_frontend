@@ -29,3 +29,17 @@ export const updateUserSchema = z.object({
 
 export type CreateUserFormData = z.infer<typeof createUserSchema>
 export type UpdateUserFormData = z.infer<typeof updateUserSchema>
+
+export const userFormDialogSchema = z.object({
+  name: z.string().min(1, 'Nome é obrigatório'),
+  email: z.string().email('E-mail inválido'),
+  password: z.string().optional(),
+  cpf: z.string().min(11, 'CPF deve ter 11 caracteres').max(11, 'Apenas números'),
+  jobTitle: z.string().min(1, 'Cargo é obrigatório'),
+  sectorId: z.string().uuid('Setor inválido'),
+  role: z.enum(['ADMIN', 'MANAGER', 'STAFF']),
+  enabled: z.boolean().optional(),
+  file: fileSchema.optional(),
+})
+
+export type UserFormDialogData = z.infer<typeof userFormDialogSchema>
