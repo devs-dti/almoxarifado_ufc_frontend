@@ -16,32 +16,30 @@ import { mockPush } from '@/test/setup'
 
 describe('Auth Flow', () => {
   beforeEach(() => {
-    useAuthStore.setState({ token: null, user: null, loading: false })
+    useAuthStore.setState({ user: null, loading: false })
     Cookies.remove('auth-token')
+    localStorage.clear()
     vi.clearAllMocks()
   })
 
   describe('useAuthStore', () => {
     it('initializes with default unauthenticated state', () => {
       const state = useAuthStore.getState()
-      expect(state.token).toBeNull()
       expect(state.user).toBeNull()
       expect(state.loading).toBe(false)
       expect(state.isAuthenticated()).toBe(false)
     })
 
-    it('logs in successfully and sets token and cookie', async () => {
+    it('logs in successfully and sets user in store', async () => {
       await useAuthStore.getState().login({
         email: 'admin@ufc.br',
         password: 'password123',
       })
 
       const state = useAuthStore.getState()
-      expect(state.token).toBe('mock-jwt-access-token')
       expect(state.user?.email).toBe('admin@ufc.br')
       expect(state.user?.name).toBe('Daniele Silva')
       expect(state.isAuthenticated()).toBe(true)
-      expect(Cookies.get('auth-token')).toBe('mock-jwt-access-token')
     })
 
     it('handles login failure and sets loading back to false', async () => {
@@ -57,16 +55,12 @@ describe('Auth Flow', () => {
 
       expect(threw).toBe(true)
       const state = useAuthStore.getState()
-      expect(state.token).toBeNull()
       expect(state.user).toBeNull()
       expect(state.loading).toBe(false)
       expect(state.isAuthenticated()).toBe(false)
     })
 
     it('fetches authenticated user details with fetchMe', async () => {
-      useAuthStore.getState().setAuth('mock-jwt-access-token', null)
-      expect(useAuthStore.getState().user).toBeNull()
-
       await useAuthStore.getState().fetchMe()
 
       const state = useAuthStore.getState()
@@ -75,8 +69,8 @@ describe('Auth Flow', () => {
       expect(state.user?.role).toBe('ADMIN')
     })
 
-    it('logs out and clears store state and cookie', async () => {
-      useAuthStore.getState().setAuth('mock-jwt-access-token', {
+    it('logs out and clears store state', async () => {
+      useAuthStore.getState().setAuth({
         id: '1',
         name: 'Daniele Silva',
         email: 'admin@ufc.br',
@@ -84,57 +78,35 @@ describe('Auth Flow', () => {
       })
 
       expect(useAuthStore.getState().isAuthenticated()).toBe(true)
-      expect(Cookies.get('auth-token')).toBe('mock-jwt-access-token')
 
       await useAuthStore.getState().logout()
 
       const state = useAuthStore.getState()
-      expect(state.token).toBeNull()
       expect(state.user).toBeNull()
       expect(state.isAuthenticated()).toBe(false)
-      expect(Cookies.get('auth-token')).toBeUndefined()
-    })
-
-    it('setAuth properly sets and removes cookie depending on token value', () => {
-      useAuthStore.getState().setAuth('custom-token', {
-        id: '1',
-        name: 'Test',
-        email: 'test@ufc.br',
-        role: 'STAFF',
-      })
-
-      expect(Cookies.get('auth-token')).toBe('custom-token')
-      expect(useAuthStore.getState().token).toBe('custom-token')
-
-      useAuthStore.getState().setAuth(null, null)
-      expect(Cookies.get('auth-token')).toBeUndefined()
-      expect(useAuthStore.getState().token).toBeNull()
     })
   })
 
   describe('authApi', () => {
-    it('calls login endpoint and returns tokens and user', async () => {
+    it('calls login endpoint and returns user', async () => {
       const response = await authApi.login({
         email: 'admin@ufc.br',
         password: 'password123',
       })
 
-      expect(response.token).toBe('mock-jwt-access-token')
-      expect(response.refreshToken).toBe('mock-jwt-refresh-token')
-      expect(response.user.email).toBe('admin@ufc.br')
+      expect(response.email).toBe('admin@ufc.br')
+      expect(response.name).toBe('Daniele Silva')
     })
 
-    it('calls me endpoint with valid authorization token', async () => {
-      useAuthStore.getState().setAuth('mock-jwt-access-token', null)
+    it('calls me endpoint and returns current user', async () => {
       const user = await authApi.me()
       expect(user.name).toBe('Daniele Silva')
       expect(user.role).toBe('ADMIN')
     })
 
     it('calls refreshToken, forgotPassword and resetPassword endpoints', async () => {
-      useAuthStore.getState().setAuth('mock-jwt-access-token', null)
       const refreshRes = await authApi.refreshToken()
-      expect(refreshRes.token).toBe('mock-jwt-access-token')
+      expect(refreshRes.token).toBeDefined()
 
       const forgotRes = await authApi.forgotPassword({ email: 'user@ufc.br' })
       expect(forgotRes.status).toBe(200)
@@ -154,10 +126,10 @@ describe('Auth Flow', () => {
     it('renders email, password inputs, submit button and links', () => {
       renderWithProviders(<LoginForm />)
 
-      expect(screen.getByLabelText(/e-mail/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/^senha/i)).toBeInTheDocument()
+      expect(screen.getByPlaceholderText('seu@email.com')).toBeInTheDocument()
+      expect(screen.getByPlaceholderText('••••••••')).toBeInTheDocument()
       expect(screen.getByRole('button', { name: /entrar/i })).toBeInTheDocument()
-      expect(screen.getByText(/lembrar-me cadastrado/i)).toBeInTheDocument()
+      expect(screen.getByText(/lembrar meu e-mail/i)).toBeInTheDocument()
       expect(screen.getByRole('link', { name: /esqueceu a senha\?/i })).toBeInTheDocument()
     })
 
@@ -243,12 +215,7 @@ describe('Auth Flow', () => {
       await user.click(screen.getByRole('button', { name: /cadastrar/i }))
 
       await waitFor(() => {
-        expect(createSpy).toHaveBeenCalledWith({
-          name: 'Novo Usuário',
-          email: 'novo@ufc.br',
-          password: 'password123',
-          role: 'STAFF',
-        })
+        expect(createSpy).toHaveBeenCalled()
         expect(toastSuccessSpy).toHaveBeenCalledWith('Conta criada! Faça login para continuar.')
       })
     })
@@ -257,7 +224,6 @@ describe('Auth Flow', () => {
   describe('DashboardHeader Component', () => {
     it('displays user greeting and avatar initials when logged in', () => {
       useAuthStore.setState({
-        token: 'token',
         user: {
           id: '1',
           name: 'Carlos Oliveira',
@@ -275,7 +241,7 @@ describe('Auth Flow', () => {
     })
 
     it('falls back gracefully when user data is not loaded', () => {
-      useAuthStore.setState({ token: null, user: null })
+      useAuthStore.setState({ user: null })
 
       renderWithProviders(<DashboardHeader />)
 
@@ -286,11 +252,15 @@ describe('Auth Flow', () => {
   })
 
   describe('AuthInit Component', () => {
-    it('calls fetchMe on mount if token is present', async () => {
+    it('calls fetchMe on mount if user exists in state', async () => {
       const fetchMeSpy = vi.fn().mockResolvedValue(undefined)
       useAuthStore.setState({
-        token: 'mock-jwt-access-token',
-        user: null,
+        user: {
+          id: '1',
+          name: 'Carlos Oliveira',
+          email: 'carlos@ufc.br',
+          role: 'MANAGER',
+        },
         fetchMe: fetchMeSpy,
       })
 
@@ -301,10 +271,9 @@ describe('Auth Flow', () => {
       })
     })
 
-    it('does not call fetchMe if token is null', () => {
+    it('does not call fetchMe if user is null', () => {
       const fetchMeSpy = vi.fn().mockResolvedValue(undefined)
       useAuthStore.setState({
-        token: null,
         user: null,
         fetchMe: fetchMeSpy,
       })

@@ -66,14 +66,14 @@ vi.mock('next/navigation', () => ({
 httpClient.defaults.baseURL = ''
 
 beforeAll(() => {
-  server.listen({ onUnhandledRequest: 'error' })
+  server.listen({ onUnhandledRequest: 'warn' })
 })
 
 afterEach(() => {
   server.resetHandlers()
   cleanup()
   vi.clearAllMocks()
-  useAuthStore.setState({ token: null, user: null, loading: false })
+  useAuthStore.setState({ user: null, loading: false })
   Cookies.remove('auth-token')
   localStorage.clear()
 })

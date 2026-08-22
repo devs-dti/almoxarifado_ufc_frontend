@@ -38,146 +38,122 @@ describe('Relatórios (Reports) Flow', () => {
   describe('reportsApi & Hooks', () => {
     it('fetches inventory report', async () => {
       const { wrapper } = createWrapper()
-      const { result } = renderHook(() => useInventoryReport(true), { wrapper })
+      const { result } = renderHook(() => useInventoryReport(), { wrapper })
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
-      expect(result.current.data?.totalValue).toBe(13490)
-      expect(result.current.data?.materials.length).toBeGreaterThan(0)
+      expect(result.current.data?.content.length).toBeGreaterThan(0)
+      expect(result.current.data?.content[0].materialName).toBe('Papel A4')
     })
 
     it('fetches low stock materials report', async () => {
       const { wrapper } = createWrapper()
-      const { result } = renderHook(() => useLowStockReport(true), { wrapper })
+      const { result } = renderHook(() => useLowStockReport(), { wrapper })
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
-      expect(result.current.data?.materials).toBeDefined()
-      expect(result.current.data?.materials.length).toBeGreaterThan(0)
-      expect(result.current.data?.materials[0].minQuantity).toBe(30)
+      expect(result.current.data?.content).toBeDefined()
+      expect(result.current.data?.content.length).toBeGreaterThan(0)
+      expect(result.current.data?.content[0].quantity).toBe(20)
     })
 
-    it('fetches expiring materials report with days parameter', async () => {
+    it('fetches expiring materials report with maxExpirationDate parameter', async () => {
       const { wrapper } = createWrapper()
-      const { result } = renderHook(() => useExpiringReport(45, true), { wrapper })
+      const { result } = renderHook(() => useExpiringReport({ maxExpirationDate: '2025-12-31' }), { wrapper })
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
-      expect(result.current.data?.lots).toBeDefined()
-      expect(result.current.data?.lots.length).toBeGreaterThan(0)
-      expect(result.current.data?.lots[0].lotCode).toBe('LOT-001')
+      expect(result.current.data?.content).toBeDefined()
+      expect(result.current.data?.content.length).toBeGreaterThan(0)
+      expect(result.current.data?.content[0].lotCode).toBe('LOT-001')
     })
 
     it('fetches entries summary report', async () => {
       const { wrapper } = createWrapper()
-      const { result } = renderHook(() => useEntriesSummary(true), { wrapper })
+      const { result } = renderHook(() => useEntriesSummary(), { wrapper })
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
-      expect(result.current.data?.totalEntries).toBe(3)
-      expect(result.current.data?.totalValue).toBe(15200)
-      expect(result.current.data?.bySupplier.length).toBeGreaterThan(0)
-      expect(result.current.data?.byGroup.length).toBeGreaterThan(0)
+      expect(result.current.data?.content.length).toBeGreaterThan(0)
+      expect(result.current.data?.content[0].materialName).toBe('Papel A4')
     })
 
     it('fetches transfers summary report', async () => {
       const { wrapper } = createWrapper()
-      const { result } = renderHook(() => useTransfersSummary(true), { wrapper })
+      const { result } = renderHook(() => useTransfersSummary(), { wrapper })
 
       await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
-      expect(result.current.data?.totalTransfers).toBe(5)
-      expect(result.current.data?.bySector.length).toBeGreaterThan(0)
+      expect(result.current.data?.content.length).toBeGreaterThan(0)
+      expect(result.current.data?.content[0].materialName).toBe('Papel A4')
     })
   })
 
   describe('InventoryReportDialog Component', () => {
-    it('renders total value, materials list and ABC curve indicators', async () => {
+    it('renders materials list and pagination elements', async () => {
       const onOpenChange = vi.fn()
       renderWithProviders(<InventoryReportDialog open={true} onOpenChange={onOpenChange} />)
 
-      expect(screen.getByRole('heading', { name: 'Relatório Geral de Materiais' })).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: 'Relação Geral de Itens em Estoque' })).toBeInTheDocument()
 
       await waitFor(() => {
         expect(screen.getByText('Papel A4')).toBeInTheDocument()
         expect(screen.getByText('Caneta Azul')).toBeInTheDocument()
         expect(screen.getByText('Detergente 500ml')).toBeInTheDocument()
-        expect(screen.getByText('A')).toBeInTheDocument()
-        expect(screen.getByText('B')).toBeInTheDocument()
-        expect(screen.getByText('C')).toBeInTheDocument()
       })
     })
   })
 
   describe('LowStockReportDialog Component', () => {
-    it('renders materials with deficit below minimum stock', async () => {
+    it('renders materials with low stock', async () => {
       const onOpenChange = vi.fn()
       renderWithProviders(<LowStockReportDialog open={true} onOpenChange={onOpenChange} />)
 
-      expect(screen.getByRole('heading', { name: 'Materiais em Falta' })).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: 'Materiais com Estoque Zerado ou Baixo' })).toBeInTheDocument()
 
       await waitFor(() => {
         expect(screen.getByText('Detergente 500ml')).toBeInTheDocument()
-        expect(screen.getByText('DET-001')).toBeInTheDocument()
-        expect(screen.getByText(/20 \/ 30/i)).toBeInTheDocument()
-        expect(screen.getByText(/−10 em falta/i)).toBeInTheDocument()
       })
     })
   })
 
   describe('ExpiringReportDialog Component', () => {
-    it('renders expiration filter and expiring lots list', async () => {
-      const user = userEvent.setup()
+    it('renders expiring materials list', async () => {
       const onOpenChange = vi.fn()
       renderWithProviders(<ExpiringReportDialog open={true} onOpenChange={onOpenChange} />)
 
-      expect(screen.getByRole('heading', { name: 'Vencimento de Materiais' })).toBeInTheDocument()
-      expect(screen.getByText(/vencendo em até/i)).toBeInTheDocument()
-
-      const daysInput = screen.getByRole('spinbutton')
-      expect(daysInput).toHaveValue(30)
+      expect(screen.getByRole('heading', { name: 'Controle de Vencimentos por Lote' })).toBeInTheDocument()
 
       await waitFor(() => {
         expect(screen.getByText('Papel A4')).toBeInTheDocument()
-        expect(screen.getByText(/lote LOT-001/i)).toBeInTheDocument()
+        expect(screen.getByText('LOT-001')).toBeInTheDocument()
       })
-
-      // Change days
-      await user.clear(daysInput)
-      await user.type(daysInput, '60')
-
-      expect(daysInput).toHaveValue(60)
     })
   })
 
   describe('EntriesSummaryDialog Component', () => {
-    it('renders entries count, total financial value, supplier and group breakdowns', async () => {
+    it('renders entries records', async () => {
       const onOpenChange = vi.fn()
       renderWithProviders(<EntriesSummaryDialog open={true} onOpenChange={onOpenChange} />)
 
-      expect(screen.getByRole('heading', { name: 'Resumo de Entradas' })).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: 'Histórico e Registro de Entradas' })).toBeInTheDocument()
 
       await waitFor(() => {
-        expect(screen.getByText('3')).toBeInTheDocument()
-        expect(screen.getByText('Papelaria Central')).toBeInTheDocument()
-        expect(screen.getByText('Papelaria')).toBeInTheDocument()
+        expect(screen.getByText('Papel A4')).toBeInTheDocument()
       })
     })
   })
 
   describe('TransfersSummaryDialog Component', () => {
-    it('renders transfers count and sector breakdown', async () => {
+    it('renders transfers summary', async () => {
       const onOpenChange = vi.fn()
       renderWithProviders(<TransfersSummaryDialog open={true} onOpenChange={onOpenChange} />)
 
-      expect(screen.getByRole('heading', { name: 'Resumo de Transferências' })).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: 'Histórico e Registro de Saídas / Transferências' })).toBeInTheDocument()
 
       await waitFor(() => {
-        expect(screen.getByText('5')).toBeInTheDocument()
-        expect(screen.getByText('TI')).toBeInTheDocument()
-        expect(screen.getByText(/50 itens consumidos/i)).toBeInTheDocument()
-        expect(screen.getByText('Administrativo')).toBeInTheDocument()
-        expect(screen.getByText(/30 itens consumidos/i)).toBeInTheDocument()
+        expect(screen.getByText('Papel A4')).toBeInTheDocument()
+        expect(screen.getByText('Caneta Azul')).toBeInTheDocument()
       })
     })
   })
@@ -187,19 +163,19 @@ describe('Relatórios (Reports) Flow', () => {
       const user = userEvent.setup()
       renderWithProviders(<RelatoriosPage />)
 
-      expect(screen.getByRole('heading', { name: 'Relatórios' })).toBeInTheDocument()
-      expect(screen.getByText('Relatório Geral de Materiais')).toBeInTheDocument()
-      expect(screen.getByText('Materiais em Falta')).toBeInTheDocument()
-      expect(screen.getByText('Vencimento de Materiais')).toBeInTheDocument()
-      expect(screen.getByText('Resumo de Entradas')).toBeInTheDocument()
-      expect(screen.getByText('Resumo de Transferências')).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: 'Relatórios & Registros' })).toBeInTheDocument()
+      expect(screen.getByText('Relação Geral de Itens em Estoque')).toBeInTheDocument()
+      expect(screen.getByText('Materiais com Estoque Zerado ou Baixo')).toBeInTheDocument()
+      expect(screen.getByText('Controle de Vencimentos por Lote')).toBeInTheDocument()
+      expect(screen.getByText('Histórico e Registro de Entradas')).toBeInTheDocument()
+      expect(screen.getByText('Histórico e Registro de Transferências / Saídas')).toBeInTheDocument()
 
-      // Click "Relatório Geral de Materiais" card
-      await user.click(screen.getByText('Relatório Geral de Materiais'))
+      // Click "Relação Geral de Itens em Estoque" card
+      await user.click(screen.getByText('Relação Geral de Itens em Estoque'))
 
       await waitFor(() => {
         expect(screen.getByRole('dialog')).toBeInTheDocument()
-        expect(screen.getByRole('heading', { name: 'Relatório Geral de Materiais' })).toBeInTheDocument()
+        expect(screen.getByRole('heading', { name: 'Relação Geral de Itens em Estoque' })).toBeInTheDocument()
       })
     })
   })
