@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Package, ArrowDownCircle, ArrowUpCircle, FileBarChart } from 'lucide-react'
 
+import { useRef } from 'react'
 import type { Role } from '@/features/auth/types'
 import { useAuthStore } from '@/store/useAuthStore'
 import { hasAnyRole } from '@/shared/lib/rbac'
@@ -25,7 +26,13 @@ const items: BottomNavItem[] = [
 export function BottomNav() {
   const pathname = usePathname()
   const { user } = useAuthStore()
-  const role = user?.role
+  const currentRole = user?.role
+
+  const lastRoleRef = useRef<Role | undefined>(currentRole)
+  if (currentRole) {
+    lastRoleRef.current = currentRole
+  }
+  const role = currentRole || lastRoleRef.current
 
   const filteredItems = !role
     ? []

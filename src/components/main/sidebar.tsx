@@ -1,5 +1,6 @@
 'use client'
 
+import { useRef } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuthStore } from '@/store/useAuthStore'
@@ -70,7 +71,14 @@ const navGroups: NavGroup[] = [
 export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
   const pathname = usePathname()
   const { user, logout } = useAuthStore()
-  const role = user?.role
+  const currentRole = user?.role
+
+  // Guarda o último papel válido para evitar flash branco ou layout shift durante o logout/descarregamento
+  const lastRoleRef = useRef<Role | undefined>(currentRole)
+  if (currentRole) {
+    lastRoleRef.current = currentRole
+  }
+  const role = currentRole || lastRoleRef.current
 
   const filteredGroups = !role
     ? []
