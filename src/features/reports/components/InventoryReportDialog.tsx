@@ -21,10 +21,11 @@ export function InventoryReportDialog({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
-        <DialogHeader className="flex flex-row items-center justify-between pr-6 space-y-0 pb-2 border-b">
+      <DialogContent className="sm:max-w-4xl lg:max-w-5xl w-full max-h-[90vh] flex flex-col p-6 sm:p-7 rounded-2xl">
+        <DialogHeader className="flex flex-row items-center justify-between pr-6 space-y-0 pb-3 border-b">
           <div>
-            <DialogTitle className="text-base font-bold text-gray-900">
+            <DialogTitle className="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <PackageSearch size={22} className="text-brand" />
               Relação Geral de Itens em Estoque
             </DialogTitle>
             <p className="text-xs text-gray-500 mt-0.5">
@@ -35,79 +36,81 @@ export function InventoryReportDialog({ open, onOpenChange }: Props) {
             <Button
               variant="outline"
               size="sm"
-              className="h-8 text-xs gap-1 hover:border-red-200 hover:bg-red-50 text-gray-700"
+              className="h-9 text-xs gap-1.5 hover:border-red-200 hover:bg-red-50 text-gray-700 rounded-xl"
               onClick={() => reportsApi.exportInventoryPdf()}
             >
-              <FileText size={14} className="text-red-500" /> PDF
+              <FileText size={15} className="text-red-500" /> PDF
             </Button>
             <Button
               variant="outline"
               size="sm"
-              className="h-8 text-xs gap-1 hover:border-green-200 hover:bg-green-50 text-gray-700"
+              className="h-9 text-xs gap-1.5 hover:border-green-200 hover:bg-green-50 text-gray-700 rounded-xl"
               onClick={() => reportsApi.exportInventoryExcel()}
             >
-              <Sheet size={14} className="text-green-600" /> Excel
+              <Sheet size={15} className="text-green-600" /> Excel
             </Button>
           </div>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto py-2">
+        <div className="flex-1 overflow-y-auto py-3">
           {isLoading && (
-            <div className="flex flex-col gap-2 py-4">
+            <div className="flex flex-col gap-3 py-4">
               {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="h-12 bg-gray-100 rounded-xl animate-pulse" />
+                <div key={i} className="h-20 bg-gray-100 rounded-2xl animate-pulse" />
               ))}
             </div>
           )}
 
           {isError && (
-            <div className="p-6 text-center text-sm text-destructive">
+            <div className="p-8 text-center text-sm text-destructive font-medium">
               Erro ao carregar os registros de estoque.
             </div>
           )}
 
           {!isLoading && !isError && items.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <PackageSearch size={40} className="text-gray-300 mb-2" />
-              <p className="text-sm font-medium text-gray-700">Nenhum registro encontrado</p>
-              <p className="text-xs text-gray-400">Não há materiais com lotes cadastrados em estoque.</p>
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <PackageSearch size={48} className="text-gray-300 mb-3" />
+              <p className="text-base font-semibold text-gray-700">Nenhum registro encontrado</p>
+              <p className="text-xs text-gray-400 mt-1">Não há materiais com lotes cadastrados em estoque.</p>
             </div>
           )}
 
           {!isLoading && !isError && items.length > 0 && (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
               {items.map((item, idx) => (
                 <div
                   key={`${item.lotCode || idx}-${item.materialName}`}
-                  className="flex items-center justify-between px-3.5 py-2.5 rounded-xl border border-gray-100 bg-white hover:bg-gray-50/80 transition-colors shadow-sm"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 rounded-2xl border border-gray-100 bg-white hover:border-gray-200 hover:shadow-md transition-all shadow-xs gap-3"
                 >
-                  <div className="flex flex-col gap-0.5 min-w-0 pr-2">
-                    <span className="text-xs font-semibold text-gray-900 truncate">
+                  <div className="flex flex-col gap-1 min-w-0 flex-1">
+                    <span className="text-base font-bold text-gray-900 truncate">
                       {item.materialName || 'Material sem nome'}
                     </span>
-                    <div className="flex items-center gap-2 text-[11px] text-gray-500">
+                    <div className="flex items-center gap-3 flex-wrap text-xs text-gray-500">
+                      <span className="bg-gray-100 text-gray-700 px-2.5 py-1 rounded-lg font-medium">
+                        Unidade: <strong className="text-gray-900">{item.measurementUnitDescription || 'UN'}</strong>
+                      </span>
                       {item.lotCode && (
-                        <span>
-                          Lote: <strong className="text-gray-700 font-mono">{item.lotCode}</strong>
+                        <span className="bg-slate-50 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-lg font-medium">
+                          Lote: <strong className="text-slate-900 font-mono">{item.lotCode}</strong>
                         </span>
                       )}
                       {item.invoiceNumber && (
-                        <span>
-                          NF: <strong className="text-gray-700">{item.invoiceNumber}</strong>
+                        <span className="bg-slate-50 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-lg font-medium">
+                          NF: <strong className="text-slate-900">{item.invoiceNumber}</strong>
                         </span>
                       )}
                       {item.expirationDate && (
-                        <span>
-                          Validade: <strong className="text-gray-700">{formatDate(item.expirationDate)}</strong>
+                        <span className="text-gray-500 font-medium">
+                          Validade: <strong className="text-gray-800">{formatDate(item.expirationDate)}</strong>
                         </span>
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-1.5 shrink-0 bg-purple-50 text-purple-700 border border-purple-100 px-2.5 py-1 rounded-lg text-xs font-semibold">
-                    <span>{item.currentLotQuantity ?? 0}</span>
-                    <span className="text-[10px] font-normal text-purple-600">
-                      {item.measurementUnitDescription || 'un'}
-                    </span>
+                  <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-50">
+                    <div className="flex items-center gap-1.5 bg-purple-50 text-purple-700 border border-purple-200 px-4 py-2 rounded-xl text-sm sm:text-base font-extrabold shadow-2xs">
+                      <span>Qtd: {item.currentLotQuantity ?? 0}</span>
+                    </div>
                   </div>
                 </div>
               ))}

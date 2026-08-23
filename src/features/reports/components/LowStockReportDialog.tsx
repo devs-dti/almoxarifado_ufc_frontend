@@ -24,11 +24,11 @@ export function LowStockReportDialog({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl max-h-[85vh] flex flex-col">
-        <DialogHeader className="flex flex-row items-center justify-between pr-6 space-y-0 pb-2 border-b">
+      <DialogContent className="sm:max-w-4xl lg:max-w-5xl w-full max-h-[90vh] flex flex-col p-6 sm:p-7 rounded-2xl">
+        <DialogHeader className="flex flex-row items-center justify-between pr-6 space-y-0 pb-3 border-b">
           <div>
-            <DialogTitle className="text-base font-bold text-gray-900 flex items-center gap-1.5">
-              <TriangleAlert size={18} className="text-amber-500" />
+            <DialogTitle className="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <TriangleAlert size={22} className="text-amber-500" />
               Materiais com Estoque Zerado ou Baixo
             </DialogTitle>
             <p className="text-xs text-gray-500 mt-0.5">
@@ -39,25 +39,25 @@ export function LowStockReportDialog({ open, onOpenChange }: Props) {
             <Button
               variant="outline"
               size="sm"
-              className="h-8 text-xs gap-1 hover:border-red-200 hover:bg-red-50 text-gray-700"
+              className="h-9 text-xs gap-1.5 hover:border-red-200 hover:bg-red-50 text-gray-700 rounded-xl"
               onClick={() => reportsApi.exportLowStockPdf({ includeExpired })}
             >
-              <FileText size={14} className="text-red-500" /> PDF
+              <FileText size={15} className="text-red-500" /> PDF
             </Button>
             <Button
               variant="outline"
               size="sm"
-              className="h-8 text-xs gap-1 hover:border-green-200 hover:bg-green-50 text-gray-700"
+              className="h-9 text-xs gap-1.5 hover:border-green-200 hover:bg-green-50 text-gray-700 rounded-xl"
               onClick={() => reportsApi.exportLowStockExcel({ includeExpired })}
             >
-              <Sheet size={14} className="text-green-600" /> Excel
+              <Sheet size={15} className="text-green-600" /> Excel
             </Button>
           </div>
         </DialogHeader>
 
         {/* Filtro simples */}
-        <div className="flex items-center justify-between py-1 px-1 text-xs text-gray-600 bg-gray-50/60 rounded-lg">
-          <label className="flex items-center gap-2 cursor-pointer select-none">
+        <div className="flex items-center justify-between py-2 px-3 text-xs sm:text-sm text-gray-700 bg-gray-50/80 rounded-xl border border-gray-100">
+          <label className="flex items-center gap-2.5 cursor-pointer select-none">
             <input
               type="checkbox"
               checked={includeExpired}
@@ -65,55 +65,59 @@ export function LowStockReportDialog({ open, onOpenChange }: Props) {
                 setIncludeExpired(e.target.checked)
                 setPage(0)
               }}
-              className="rounded border-gray-300 text-brand focus:ring-brand"
+              className="rounded border-gray-300 text-brand focus:ring-brand h-4 w-4"
             />
-            <span>Incluir lotes vencidos no cálculo</span>
+            <span className="font-medium">Incluir lotes vencidos no cálculo</span>
           </label>
         </div>
 
-        <div className="flex-1 overflow-y-auto py-2">
+        <div className="flex-1 overflow-y-auto py-3">
           {isLoading && (
-            <div className="flex flex-col gap-2 py-4">
+            <div className="flex flex-col gap-3 py-4">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="h-12 bg-gray-100 rounded-xl animate-pulse" />
+                <div key={i} className="h-20 bg-gray-100 rounded-2xl animate-pulse" />
               ))}
             </div>
           )}
 
           {isError && (
-            <div className="p-6 text-center text-sm text-destructive">
+            <div className="p-8 text-center text-sm text-destructive font-medium">
               Erro ao carregar a lista de estoque baixo.
             </div>
           )}
 
           {!isLoading && !isError && items.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <PackageCheck size={40} className="text-emerald-500 mb-2" />
-              <p className="text-sm font-medium text-gray-800">Estoque Regularizado</p>
-              <p className="text-xs text-gray-400">Nenhum item com estoque crítico ou zerado no momento.</p>
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <PackageCheck size={48} className="text-emerald-500 mb-3" />
+              <p className="text-base font-semibold text-gray-800">Estoque Regularizado</p>
+              <p className="text-xs text-gray-400 mt-1">Nenhum item com estoque crítico ou zerado no momento.</p>
             </div>
           )}
 
           {!isLoading && !isError && items.length > 0 && (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
               {items.map((item, idx) => (
                 <div
                   key={`${item.materialName}-${idx}`}
-                  className="flex items-center justify-between px-3.5 py-2.5 rounded-xl border border-amber-100 bg-amber-50/30 hover:bg-amber-50/60 transition-colors shadow-sm"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 rounded-2xl border border-amber-200/60 bg-amber-50/30 hover:bg-amber-50/60 hover:shadow-md transition-all shadow-xs gap-3"
                 >
-                  <div className="flex flex-col gap-0.5 min-w-0 pr-2">
-                    <span className="text-xs font-semibold text-gray-900 truncate">
+                  <div className="flex flex-col gap-1 min-w-0 flex-1">
+                    <span className="text-base font-bold text-gray-900 truncate">
                       {item.materialName || 'Material sem nome'}
                     </span>
-                    <span className="text-[11px] text-gray-500">
-                      Unidade de Medida: <strong className="text-gray-700">{item.measurementUnit || 'UN'}</strong>
-                    </span>
+                    <div className="flex items-center gap-3 flex-wrap text-xs text-gray-600">
+                      <span className="bg-amber-100/60 text-amber-900 px-2.5 py-1 rounded-lg font-medium">
+                        Unidade de Medida: <strong className="text-amber-950">{item.measurementUnit || 'UN'}</strong>
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5 shrink-0 bg-red-50 text-red-700 border border-red-200 px-2.5 py-1 rounded-lg text-xs font-bold">
-                    <span>{item.quantity ?? 0}</span>
-                    <span className="text-[10px] font-normal text-red-600">
-                      {item.measurementUnit || 'un'}
-                    </span>
+                  <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-amber-100">
+                    <div className="flex items-center gap-1.5 bg-red-50 text-red-700 border border-red-200 px-4 py-2 rounded-xl text-sm sm:text-base font-extrabold shadow-2xs">
+                      <span>Saldo Atual: {item.quantity ?? 0}</span>
+                      <span className="text-xs font-medium text-red-600">
+                        {item.measurementUnit || 'un'}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}

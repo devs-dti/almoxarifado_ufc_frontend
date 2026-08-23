@@ -34,11 +34,11 @@ export function TransfersSummaryDialog({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
-        <DialogHeader className="flex flex-row items-center justify-between pr-6 space-y-0 pb-2 border-b">
+      <DialogContent className="sm:max-w-4xl lg:max-w-5xl w-full max-h-[90vh] flex flex-col p-6 sm:p-7 rounded-2xl">
+        <DialogHeader className="flex flex-row items-center justify-between pr-6 space-y-0 pb-3 border-b">
           <div>
-            <DialogTitle className="text-base font-bold text-gray-900 flex items-center gap-1.5">
-              <ArrowRightLeft size={18} className="text-brand" />
+            <DialogTitle className="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <ArrowRightLeft size={22} className="text-brand" />
               Histórico e Registro de Saídas / Transferências
             </DialogTitle>
             <p className="text-xs text-gray-500 mt-0.5">
@@ -49,7 +49,7 @@ export function TransfersSummaryDialog({ open, onOpenChange }: Props) {
             <Button
               variant="outline"
               size="sm"
-              className="h-8 text-xs gap-1 hover:border-red-200 hover:bg-red-50 text-gray-700"
+              className="h-9 text-xs gap-1.5 hover:border-red-200 hover:bg-red-50 text-gray-700 rounded-xl"
               onClick={() =>
                 reportsApi.exportTransfersPdf({
                   materialName: materialName || undefined,
@@ -58,12 +58,12 @@ export function TransfersSummaryDialog({ open, onOpenChange }: Props) {
                 })
               }
             >
-              <FileText size={14} className="text-red-500" /> PDF
+              <FileText size={15} className="text-red-500" /> PDF
             </Button>
             <Button
               variant="outline"
               size="sm"
-              className="h-8 text-xs gap-1 hover:border-green-200 hover:bg-green-50 text-gray-700"
+              className="h-9 text-xs gap-1.5 hover:border-green-200 hover:bg-green-50 text-gray-700 rounded-xl"
               onClick={() =>
                 reportsApi.exportTransfersExcel({
                   materialName: materialName || undefined,
@@ -72,15 +72,15 @@ export function TransfersSummaryDialog({ open, onOpenChange }: Props) {
                 })
               }
             >
-              <Sheet size={14} className="text-green-600" /> Excel
+              <Sheet size={15} className="text-green-600" /> Excel
             </Button>
           </div>
         </DialogHeader>
 
         {/* Filtros */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 py-1">
-          <div className="relative">
-            <Search size={14} className="absolute left-2.5 top-2.5 text-gray-400" />
+        <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 py-3 border-b border-gray-100">
+          <div className="relative flex-1 min-w-[200px]">
+            <Search size={15} className="absolute left-3 top-3 text-gray-400" />
             <Input
               placeholder="Buscar material..."
               value={materialName}
@@ -88,88 +88,92 @@ export function TransfersSummaryDialog({ open, onOpenChange }: Props) {
                 setMaterialName(e.target.value)
                 setPage(0)
               }}
-              className="pl-8 h-8 text-xs rounded-xl"
+              className="pl-9 h-10 text-sm rounded-xl"
             />
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             <Input
               type="date"
+              min="2000-01-01"
+              max="2099-12-31"
               value={startDate}
               onChange={(e) => {
                 setStartDate(e.target.value)
                 setPage(0)
               }}
-              className="h-8 text-xs rounded-xl"
+              className="h-10 text-xs sm:text-sm rounded-xl w-36 sm:w-40"
               title="Data inicial"
             />
-            <span className="text-xs text-gray-400">-</span>
+            <span className="text-xs text-gray-400 font-medium shrink-0">a</span>
             <Input
               type="date"
+              min="2000-01-01"
+              max="2099-12-31"
               value={endDate}
               onChange={(e) => {
                 setEndDate(e.target.value)
                 setPage(0)
               }}
-              className="h-8 text-xs rounded-xl"
+              className="h-10 text-xs sm:text-sm rounded-xl w-36 sm:w-40"
               title="Data final"
             />
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto py-2">
+        <div className="flex-1 overflow-y-auto py-3">
           {isLoading && (
-            <div className="flex flex-col gap-2 py-4">
+            <div className="flex flex-col gap-3 py-4">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="h-12 bg-gray-100 rounded-xl animate-pulse" />
+                <div key={i} className="h-20 bg-gray-100 rounded-2xl animate-pulse" />
               ))}
             </div>
           )}
 
           {isError && (
-            <div className="p-6 text-center text-sm text-destructive">
+            <div className="p-8 text-center text-sm text-destructive font-medium">
               Erro ao carregar o registro de transferências.
             </div>
           )}
 
           {!isLoading && !isError && items.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <Inbox size={40} className="text-gray-300 mb-2" />
-              <p className="text-sm font-medium text-gray-800">Nenhuma saída encontrada</p>
-              <p className="text-xs text-gray-400">Não há registros de transferências para o período ou filtros selecionados.</p>
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <Inbox size={48} className="text-gray-300 mb-3" />
+              <p className="text-base font-semibold text-gray-800">Nenhuma saída encontrada</p>
+              <p className="text-xs text-gray-400 mt-1">Não há registros de transferências para o período ou filtros selecionados.</p>
             </div>
           )}
 
           {!isLoading && !isError && items.length > 0 && (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
               {items.map((item, idx) => (
                 <div
                   key={`${item.exitDate || idx}-${item.materialName}`}
-                  className="flex items-center justify-between px-3.5 py-2.5 rounded-xl border border-gray-100 bg-white hover:bg-gray-50/80 transition-colors shadow-sm"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 rounded-2xl border border-gray-100 bg-white hover:border-gray-200 hover:shadow-md transition-all shadow-xs gap-3"
                 >
-                  <div className="flex flex-col gap-0.5 min-w-0 pr-2">
-                    <span className="text-xs font-semibold text-gray-900 truncate">
+                  <div className="flex flex-col gap-1 min-w-0 flex-1">
+                    <span className="text-base font-bold text-gray-900 truncate">
                       {item.materialName || 'Material sem nome'}
                     </span>
-                    <div className="flex items-center gap-2 text-[11px] text-gray-500">
-                      <span>
-                        Unidade: <strong className="text-gray-700">{item.measurementUnit || 'UN'}</strong>
+                    <div className="flex items-center gap-3 flex-wrap text-xs text-gray-500">
+                      <span className="bg-gray-100 text-gray-700 px-2.5 py-1 rounded-lg font-medium">
+                        Unidade: <strong className="text-gray-900">{item.measurementUnit || 'UN'}</strong>
                       </span>
                       {item.currentStock !== undefined && (
-                        <span>
-                          Saldo em estoque: <strong className="text-gray-700">{item.currentStock}</strong>
+                        <span className="bg-slate-50 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-lg font-medium">
+                          Saldo em estoque: <strong className="text-slate-900">{item.currentStock}</strong>
+                        </span>
+                      )}
+                      {item.exitDate && (
+                        <span className="text-gray-500 font-medium">
+                          Data de Saída: <strong className="text-gray-800">{formatDate(item.exitDate)}</strong>
                         </span>
                       )}
                     </div>
                   </div>
-                  <div className="flex flex-col items-end shrink-0 gap-1">
-                    <span className="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-lg">
-                      -{item.quantity ?? 0} {item.measurementUnit || 'un'}
+                  <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-50">
+                    <span className="text-sm sm:text-base font-extrabold text-amber-700 bg-amber-50 border border-amber-200 px-4 py-2 rounded-xl shadow-2xs">
+                      -{item.quantity ?? 0}
                     </span>
-                    {item.exitDate && (
-                      <span className="text-[10px] text-gray-400">
-                        {formatDate(item.exitDate)}
-                      </span>
-                    )}
                   </div>
                 </div>
               ))}

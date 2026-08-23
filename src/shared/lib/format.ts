@@ -1,5 +1,11 @@
 export function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' })
+  try {
+    const d = new Date(iso)
+    if (isNaN(d.getTime())) return '-'
+    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  } catch {
+    return '-'
+  }
 }
 
 export function formatDateTime(iso?: string | null): string {
