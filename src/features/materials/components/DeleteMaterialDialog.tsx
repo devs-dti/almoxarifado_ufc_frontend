@@ -29,7 +29,7 @@ export function DeleteMaterialDialog({ material, onOpenChange }: Props) {
       toast.success(`"${material.name}" removido.`)
       onOpenChange(false)
     } catch {
-      toast.error('Erro ao remover material.')
+      // O interceptor do axios em client.ts já exibe o toast com a mensagem exata do backend
     }
   }
 

@@ -51,3 +51,5 @@ export function useDeleteMaterial() {
     onSuccess: () => qc.invalidateQueries({ queryKey: materialsKeys.all }),
   })
 }
+
+export { useSaveMaterial } from './useSaveMaterial'

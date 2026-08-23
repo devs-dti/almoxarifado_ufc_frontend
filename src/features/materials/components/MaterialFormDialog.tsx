@@ -31,7 +31,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { useMeasurementUnits, useCreateMaterial, useUpdateMaterial } from '../hooks'
+import { useMeasurementUnits, useSaveMaterial } from '../hooks'
 import { useMaterialGroups } from '@/features/material-groups/hooks'
 import { materialSchema, type MaterialFormData } from '../schemas'
 import type { Material } from '../types'
@@ -46,47 +46,38 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
   const { data: groupsResponse } = useMaterialGroups({ page: 0, size: 100 })
   const groups = groupsResponse?.content
   const { data: units } = useMeasurementUnits()
-  const create = useCreateMaterial()
-  const update = useUpdateMaterial()
+  const { saveMaterial, isPending } = useSaveMaterial()
 
   const form = useForm<MaterialFormData>({
     resolver: zodResolver(materialSchema),
-    defaultValues: { name: '', internalCode: '', description: '', minQuantity: 0, materialGroupId: '', measurementUnitId: '' },
+    defaultValues: { name: '', internalCode: '', description: '', minQuantity: 1, materialGroupId: '', measurementUnitId: '' },
   })
 
   useEffect(() => {
-    if (editing) {
-      const matchedGroup = groups?.find(g => g.name === editing.materialGroupName)
-      const matchedUnit = units?.find(u => u.name === editing.measurementUnitName)
-      form.reset({
-        name: editing.name,
-        internalCode: editing.internalCode,
-        description: editing.description ?? '',
-        minQuantity: editing.minQuantity,
-        materialGroupId: matchedGroup ? String(matchedGroup.id) : '',
-        measurementUnitId: matchedUnit ? String(matchedUnit.id) : '',
-      })
-    } else {
-      form.reset({ name: '', internalCode: '', description: '', minQuantity: 0, materialGroupId: '', measurementUnitId: '' })
+    if (open) {
+      if (editing) {
+        const matchedGroup = groups?.find(g => g.name === editing.materialGroupName)
+        const matchedUnit = units?.find(u => u.name === editing.measurementUnitName)
+        form.reset({
+          name: editing.name,
+          internalCode: editing.internalCode,
+          description: editing.description ?? '',
+          minQuantity: editing.minQuantity || 1,
+          materialGroupId: matchedGroup ? String(matchedGroup.id) : '',
+          measurementUnitId: matchedUnit ? String(matchedUnit.id) : '',
+        })
+      } else {
+        form.reset({ name: '', internalCode: '', description: '', minQuantity: 1, materialGroupId: '', measurementUnitId: '' })
+      }
     }
-  }, [editing, open, form, groups, units])
+  }, [editing, open, groups, units])
 
   async function onSubmit(data: MaterialFormData) {
-    try {
-      if (editing) {
-        await update.mutateAsync({ id: editing.id, data })
-        toast.success('Material atualizado!')
-      } else {
-        await create.mutateAsync(data)
-        toast.success('Material cadastrado!')
-      }
+    const success = await saveMaterial(data, editing)
+    if (success) {
       onOpenChange(false)
-    } catch {
-      toast.error('Erro ao salvar material.')
     }
   }
-
-  const isPending = create.isPending || update.isPending
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -146,7 +137,17 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
                 <FormItem>
                   <FormLabel>Quantidade mínima</FormLabel>
                   <FormControl>
-                    <Input {...field} type="number" min={0} placeholder="0" />
+                    <Input
+                      {...field}
+                      type="number"
+                      min={1}
+                      placeholder="1"
+                      value={field.value ?? ''}
+                      onChange={(e) => {
+                        const val = e.target.value === '' ? '' : Number(e.target.value)
+                        field.onChange(val)
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

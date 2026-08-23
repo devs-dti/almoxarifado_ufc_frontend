@@ -11,7 +11,14 @@ import type {
   UpdateMaterialPayload,
 } from '../types'
 
-type MaterialListParams = PageParams & { name?: string; groupId?: EntityId }
+type MaterialListParams = PageParams & {
+  search?: string
+  name?: string
+  internalCode?: string
+  measurementUnit?: string
+  materialGroup?: string
+  groupId?: EntityId
+}
 
 export const materialsApi = {
   list: (params?: MaterialListParams) =>

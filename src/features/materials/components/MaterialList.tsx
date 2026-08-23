@@ -30,7 +30,7 @@ export function MaterialList() {
   const { data: pageData, isLoading, isError } = useMaterials({
     page,
     size: MATERIALS_PAGE_SIZE,
-    name: debouncedSearch || undefined,
+    search: debouncedSearch || undefined,
   })
 
   const materials = pageData?.content ?? []
@@ -63,13 +63,13 @@ export function MaterialList() {
         </div>
         
         <div className="flex items-center gap-3 w-full md:w-auto">
-          <div className="relative flex-1 md:w-64">
+          <div className="relative flex-1 md:w-72">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <Input
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(0) }}
-              placeholder="Buscar material..."
-              className="pl-8 h-8 rounded-lg text-xs w-full"
+              placeholder="Buscar por nome, código..."
+              className="pl-8 h-8 rounded-lg text-xs w-full placeholder:text-gray-400/80"
             />
           </div>
           {canWrite && (
