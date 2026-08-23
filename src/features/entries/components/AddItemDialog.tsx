@@ -60,15 +60,22 @@ export function AddItemDialog({ entryId, open, onOpenChange }: Props) {
 
   async function onSubmit(data: AddEntryItemInput) {
     try {
+      const payload: AddEntryItemPayload = {
+        materialId: data.materialId,
+        quantity: Number(data.quantity),
+        expirationType: data.expirationType,
+        validity: data.expirationType === 'DATED' && data.validity ? data.validity.split('T')[0] : undefined,
+        validityConsistentWithExpirationType: true,
+      }
       await addItem.mutateAsync({
         entryId,
-        data: data as unknown as AddEntryItemPayload,
+        data: payload,
       })
       toast.success('Item adicionado!')
       form.reset()
       onOpenChange(false)
     } catch {
-      toast.error('Erro ao adicionar item.')
+      // O interceptor do axios em client.ts já exibe o toast com a mensagem exata do backend
     }
   }
 
@@ -155,7 +162,13 @@ export function AddItemDialog({ entryId, open, onOpenChange }: Props) {
                   <FormItem>
                     <FormLabel>Data de Validade</FormLabel>
                     <FormControl>
-                      <Input type="date" className="rounded-xl" {...field} />
+                      <Input
+                        type="date"
+                        min="2000-01-01"
+                        max="2099-12-31"
+                        className="rounded-xl"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import type { EntityId } from '@/shared/types/id'
 import { hasAnyRole } from '@/shared/lib/rbac'
 import { useAuthStore } from '@/store/useAuthStore'
-import { useFinishEntry, useCancelEntry, useRemoveEntryItem } from '../hooks'
+import { useEntry, useFinishEntry, useCancelEntry, useRemoveEntryItem } from '../hooks'
 import { AddItemDialog } from './AddItemDialog'
 import { formatDate } from '@/shared/lib/format'
 import type { Entry, EntryStatus } from '../types'
@@ -45,20 +45,22 @@ type Props = {
 export function EntryAccordion({ entry }: Props) {
   const [open, setOpen] = useState(false)
   const [addItemOpen, setAddItemOpen] = useState(false)
+  const { data: detail, isLoading: isLoadingDetail } = useEntry(entry.id, { enabled: open })
+  const currentEntry = detail ?? entry
   const finish = useFinishEntry()
   const cancel = useCancelEntry()
   const removeItem = useRemoveEntryItem()
   const role = useAuthStore((s) => s.user?.role)
   const canManage = hasAnyRole(role, ['ADMIN', 'MANAGER'])
 
-  const isPending = entry.status === 'PENDING'
+  const isPending = currentEntry.status === 'PENDING'
 
   async function handleFinish() {
     try {
       await finish.mutateAsync(entry.id)
       toast.success('Entrada finalizada!')
     } catch {
-      toast.error('Erro ao finalizar entrada.')
+      // O interceptor do axios em client.ts já exibe o toast com a mensagem exata do backend
     }
   }
 
@@ -67,7 +69,7 @@ export function EntryAccordion({ entry }: Props) {
       await cancel.mutateAsync(entry.id)
       toast.success('Entrada cancelada.')
     } catch {
-      toast.error('Erro ao cancelar entrada.')
+      // O interceptor do axios em client.ts já exibe o toast com a mensagem exata do backend
     }
   }
 
@@ -76,41 +78,45 @@ export function EntryAccordion({ entry }: Props) {
       await removeItem.mutateAsync({ entryId: entry.id, itemId })
       toast.success('Item removido.')
     } catch {
-      toast.error('Erro ao remover item.')
+      // O interceptor do axios em client.ts já exibe o toast com a mensagem exata do backend
     }
   }
 
+  const items = currentEntry.items ?? []
+
   return (
     <>
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden transition-all duration-200">
         <button
-          onClick={() => setOpen((v) => !v)}
+          type="button"
+          onClick={() => setOpen((prev) => !prev)}
           className="w-full flex items-center justify-between px-4 py-3 text-left"
+          aria-expanded={open}
         >
-          <div className="flex flex-col gap-1 min-w-0">
+          <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="font-semibold text-gray-900 text-sm">
-                Entrada #{entry.id}
+                Entrada #{currentEntry.id}
               </span>
               <span
-                className={`text-[10px] font-semibold border rounded-full px-2 py-0.5 ${STATUS_COLORS[entry.status]}`}
+                className={`text-[10px] font-semibold border rounded-full px-2 py-0.5 ${STATUS_COLORS[currentEntry.status]}`}
               >
-                {STATUS_LABELS[entry.status]}
+                {STATUS_LABELS[currentEntry.status]}
               </span>
             </div>
             <div className="flex items-center gap-2 flex-wrap mt-1 text-xs text-gray-500">
-              <span>{TYPE_LABELS[entry.entryType] ?? entry.entryType}</span>
-              {entry.responsible && (
+              <span>{TYPE_LABELS[currentEntry.entryType] ?? currentEntry.entryType}</span>
+              {currentEntry.responsible && (
                 <>
                   <span className="text-gray-200">·</span>
-                  <span>Resp: {entry.responsible}</span>
+                  <span>Resp: {currentEntry.responsible}</span>
                 </>
               )}
               <span className="text-gray-200">·</span>
-              <span>Chegada: {formatDate(entry.arrivalAt)}</span>
+              <span>Chegada: {formatDate(currentEntry.arrivalAt)}</span>
             </div>
             <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
-              <span>{entry.items.length} {entry.items.length === 1 ? 'item' : 'itens'}</span>
+              <span>{items.length} {items.length === 1 ? 'item' : 'itens'}</span>
             </div>
           </div>
           <div className="shrink-0 ml-2 text-gray-400">
@@ -120,17 +126,21 @@ export function EntryAccordion({ entry }: Props) {
 
         {open && (
           <div className="border-t border-gray-100 px-4 pb-4 pt-3 flex flex-col gap-3">
-            {entry.notes && (
+            {currentEntry.notes && (
               <p className="text-xs text-gray-500 bg-gray-50 p-2 rounded-lg italic">
-                Observações: {entry.notes}
+                Observações: {currentEntry.notes}
               </p>
             )}
 
-            {entry.items.length === 0 ? (
+            {isLoadingDetail && items.length === 0 ? (
+              <div className="py-4 flex justify-center">
+                <div className="h-4 w-24 bg-gray-100 rounded animate-pulse" />
+              </div>
+            ) : items.length === 0 ? (
               <p className="text-xs text-gray-400 text-center py-2">Nenhum item adicionado.</p>
             ) : (
               <div className="flex flex-col gap-2">
-                {entry.items.map((item) => (
+                {items.map((item) => (
                   <div
                     key={item.id}
                     className="flex items-center justify-between bg-gray-50 rounded-xl px-3 py-2"
@@ -189,7 +199,7 @@ export function EntryAccordion({ entry }: Props) {
                     size="sm"
                     className="gap-1.5 rounded-xl text-xs bg-emerald-600 hover:bg-emerald-700"
                     onClick={handleFinish}
-                    disabled={finish.isPending || entry.items.length === 0}
+                    disabled={finish.isPending || items.length === 0}
                   >
                     <Check size={13} />
                     Finalizar

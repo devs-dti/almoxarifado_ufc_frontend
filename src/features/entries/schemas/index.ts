@@ -1,32 +1,44 @@
 import { z } from 'zod'
 
+const isValidYear = (val?: string) => {
+  if (!val) return false
+  const year = parseInt(val.split('-')[0], 10)
+  return !isNaN(year) && year >= 2000 && year <= 2099
+}
+
 export const supplierDetailsSchema = z.object({
-  supplierId: z.string().min(1, 'Selecione um fornecedor'),
-  invoiceNumber: z.string().min(1, 'Número da nota obrigatório'),
-  invoiceIssueDate: z.string().min(1, 'Data de emissão obrigatória'), // Backend expects YYYY-MM-DD for date
-  totalAmount: z.coerce.number().positive('Valor deve ser positivo'),
-  biddingCode: z.string().min(1, 'Código de licitação obrigatório'),
-  commitmentNote: z.string().min(1, 'Empenho obrigatório'),
+  supplierId: z.string().optional(),
+  invoiceNumber: z.string().optional(),
+  invoiceIssueDate: z.string().optional(),
+  totalAmount: z.coerce.number().optional(),
+  biddingCode: z.string().optional(),
+  commitmentNote: z.string().optional(),
 })
+
+const formatIsoDateTime = (val?: string) => {
+  if (!val) return ''
+  try {
+    const d = new Date(val.includes('T') ? val : `${val}T00:00:00`)
+    if (!isNaN(d.getTime())) return d.toISOString()
+  } catch {}
+  if (val.length === 16) return `${val}:00Z`
+  if (val.length === 10) return `${val}T00:00:00Z`
+  return val
+}
 
 export const createEntrySchema = z.object({
   entryType: z.enum(['SUPPLIER', 'DONATION', 'INVENTORY_ADJUSTMENT', 'RETURN', 'OTHERS']),
-  arrivalAt: z.string().min(1, 'Data de chegada obrigatória'),
+  arrivalAt: z.string().min(1, 'Data e hora de chegada obrigatória').refine(isValidYear, 'Ano de chegada deve estar entre 2000 e 2099'),
   notes: z.string().optional(),
   supplierDetails: supplierDetailsSchema.optional(),
 }).transform((data) => {
-  // Format arrivalAt to include seconds if missing (e.g. from datetime-local input)
-  let formattedArrival = data.arrivalAt
-  if (formattedArrival.length === 16) {
-    formattedArrival = `${formattedArrival}:00`
-  }
-  
-  // Format invoiceIssueDate to ensure it is just YYYY-MM-DD
-  let formattedSupplierDetails = data.supplierDetails
+  const formattedArrival = formatIsoDateTime(data.arrivalAt)
+
+  let formattedSupplierDetails = data.entryType === 'SUPPLIER' ? data.supplierDetails : undefined
   if (formattedSupplierDetails?.invoiceIssueDate) {
     formattedSupplierDetails = {
       ...formattedSupplierDetails,
-      invoiceIssueDate: formattedSupplierDetails.invoiceIssueDate.split('T')[0]
+      invoiceIssueDate: formatIsoDateTime(formattedSupplierDetails.invoiceIssueDate),
     }
   }
 
@@ -37,33 +49,49 @@ export const createEntrySchema = z.object({
     supplierDetailsConsistent: data.entryType === 'SUPPLIER',
   }
 }).superRefine((data, ctx) => {
-  if (data.entryType === 'SUPPLIER' && !data.supplierDetails?.supplierId) {
-    ctx.addIssue({
-      path: ['supplierDetails', 'supplierId'],
-      code: z.ZodIssueCode.custom,
-      message: 'Fornecedor é obrigatório para este tipo',
-    })
-  }
-  if (data.entryType === 'SUPPLIER' && !data.supplierDetails?.invoiceNumber) {
-    ctx.addIssue({
-      path: ['supplierDetails', 'invoiceNumber'],
-      code: z.ZodIssueCode.custom,
-      message: 'Obrigatório',
-    })
-  }
-  if (data.entryType === 'SUPPLIER' && !data.supplierDetails?.invoiceIssueDate) {
-    ctx.addIssue({
-      path: ['supplierDetails', 'invoiceIssueDate'],
-      code: z.ZodIssueCode.custom,
-      message: 'Obrigatório',
-    })
-  }
-  if (data.entryType === 'SUPPLIER' && !data.supplierDetails?.totalAmount) {
-    ctx.addIssue({
-      path: ['supplierDetails', 'totalAmount'],
-      code: z.ZodIssueCode.custom,
-      message: 'Obrigatório',
-    })
+  if (data.entryType === 'SUPPLIER') {
+    if (!data.supplierDetails?.supplierId) {
+      ctx.addIssue({
+        path: ['supplierDetails', 'supplierId'],
+        code: z.ZodIssueCode.custom,
+        message: 'Selecione um fornecedor',
+      })
+    }
+    if (!data.supplierDetails?.invoiceNumber) {
+      ctx.addIssue({
+        path: ['supplierDetails', 'invoiceNumber'],
+        code: z.ZodIssueCode.custom,
+        message: 'Número da nota fiscal obrigatório',
+      })
+    }
+    if (!data.supplierDetails?.invoiceIssueDate || !isValidYear(data.supplierDetails.invoiceIssueDate)) {
+      ctx.addIssue({
+        path: ['supplierDetails', 'invoiceIssueDate'],
+        code: z.ZodIssueCode.custom,
+        message: 'Data de emissão com ano válido entre 2000 e 2099 obrigatória',
+      })
+    }
+    if (data.supplierDetails?.totalAmount === undefined || Number(data.supplierDetails.totalAmount) <= 0) {
+      ctx.addIssue({
+        path: ['supplierDetails', 'totalAmount'],
+        code: z.ZodIssueCode.custom,
+        message: 'Valor total deve ser maior que zero',
+      })
+    }
+    if (!data.supplierDetails?.biddingCode) {
+      ctx.addIssue({
+        path: ['supplierDetails', 'biddingCode'],
+        code: z.ZodIssueCode.custom,
+        message: 'Código de licitação obrigatório',
+      })
+    }
+    if (!data.supplierDetails?.commitmentNote) {
+      ctx.addIssue({
+        path: ['supplierDetails', 'commitmentNote'],
+        code: z.ZodIssueCode.custom,
+        message: 'Nota de empenho obrigatória',
+      })
+    }
   }
 })
 
@@ -71,7 +99,10 @@ export const addEntryItemSchema = z.object({
   materialId: z.string().min(1, 'Selecione um material'),
   quantity: z.coerce.number().positive('Quantidade deve ser positiva'),
   expirationType: z.enum(['DATED', 'NON_EXPIRING', 'INDEFINITE']),
-  validity: z.string().optional(),
+  validity: z.string().optional().refine((val) => {
+    if (!val) return true
+    return isValidYear(val)
+  }, 'Ano de validade deve estar entre 2000 e 2099'),
 }).transform((data) => {
   let formattedValidity = data.validity
   if (formattedValidity) {

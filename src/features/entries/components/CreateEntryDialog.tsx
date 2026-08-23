@@ -72,12 +72,37 @@ export function CreateEntryDialog({ open, onOpenChange }: Props) {
 
   async function onSubmit(data: CreateEntryInput) {
     try {
-      await create.mutateAsync(data as unknown as CreateEntryPayload)
+      const formatIso = (val?: string) => {
+        if (!val) return undefined
+        try {
+          const d = new Date(val.includes('T') ? val : `${val}T00:00:00`)
+          if (!isNaN(d.getTime())) return d.toISOString()
+        } catch {}
+        if (val.length === 16) return `${val}:00Z`
+        if (val.length === 10) return `${val}T00:00:00Z`
+        return val
+      }
+
+      const payload: CreateEntryPayload = {
+        entryType: data.entryType,
+        arrivalAt: formatIso(data.arrivalAt) || new Date().toISOString(),
+        notes: data.notes?.trim() || undefined,
+        supplierDetailsConsistent: data.entryType === 'SUPPLIER',
+        supplierDetails: data.entryType === 'SUPPLIER' && data.supplierDetails?.supplierId ? {
+          supplierId: data.supplierDetails.supplierId,
+          invoiceNumber: data.supplierDetails.invoiceNumber?.trim() || '',
+          invoiceIssueDate: formatIso(data.supplierDetails.invoiceIssueDate) || new Date().toISOString(),
+          totalAmount: Number(data.supplierDetails.totalAmount) || 0,
+          biddingCode: data.supplierDetails.biddingCode?.trim() || '',
+          commitmentNote: data.supplierDetails.commitmentNote?.trim() || '',
+        } : undefined,
+      }
+      await create.mutateAsync(payload)
       toast.success('Entrada criada!')
       form.reset()
       onOpenChange(false)
     } catch {
-      toast.error('Erro ao criar entrada.')
+      // O interceptor do axios em client.ts já exibe o toast com a mensagem exata do backend
     }
   }
 
@@ -116,7 +141,15 @@ export function CreateEntryDialog({ open, onOpenChange }: Props) {
             <FormField control={form.control} name="arrivalAt" render={({ field }) => (
               <FormItem>
                 <FormLabel>Data/Hora de Chegada</FormLabel>
-                <FormControl><Input type="datetime-local" className="rounded-xl" {...field} /></FormControl>
+                <FormControl>
+                  <Input
+                    type="datetime-local"
+                    min="2000-01-01T00:00"
+                    max="2099-12-31T23:59"
+                    className="rounded-xl"
+                    {...field}
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )} />
@@ -165,7 +198,19 @@ export function CreateEntryDialog({ open, onOpenChange }: Props) {
                     <FormItem><FormLabel>Valor Total (R$)</FormLabel><FormControl><Input type="number" step="0.01" className="rounded-xl" {...field} /></FormControl><FormMessage /></FormItem>
                   )} />
                   <FormField control={form.control} name="supplierDetails.invoiceIssueDate" render={({ field }) => (
-                    <FormItem className="col-span-2"><FormLabel>Data de Emissão da NF</FormLabel><FormControl><Input type="date" className="rounded-xl" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem className="col-span-2">
+                      <FormLabel>Data de Emissão da NF</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="date"
+                          min="2000-01-01"
+                          max="2099-12-31"
+                          className="rounded-xl"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )} />
                   <FormField control={form.control} name="supplierDetails.biddingCode" render={({ field }) => (
                     <FormItem><FormLabel>Licitação</FormLabel><FormControl><Input className="rounded-xl" {...field} /></FormControl><FormMessage /></FormItem>

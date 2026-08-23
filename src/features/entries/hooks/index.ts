@@ -16,11 +16,11 @@ export function useEntries(params?: Parameters<typeof entriesApi.list>[0]) {
   })
 }
 
-export function useEntry(id: EntityId) {
+export function useEntry(id: EntityId, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: entriesKeys.detail(id),
     queryFn: () => entriesApi.get(id),
-    enabled: id.length > 0,
+    enabled: (options?.enabled ?? true) && id.length > 0,
   })
 }
 
