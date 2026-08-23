@@ -43,7 +43,7 @@ export function SectorFormDialog({ open, onOpenChange, editing }: Props) {
       }
       onOpenChange(false)
     } catch {
-      toast.error('Erro ao salvar setor.')
+      // O interceptor do axios em client.ts já exibe o toast com a mensagem exata do backend
     }
   }
 

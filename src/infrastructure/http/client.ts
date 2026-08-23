@@ -1,8 +1,7 @@
 import axios from "axios";
 import { toast } from "sonner";
-import type { ApiError } from "@/shared/types/api";
-
 import Cookies from "js-cookie";
+import { sanitizeApiErrorMessage } from "@/shared/lib/sanitizeApiError";
 
 const baseURL = process.env.NEXT_PUBLIC_API_URL ?? "/api/backend";
 
@@ -23,9 +22,8 @@ httpClient.interceptors.request.use((config) => {
 httpClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Tenta extrair a mensagem do erro da API
-    const apiError = error.response?.data as ApiError;
-    const message = apiError?.message || error.message || "Erro desconhecido ao processar requisição.";
+    // Sanitiza e mapeia para mensagem amigável sem expor UUIDs ou códigos internos
+    const friendlyMessage = sanitizeApiErrorMessage(error);
 
     // Dispara o toast de erro (padrão Sonner) apenas se não for erro de autenticação/autorização ou logout
     const isAuthError = error.response?.status === 401 || error.response?.status === 403;
@@ -33,9 +31,7 @@ httpClient.interceptors.response.use(
     const isAuthCheck = error.config?.url?.includes('/auth/me') || error.config?.url?.includes('/auth/refresh-token');
 
     if (!isAuthError && !isLogout && !isAuthCheck) {
-      toast.error("Erro na Requisição", {
-        description: message,
-      });
+      toast.error(friendlyMessage);
     }
     return Promise.reject(error);
   }

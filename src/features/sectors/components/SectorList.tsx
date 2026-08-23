@@ -37,7 +37,7 @@ export function SectorList() {
       await deleteMutation.mutateAsync(deletingId)
       toast.success('Setor removido.')
     } catch {
-      toast.error('Erro ao remover setor.')
+      // O interceptor do axios em client.ts já exibe o toast com a mensagem exata do backend
     } finally {
       setDeletingId(null)
     }

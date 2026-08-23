@@ -45,7 +45,7 @@ export function UserList() {
       await deleteMutation.mutateAsync(id)
       toast.success('Usuário removido.')
     } catch {
-      toast.error('Erro ao remover usuário.')
+      // O interceptor do axios em client.ts já exibe o toast com a mensagem exata do backend
     } finally {
       setDeletingId(null)
     }

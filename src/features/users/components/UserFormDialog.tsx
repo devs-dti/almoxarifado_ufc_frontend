@@ -94,7 +94,7 @@ export function UserFormDialog({ open, onOpenChange, editing }: Props) {
       }
       onOpenChange(false)
     } catch {
-      toast.error('Erro ao salvar usuário.')
+      // O interceptor do axios em client.ts já exibe o toast com a mensagem exata do backend
     }
   }
 

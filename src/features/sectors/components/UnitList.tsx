@@ -27,7 +27,7 @@ export function UnitList() {
       await deleteMutation.mutateAsync(id)
       toast.success('Unidade removida.')
     } catch {
-      toast.error('Erro ao remover unidade.')
+      // O interceptor do axios em client.ts já exibe o toast com a mensagem exata do backend
     } finally {
       setDeletingId(null)
     }

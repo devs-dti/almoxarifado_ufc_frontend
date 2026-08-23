@@ -1,10 +1,6 @@
-import axios from 'axios'
+import { sanitizeApiErrorMessage } from './sanitizeApiError'
 
 export function parseApiError(err: unknown, fallback = 'Erro inesperado. Tente novamente.'): string {
-  if (axios.isAxiosError(err)) {
-    const body = err.response?.data as { message?: string } | undefined
-    return body?.message ?? err.message ?? fallback
-  }
-  if (err instanceof Error) return err.message
-  return fallback
+  const message = sanitizeApiErrorMessage(err)
+  return message && message !== 'Erro desconhecido ao processar requisição.' ? message : fallback
 }

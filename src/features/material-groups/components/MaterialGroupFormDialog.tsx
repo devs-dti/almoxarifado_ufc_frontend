@@ -71,7 +71,7 @@ export function MaterialGroupFormDialog({
       }
       onOpenChange(false)
     } catch {
-      toast.error('Ocorreu um erro ao salvar o grupo de materiais.')
+      // O interceptor do axios em client.ts já exibe o toast com a mensagem exata do backend
     }
   }
 
