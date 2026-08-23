@@ -31,21 +31,11 @@ export function EntryList() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Entradas</h2>
-          {canCreate && (
-            <div className="md:hidden">
-              <Button onClick={() => setCreateOpen(true)} className="gap-1.5 rounded-xl px-3" size="sm">
-                <Plus size={15} />
-                Nova Entrada
-              </Button>
-            </div>
-          )}
-        </div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Entradas</h2>
 
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <div className="relative flex-1 md:w-72">
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="relative flex-1 sm:w-72">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <Input
               value={search}
@@ -58,12 +48,10 @@ export function EntryList() {
             />
           </div>
           {canCreate && (
-            <div className="hidden md:block">
-              <Button onClick={() => setCreateOpen(true)} className="gap-1.5 rounded-xl px-3" size="sm">
-                <Plus size={15} />
-                Nova Entrada
-              </Button>
-            </div>
+            <Button onClick={() => setCreateOpen(true)} className="gap-1.5 rounded-xl px-3 bg-brand hover:bg-brand/90 shrink-0" size="sm">
+              <Plus size={15} />
+              Nova Entrada
+            </Button>
           )}
         </div>
       </div>

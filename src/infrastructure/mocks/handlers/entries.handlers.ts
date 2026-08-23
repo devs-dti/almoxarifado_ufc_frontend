@@ -84,13 +84,14 @@ export const entriesHandlers = [
   http.post('/entries/:id/items', async ({ request, params }) => {
     const idx = entries.findIndex((e) => e.id === String(params.id))
     if (idx === -1) return new HttpResponse(null, { status: 404 })
-    const body = (await request.json()) as AddEntryItemPayload
+    const rawBody = await request.json()
+    const firstItem = (Array.isArray(rawBody) ? rawBody[0] : rawBody) as AddEntryItemPayload
     const item: EntryItem = {
       id: mockId(Date.now()),
       materialName: 'Material Teste',
-      quantity: body.quantity,
-      expirationType: body.expirationType,
-      expirationDate: body.validity || null,
+      quantity: firstItem?.quantity,
+      expirationType: firstItem?.expirationType,
+      expirationDate: firstItem?.validity || null,
       lotCode: `LOT-${Math.floor(Math.random() * 1000)}`,
     }
     entries[idx].items.push(item)
