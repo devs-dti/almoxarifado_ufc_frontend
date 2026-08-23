@@ -72,7 +72,7 @@ export function CreateTransferDialog({ open, onOpenChange }: Props) {
       toast.success('Transferência solicitada!')
       handleClose()
     } catch {
-      toast.error('Erro ao criar transferência.')
+      // O interceptor do axios em client.ts já exibe o toast com a mensagem exata do backend
     }
   }
 

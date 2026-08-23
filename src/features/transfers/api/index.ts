@@ -5,7 +5,7 @@ import type { PageLike, PageParams } from '@/shared/types/pagination'
 import type { Transfer, CreateTransferPayload, ApproveTransferPayload } from '../types'
 
 export const transfersApi = {
-  list: (params?: PageParams & { status?: string }) =>
+  list: (params?: PageParams & { status?: string; search?: string }) =>
     api.get<PageLike<Transfer>>('/transfers', { params }).then((r) => unwrapPage(r.data)),
 
   get: (id: EntityId) =>

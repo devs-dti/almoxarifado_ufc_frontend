@@ -53,7 +53,7 @@ export function TransferAccordion({ transfer }: Props) {
       await disapprove.mutateAsync(transfer.id)
       toast.success('Transferência reprovada.')
     } catch {
-      toast.error('Erro ao reprovar transferência.')
+      // O interceptor do axios em client.ts já exibe o toast com a mensagem exata do backend
     }
   }
 

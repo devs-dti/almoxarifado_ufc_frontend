@@ -56,7 +56,7 @@ export function ApproveTransferDialog({ transfer, onOpenChange }: Props) {
       toast.success('Transferência aprovada!')
       handleClose()
     } catch {
-      toast.error('Erro ao aprovar transferência.')
+      // O interceptor do axios em client.ts já exibe o toast com a mensagem exata do backend
     }
   }
 
