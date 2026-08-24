@@ -49,56 +49,20 @@ export function MaterialAuditList() {
     }
   }
 
-  async function handleExportPdf() {
-    try {
-      const blob = await materialAuditsApi.exportPdf(getExportParams())
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `auditorias-${format(new Date(), 'yyyy-MM-dd')}.pdf`
-      a.click()
-    } catch (e) {
-      console.error('Erro ao exportar PDF', e)
-    }
+  function handleExportPdf() {
+    materialAuditsApi.exportPdf(getExportParams())
   }
 
-  async function handleExportExcel() {
-    try {
-      const blob = await materialAuditsApi.exportExcel(getExportParams())
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `auditorias-${format(new Date(), 'yyyy-MM-dd')}.xlsx`
-      a.click()
-    } catch (e) {
-      console.error('Erro ao exportar Excel', e)
-    }
+  function handleExportExcel() {
+    materialAuditsApi.exportExcel(getExportParams())
   }
 
-  async function handleExportIndividualPdf(id: string) {
-    try {
-      const blob = await materialAuditsApi.exportDetailsPdf(id)
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `auditoria-${id.slice(0, 8)}.pdf`
-      a.click()
-    } catch (e) {
-      console.error('Erro ao exportar PDF individual', e)
-    }
+  function handleExportIndividualPdf(id: string) {
+    materialAuditsApi.exportDetailsPdf(id)
   }
 
-  async function handleExportIndividualExcel(id: string) {
-    try {
-      const blob = await materialAuditsApi.exportDetailsExcel(id)
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `auditoria-${id.slice(0, 8)}.xlsx`
-      a.click()
-    } catch (e) {
-      console.error('Erro ao exportar Excel individual', e)
-    }
+  function handleExportIndividualExcel(id: string) {
+    materialAuditsApi.exportDetailsExcel(id)
   }
 
   return (

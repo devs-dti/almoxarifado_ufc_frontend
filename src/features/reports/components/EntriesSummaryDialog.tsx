@@ -177,7 +177,7 @@ export function EntriesSummaryDialog({ open, onOpenChange }: Props) {
             <div className="flex flex-col gap-3">
               {items.map((item, idx) => (
                 <div
-                  key={`${item.entryDate || idx}-${item.materialName}`}
+                  key={`${item.entryDate || 'entry'}-${item.materialName}-${idx}`}
                   className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 rounded-2xl border border-gray-100 bg-white hover:border-gray-200 hover:shadow-md transition-all shadow-xs gap-3"
                 >
                   <div className="flex flex-col gap-1 min-w-0 flex-1">

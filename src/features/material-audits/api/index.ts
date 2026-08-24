@@ -1,5 +1,6 @@
 import { httpClient } from '@/infrastructure/http/client'
 import { unwrapPage } from '@/shared/lib/pagination'
+import { downloadFile } from '@/shared/lib/download'
 import type { PageLike, PageParams } from '@/shared/types/pagination'
 import type {
   MaterialAudit,
@@ -45,22 +46,14 @@ export const materialAuditsApi = {
     httpClient.patch(`/material-audits/${id}/auditors`, data),
 
   exportPdf: (params?: MaterialAuditListParams) =>
-    httpClient
-      .get('/material-audits/export/pdf', { params, responseType: 'blob' })
-      .then((r) => r.data),
+    downloadFile('/material-audits/export/pdf', 'auditorias.pdf', params as Record<string, unknown>),
 
   exportExcel: (params?: MaterialAuditListParams) =>
-    httpClient
-      .get('/material-audits/export/excel', { params, responseType: 'blob' })
-      .then((r) => r.data),
+    downloadFile('/material-audits/export/excel', 'auditorias.xlsx', params as Record<string, unknown>),
 
   exportDetailsPdf: (id: string) =>
-    httpClient
-      .get(`/material-audits/${id}/export/pdf`, { responseType: 'blob' })
-      .then((r) => r.data),
+    downloadFile(`/material-audits/${id}/export/pdf`, `auditoria-${id.slice(0, 8)}.pdf`),
 
   exportDetailsExcel: (id: string) =>
-    httpClient
-      .get(`/material-audits/${id}/export/excel`, { responseType: 'blob' })
-      .then((r) => r.data),
+    downloadFile(`/material-audits/${id}/export/excel`, `auditoria-${id.slice(0, 8)}.xlsx`),
 }

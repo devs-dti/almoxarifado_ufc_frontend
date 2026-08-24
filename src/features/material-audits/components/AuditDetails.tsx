@@ -107,30 +107,12 @@ export function AuditDetails({ id }: Props) {
     })
   }
 
-  async function handleExportPdf() {
-    try {
-      const blob = await materialAuditsApi.exportDetailsPdf(id)
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `auditoria-${id}.pdf`
-      a.click()
-    } catch {
-      toast.error('Erro ao exportar PDF')
-    }
+  function handleExportPdf() {
+    materialAuditsApi.exportDetailsPdf(id)
   }
 
-  async function handleExportExcel() {
-    try {
-      const blob = await materialAuditsApi.exportDetailsExcel(id)
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `auditoria-${id}.xlsx`
-      a.click()
-    } catch {
-      toast.error('Erro ao exportar Excel')
-    }
+  function handleExportExcel() {
+    materialAuditsApi.exportDetailsExcel(id)
   }
 
   return (
