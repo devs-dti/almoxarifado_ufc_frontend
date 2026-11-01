@@ -1,10 +1,11 @@
 'use client'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Loader2, User as UserIcon, Mail, Building2, Fingerprint } from 'lucide-react'
+import { Loader2, Mail, Building2, Fingerprint } from 'lucide-react'
 import type { EntityId } from '@/shared/types/id'
 import { useUser } from '../hooks'
 import { formatCPF } from '@/shared/lib/format'
+import { UserAvatar } from './UserAvatar'
 
 const ROLE_LABELS: Record<string, string> = {
   ADMIN: 'Administrador',
@@ -24,19 +25,21 @@ type Props = {
 }
 
 export function UserDetailsDialog({ userId, onClose }: Props) {
-  const { data: user, isLoading } = useUser(userId ?? '', { enabled: !!userId })
+  const { data: user, isLoading, isError, refetch } = useUser(userId ?? '', { enabled: !!userId })
 
   return (
     <Dialog open={!!userId} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-md p-0 overflow-hidden bg-white/70 backdrop-blur-xl border border-white/40">
+      <DialogContent className="max-h-[90dvh] overflow-y-auto rounded-2xl bg-white p-0 sm:max-w-lg">
         <DialogHeader className="sr-only">
           <DialogTitle>Detalhes do Usuário</DialogTitle>
         </DialogHeader>
-        {isLoading || !user ? (
+        {isLoading ? (
           <div className="flex flex-col items-center justify-center p-12 h-64">
             <Loader2 className="animate-spin text-brand" size={32} />
             <span className="text-sm text-gray-500 mt-4">Carregando perfil...</span>
           </div>
+        ) : isError || !user ? (
+          <div role="alert" className="p-8 text-center text-sm text-red-700">Não foi possível carregar o usuário. <button type="button" onClick={() => refetch()} className="font-semibold underline">Tentar novamente</button></div>
         ) : (
           <div className="flex flex-col relative">
             <div className="h-32 bg-gradient-to-br from-brand/80 to-purple-600 w-full rounded-t-lg" />
@@ -44,13 +47,7 @@ export function UserDetailsDialog({ userId, onClose }: Props) {
             <div className="px-6 pb-8">
               <div className="relative -mt-16 mb-4 flex items-end justify-between">
                 <div className="rounded-full p-1 bg-white inline-block shadow-md">
-                  {user.imageUrl ? (
-                    <img src={user.imageUrl} alt={user.name} className="w-28 h-28 rounded-full object-cover border border-gray-100" />
-                  ) : (
-                    <div className="w-28 h-28 rounded-full bg-brand/10 text-brand flex items-center justify-center border border-brand/20">
-                      <UserIcon size={48} />
-                    </div>
-                  )}
+                  <UserAvatar src={user.imageUrl} name={user.name} large />
                 </div>
                 <div className="mb-2">
                   <span className={`text-xs font-semibold border rounded-full px-3 py-1 ${ROLE_COLORS[user.role] ?? ''}`}>

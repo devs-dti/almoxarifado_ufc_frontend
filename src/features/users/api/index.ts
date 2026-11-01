@@ -6,7 +6,7 @@ import type { PageLike, PageParams } from '@/shared/types/pagination'
 
 import { buildFormData } from '@/shared/lib/form-data'
 export const usersApi = {
-  list: (params?: PageParams) =>
+  list: (params?: PageParams & { search?: string; role?: 'ADMIN' | 'MANAGER' | 'STAFF'; enabled?: boolean }) =>
     api.get<PageLike<UserListItem>>('/users', { params }).then((r) => unwrapPage(r.data)),
   create: (data: CreateUserPayload) => {
     return api.post<UserListItem>('/users', buildFormData(data), {
