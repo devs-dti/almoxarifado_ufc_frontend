@@ -20,7 +20,7 @@ export function useTransfer(id: EntityId, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: transfersKeys.detail(id),
     queryFn: () => transfersApi.get(id),
-    enabled: options?.enabled,
+    enabled: (options?.enabled ?? true) && id.length > 0,
   })
 }
 

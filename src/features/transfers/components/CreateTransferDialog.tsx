@@ -3,6 +3,7 @@
 import { useFieldArray, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
 import { Plus, Trash2 } from 'lucide-react'
 
 import {
@@ -10,6 +11,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog'
 import {
@@ -30,7 +32,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
-import { useMaterials } from '@/features/materials/hooks'
+import { MaterialSearch } from './MaterialSearch'
 import { useCreateTransfer } from '../hooks'
 import { createTransferSchema, type CreateTransferValues } from '../schemas'
 import type { TransferType } from '../types'
@@ -50,8 +52,7 @@ type Props = {
 }
 
 export function CreateTransferDialog({ open, onOpenChange }: Props) {
-  const { data: materialsPage } = useMaterials({ page: 0, size: 100 })
-  const materials = materialsPage?.content ?? []
+  const router = useRouter()
   const create = useCreateTransfer()
 
   const form = useForm<CreateTransferValues>({
@@ -68,9 +69,10 @@ export function CreateTransferDialog({ open, onOpenChange }: Props) {
 
   async function onSubmit(data: CreateTransferValues) {
     try {
-      await create.mutateAsync(data)
+      const created = await create.mutateAsync(data)
       toast.success('Transferência solicitada!')
       handleClose()
+      router.push(`/dashboard/transferencias/${encodeURIComponent(created.id)}`)
     } catch {
       // O interceptor do axios em client.ts já exibe o toast com a mensagem exata do backend
     }
@@ -78,9 +80,10 @@ export function CreateTransferDialog({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-h-[90dvh] overflow-y-auto rounded-2xl p-5 sm:max-w-2xl sm:p-7">
         <DialogHeader>
-          <DialogTitle>Nova Transferência</DialogTitle>
+          <DialogTitle className="text-xl text-slate-900">Nova Transferência</DialogTitle>
+          <DialogDescription>Informe o destino e os materiais solicitados.</DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
@@ -96,7 +99,7 @@ export function CreateTransferDialog({ open, onOpenChange }: Props) {
                     onValueChange={field.onChange}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Selecione o tipo" />
                       </SelectTrigger>
                     </FormControl>
@@ -145,30 +148,15 @@ export function CreateTransferDialog({ open, onOpenChange }: Props) {
               </div>
 
               {fields.map((field, index) => (
-                <div key={field.id} className="flex items-start gap-2 bg-gray-50 rounded-xl p-3">
-                  <div className="flex flex-col gap-2 flex-1">
+                <div key={field.id} className="flex items-start gap-2 border border-slate-100 bg-slate-50 rounded-2xl p-4">
+                  <div className="flex min-w-0 flex-col gap-3 flex-1">
                     <FormField
                       control={form.control}
                       name={`items.${index}.materialId`}
                       render={({ field }) => (
                         <FormItem>
-                          <Select
-                            value={field.value}
-                            onValueChange={field.onChange}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="text-xs">
-                                <SelectValue placeholder="Material" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {materials.map((m) => (
-                                <SelectItem key={m.id} value={m.id}>
-                                  {m.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          <FormLabel>Material {index + 1}</FormLabel>
+                          <MaterialSearch index={index} onChange={field.onChange} />
                           <FormMessage />
                         </FormItem>
                       )}
@@ -178,6 +166,7 @@ export function CreateTransferDialog({ open, onOpenChange }: Props) {
                       name={`items.${index}.requestedQuantity`}
                       render={({ field }) => (
                         <FormItem>
+                          <FormLabel>Quantidade solicitada</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -197,6 +186,7 @@ export function CreateTransferDialog({ open, onOpenChange }: Props) {
                     <button
                       type="button"
                       onClick={() => remove(index)}
+                      aria-label={`Remover item ${index + 1}`}
                       className="p-1.5 mt-1 rounded-lg text-gray-300 hover:text-destructive hover:bg-red-50 transition-colors shrink-0"
                     >
                       <Trash2 size={14} />
@@ -215,7 +205,7 @@ export function CreateTransferDialog({ open, onOpenChange }: Props) {
               </button>
             </div>
 
-            <DialogFooter className="pt-2">
+            <DialogFooter className="border-t border-slate-100 pt-4">
               <Button type="button" variant="outline" onClick={handleClose}>
                 Cancelar
               </Button>

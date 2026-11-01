@@ -24,14 +24,18 @@ export const transfersHandlers = [
     const url = new URL(request.url)
     const page = Number(url.searchParams.get('page') ?? 0)
     const size = Number(url.searchParams.get('size') ?? 10)
-    const content = transfers.slice(page * size, page * size + size)
+    const search = (url.searchParams.get('search') ?? '').trim().toLowerCase()
+    const [field, direction] = (url.searchParams.get('sort') ?? 'createdAt,desc').split(',')
+    const ordered = transfers.filter((t) => !search || (t.sector ?? '').toLowerCase().includes(search) || (t.requester ?? '').toLowerCase().includes(search))
+      .sort((a, b) => { const key = field === 'status' || field === 'exitType' ? field : 'createdAt'; return String(a[key]).localeCompare(String(b[key])) * (direction === 'desc' ? -1 : 1) })
+    const content = ordered.slice(page * size, page * size + size)
     return HttpResponse.json({
       data: content,
       meta: {
         page,
         size,
-        totalElements: transfers.length,
-        totalPages: Math.ceil(transfers.length / size),
+        totalElements: ordered.length,
+        totalPages: Math.ceil(ordered.length / size),
       },
     })
   }),
@@ -60,7 +64,7 @@ export const transfersHandlers = [
       createdAt: new Date().toISOString(),
     }
     transfers.push(t)
-    return HttpResponse.json(t, { status: 201 })
+    return HttpResponse.json({ id: t.id }, { status: 201 })
   }),
 
   http.patch('/transfers/:id/approve', async ({ request, params }) => {
@@ -72,7 +76,7 @@ export const transfersHandlers = [
       return approved ? { ...item, quantity: approved.approvedQuantity } : item
     })
     transfers[idx].status = 'FINISHED'
-    return HttpResponse.json(transfers[idx])
+    return new HttpResponse(null, { status: 204 })
   }),
 
   http.patch('/transfers/:id/disapprove', ({ params }) => {

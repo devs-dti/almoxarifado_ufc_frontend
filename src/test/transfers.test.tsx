@@ -1,7 +1,6 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { toast } from 'sonner'
 
 import { useAuthStore } from '@/store/useAuthStore'
 import { transfersApi } from '@/features/transfers/api'
@@ -14,9 +13,13 @@ import {
 import { TransferList } from '@/features/transfers/components/TransferList'
 import { CreateTransferDialog } from '@/features/transfers/components/CreateTransferDialog'
 import { ApproveTransferDialog } from '@/features/transfers/components/ApproveTransferDialog'
+import { TransferDetails } from '@/features/transfers/components/TransferDetails'
 import { TransferAccordion } from '@/features/transfers/components/TransferAccordion'
 import type { Transfer } from '@/features/transfers/types'
 import { renderWithProviders, createTestQueryClient } from '@/test/render'
+import { mockPush } from '@/test/setup'
+import { http, HttpResponse } from 'msw'
+import { server } from '@/infrastructure/mocks/server'
 import { renderHook } from '@testing-library/react'
 import { QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
@@ -72,8 +75,9 @@ describe('Transferências (Transfers) Flow', () => {
       })
 
       expect(newTransfer.id).toBeDefined()
-      expect(newTransfer.status).toBe('PENDING')
-      expect(newTransfer.items.length).toBe(1)
+      const details = await transfersApi.get(newTransfer.id)
+      expect(details.status).toBe('PENDING')
+      expect(details.items.length).toBe(1)
     })
 
     it('approves a transfer via useApproveTransfer', async () => {
@@ -84,14 +88,14 @@ describe('Transferências (Transfers) Flow', () => {
       const { wrapper } = createWrapper()
       const { result } = renderHook(() => useApproveTransfer(), { wrapper })
 
-      const approved = await result.current.mutateAsync({
+      await result.current.mutateAsync({
         id: transferId,
         data: {
           items: [{ transferItemId: itemId, approvedQuantity: 8 }],
         },
       })
 
-      expect(approved.status).toBe('FINISHED')
+      expect((await transfersApi.get(transferId)).status).toBe('FINISHED')
     })
 
     it('disapproves a transfer via useDisapproveTransfer', async () => {
@@ -109,6 +113,27 @@ describe('Transferências (Transfers) Flow', () => {
   })
 
   describe('TransferList Component', () => {
+    it('envia busca, ordenação e paginação à API', async () => {
+      const requests: string[] = []
+      server.use(http.get('/transfers', ({ request }) => {
+        const params = new URL(request.url).searchParams
+        requests.push(params.toString())
+        const page = Number(params.get('page'))
+        const size = Number(params.get('size'))
+        return HttpResponse.json({ data: [{ id: `t-${page}`, status: 'PENDING', exitType: 'SECTOR', createdAt: '2025-01-01' }], meta: { page, size, totalElements: 25, totalPages: Math.ceil(25 / size) } })
+      }))
+      const user = userEvent.setup()
+      renderWithProviders(<TransferList />)
+      await screen.findByText('Mostrando 1–10 de 25 transferências')
+      await user.click(screen.getByRole('button', { name: 'Próxima página' }))
+      await screen.findByText('Mostrando 11–20 de 25 transferências')
+      await user.type(screen.getByLabelText('Buscar por setor ou solicitante'), 'Odonto')
+      await waitFor(() => { const params = new URLSearchParams(requests.at(-1)); expect(params.get('search')).toBe('Odonto'); expect(params.get('page')).toBe('0') })
+      await user.selectOptions(screen.getByLabelText('Ordenar por'), 'status,desc')
+      await user.selectOptions(screen.getByLabelText('Transferências por página'), '20')
+      await waitFor(() => { const params = new URLSearchParams(requests.at(-1)); expect(params.get('sort')).toBe('status,desc'); expect(params.get('size')).toBe('20') })
+    })
+
     it('renders the header and "Nova" button for MANAGER role', async () => {
       renderWithProviders(<TransferList />)
 
@@ -116,7 +141,7 @@ describe('Transferências (Transfers) Flow', () => {
       expect(screen.getByRole('button', { name: /nova/i })).toBeInTheDocument()
 
       await waitFor(() => {
-        const transfers = screen.getAllByText('Transferência')
+        const transfers = screen.getAllByText(/Transferência #/)
         expect(transfers.length).toBeGreaterThan(0)
       })
     })
@@ -146,6 +171,18 @@ describe('Transferências (Transfers) Flow', () => {
   })
 
   describe('CreateTransferDialog Component', () => {
+    it('busca um material e abre os detalhes após solicitar', async () => {
+      const user = userEvent.setup()
+      renderWithProviders(<CreateTransferDialog open onOpenChange={vi.fn()} />)
+      await user.type(screen.getByLabelText('Observações'), 'Pedido de material')
+      await user.type(screen.getByLabelText('Buscar material 1'), 'Papel A4')
+      await user.click(await screen.findByRole('button', { name: /Papel A4/ }))
+      await user.click(screen.getByRole('button', { name: 'Solicitar' }))
+      await waitFor(() => expect(mockPush).toHaveBeenCalledWith(expect.stringMatching(/^\/dashboard\/transferencias\/[a-f0-9-]+$/)))
+      const id = mockPush.mock.calls[0][0].split('/').pop()
+      expect((await transfersApi.get(id)).items).toHaveLength(1)
+    })
+
     it('closes dialog when clicking Cancelar', async () => {
       const user = userEvent.setup()
       const onOpenChange = vi.fn()
@@ -167,8 +204,9 @@ describe('Transferências (Transfers) Flow', () => {
 
       const onOpenChange = vi.fn()
 
+      const details = await transfersApi.get(created.id)
       renderWithProviders(
-        <ApproveTransferDialog transfer={created} onOpenChange={onOpenChange} />
+        <ApproveTransferDialog transfer={details} onOpenChange={onOpenChange} />
       )
 
       expect(screen.getByRole('heading', { name: 'Aprovar Transferência' })).toBeInTheDocument()
@@ -179,63 +217,28 @@ describe('Transferências (Transfers) Flow', () => {
     })
   })
 
-  describe('TransferAccordion Component', () => {
-    const mockPendingTransfer: Transfer = {
-      id: 'trans-accordion-1',
-      sector: 'Almoxarifado Geral',
-      requester: 'Mariana Lima',
-      status: 'PENDING',
-      exitType: 'SECTOR',
-      createdAt: '2025-09-26T09:00:00Z',
-      items: [
-        {
-          id: 'item-1',
-          name: 'Papel A4',
-          quantity: 10,
-          measurementUnit: 'UN',
-        },
-      ],
-    }
-
-    it('expands to show item details and action buttons for MANAGER role', async () => {
-      const user = userEvent.setup()
-
-      renderWithProviders(<TransferAccordion transfer={mockPendingTransfer} />)
-
-      expect(screen.getByText('Transferência')).toBeInTheDocument()
-      expect(screen.getByText('Almoxarifado Geral')).toBeInTheDocument()
-      expect(screen.getByText('Mariana Lima')).toBeInTheDocument()
-      expect(screen.getByText('Pendente')).toBeInTheDocument()
-
-      // Expand
-      const expandBtn = screen.getByRole('button', { name: /transferência/i })
-      await user.click(expandBtn)
-
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: /aprovar/i })).toBeInTheDocument()
-        expect(screen.getByRole('button', { name: /reprovar/i })).toBeInTheDocument()
-      })
+  describe('Detalhes da transferência', () => {
+    it('oferece link para a página de detalhes', () => {
+      const transfer: Transfer = { id: 'trans-1', status: 'PENDING', exitType: 'SECTOR', createdAt: '2025-09-26', items: [] }
+      renderWithProviders(<TransferAccordion transfer={transfer} />)
+      expect(screen.getByRole('link', { name: /transferência #trans-1/i })).toHaveAttribute('href', '/dashboard/transferencias/trans-1')
     })
-
-    it('denies a pending transfer when clicking Reprovar', async () => {
-      const created = await transfersApi.create({
-        exitType: 'SECTOR',
-        notes: 'Teste',
-        items: [{ materialId: 'mat-1', requestedQuantity: 5 }],
-      })
+    it('carrega os itens e reprova uma solicitação pendente', async () => {
+      const created = await transfersApi.create({ exitType: 'SECTOR', notes: 'Teste', items: [{ materialId: 'mat-1', requestedQuantity: 5 }] })
       const user = userEvent.setup()
-      const toastSuccessSpy = vi.spyOn(toast, 'success')
-
-      renderWithProviders(<TransferAccordion transfer={created} />)
-
-      const expandBtn = screen.getByRole('button', { name: /transferência/i })
-      await user.click(expandBtn)
-      const denyBtn = await screen.findByRole('button', { name: /reprovar/i })
-      await user.click(denyBtn)
-
-      await waitFor(() => {
-        expect(toastSuccessSpy).toHaveBeenCalledWith('Transferência reprovada.')
-      })
+      renderWithProviders(<TransferDetails id={created.id} />)
+      expect(await screen.findByText('Material Teste')).toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: 'Reprovar' }))
+      expect(await screen.findByText('Cancelada')).toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'Aprovar' })).not.toBeInTheDocument()
+    })
+    it('não mostra ações para equipe sem permissão de decisão', async () => {
+      const created = await transfersApi.create({ exitType: 'SECTOR', notes: 'Teste', items: [{ materialId: 'mat-1', requestedQuantity: 5 }] })
+      useAuthStore.setState({ user: { id: '1', name: 'Equipe', email: 'e@ufc.br', role: 'STAFF' } })
+      renderWithProviders(<TransferDetails id={created.id} />)
+      expect(await screen.findByText('Material Teste')).toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'Aprovar' })).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'Reprovar' })).not.toBeInTheDocument()
     })
   })
 })

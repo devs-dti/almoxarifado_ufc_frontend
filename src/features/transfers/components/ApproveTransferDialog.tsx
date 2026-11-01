@@ -9,6 +9,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog'
 import {
@@ -62,9 +63,10 @@ export function ApproveTransferDialog({ transfer, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-sm">
+      <DialogContent className="max-h-[90dvh] overflow-y-auto rounded-2xl p-5 sm:max-w-xl sm:p-7">
         <DialogHeader>
           <DialogTitle>Aprovar Transferência</DialogTitle>
+          <DialogDescription>Confira as quantidades que serão liberadas.</DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
@@ -100,7 +102,7 @@ export function ApproveTransferDialog({ transfer, onOpenChange }: Props) {
               </div>
             ))}
 
-            <DialogFooter className="pt-2">
+            <DialogFooter className="border-t border-slate-100 pt-4">
               <Button type="button" variant="outline" onClick={handleClose}>
                 Cancelar
               </Button>
