@@ -124,10 +124,9 @@ export const materialsHandlers = [
     const size = Number(url.searchParams.get('size') ?? 10)
     const search = url.searchParams.get('search')?.toLowerCase() ?? ''
 
-    let active = groups
-    if (search) {
-      active = active.filter((g) => g.name.toLowerCase().includes(search))
-    }
+    const direction = url.searchParams.get('sort')?.endsWith(',desc') ? -1 : 1
+    const active = groups.filter((g) => !search || g.name.toLowerCase().includes(search))
+      .sort((a, b) => a.name.localeCompare(b.name) * direction)
 
     const content = active.slice(page * size, page * size + size)
     return HttpResponse.json({

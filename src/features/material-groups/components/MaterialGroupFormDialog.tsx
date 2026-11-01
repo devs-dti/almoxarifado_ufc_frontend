@@ -9,6 +9,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from '@/components/ui/dialog'
 import {
   Form,
@@ -79,11 +81,12 @@ export function MaterialGroupFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] rounded-2xl">
+      <DialogContent className="max-h-[90dvh] overflow-y-auto rounded-2xl p-5 sm:max-w-lg sm:p-7">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? 'Editar Grupo de Materiais' : 'Novo Grupo de Materiais'}
+            {isEditing ? 'Editar grupo de materiais' : 'Novo grupo de materiais'}
           </DialogTitle>
+          <DialogDescription>{isEditing ? 'Atualize o nome do grupo.' : 'Informe um nome para organizar os materiais.'}</DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
@@ -102,7 +105,7 @@ export function MaterialGroupFormDialog({
               )}
             />
 
-            <div className="flex justify-end gap-3 pt-4">
+            <DialogFooter className="border-t border-slate-100 pt-4">
               <Button
                 type="button"
                 variant="outline"
@@ -115,7 +118,7 @@ export function MaterialGroupFormDialog({
               <Button type="submit" className="rounded-xl bg-brand hover:bg-brand/90" disabled={isPending}>
                 {isPending ? 'Salvando...' : 'Salvar'}
               </Button>
-            </div>
+            </DialogFooter>
           </form>
         </Form>
       </DialogContent>
