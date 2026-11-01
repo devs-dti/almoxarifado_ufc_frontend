@@ -11,6 +11,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -84,11 +86,12 @@ export function CompanyFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="max-h-[90dvh] overflow-y-auto rounded-2xl p-5 sm:max-w-lg sm:p-7">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? 'Editar Empresa' : 'Nova Empresa'}
+            {isEditing ? 'Editar empresa' : 'Nova empresa'}
           </DialogTitle>
+          <DialogDescription>{isEditing ? 'Atualize os dados da empresa.' : 'Informe os dados para cadastrar uma empresa.'}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
@@ -116,12 +119,12 @@ export function CompanyFormDialog({
             )}
           </div>
 
-          <div className="flex justify-end pt-4">
+          <DialogFooter className="border-t border-slate-100 pt-4">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="mr-2"
+  
               disabled={isPending}
             >
               Cancelar
@@ -129,7 +132,7 @@ export function CompanyFormDialog({
             <Button type="submit" disabled={isPending}>
               {isPending ? 'Salvando...' : 'Salvar'}
             </Button>
-          </div>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

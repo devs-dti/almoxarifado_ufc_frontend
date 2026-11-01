@@ -26,6 +26,8 @@ export const companiesHandlers = [
       )
     }
 
+    const direction = url.searchParams.get('sort')?.endsWith(',desc') ? -1 : 1
+    activeCompanies.sort((a, b) => a.name.localeCompare(b.name) * direction)
     const data = activeCompanies.slice(page * size, page * size + size)
 
     return HttpResponse.json({
