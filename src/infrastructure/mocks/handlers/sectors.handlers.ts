@@ -21,7 +21,15 @@ let nextSectorId = 4
 let nextUnitId = 17
 
 export const sectorsHandlers = [
-  http.get('/sectors', () => HttpResponse.json(sectors)),
+  http.get('/sectors', ({ request }) => {
+    const params = new URL(request.url).searchParams
+    const page = Number(params.get('page') ?? 0)
+    const size = Number(params.get('size') ?? 10)
+    const search = (params.get('search') ?? '').toLowerCase().trim()
+    const direction = params.get('sort')?.endsWith(',desc') ? -1 : 1
+    const filtered = sectors.filter((s) => !search || s.name.toLowerCase().includes(search) || (s.code ?? '').toLowerCase().includes(search)).sort((a, b) => a.name.localeCompare(b.name) * direction)
+    return HttpResponse.json({ data: filtered.slice(page * size, (page + 1) * size), meta: { page, size, totalElements: filtered.length, totalPages: Math.ceil(filtered.length / size) } })
+  }),
 
   http.post('/sectors', async ({ request }) => {
     const body = (await request.json()) as CreateSectorPayload

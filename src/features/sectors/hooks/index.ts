@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import type { PageParams } from '@/shared/types/pagination'
 import type { EntityId } from '@/shared/types/id'
 import { sectorsApi, unitsApi } from '../api'
 import type { CreateSectorPayload, UpdateSectorPayload, CreateMeasurementUnitPayload, UpdateMeasurementUnitPayload } from '../types'
@@ -15,6 +16,10 @@ export const unitsKeys = {
 
 export function useSectors() {
   return useQuery({ queryKey: sectorsKeys.list(), queryFn: () => sectorsApi.list() })
+}
+
+export function useSectorsPage(params: PageParams & { search?: string }) {
+  return useQuery({ queryKey: [...sectorsKeys.all, 'page', params], queryFn: () => sectorsApi.listPage(params) })
 }
 
 export function useCreateSector() {
