@@ -1,10 +1,10 @@
-import { AuthPageWrapper } from '@/shared/components/AuthPageWrapper'
+import { AuthShell } from '@/shared/components/AuthShell'
 import { AuthCard } from '@/features/auth/components/AuthCard'
 
 export default function LoginPage() {
   return (
-    <AuthPageWrapper>
+    <AuthShell>
       <AuthCard />
-    </AuthPageWrapper>
+    </AuthShell>
   )
 }

@@ -40,7 +40,8 @@ export const materialsHandlers = [
     const url = new URL(request.url)
     const page = Number(url.searchParams.get('page') ?? 0)
     const size = Number(url.searchParams.get('size') ?? 10)
-    const active = materials.filter((m) => !m.deletedAt)
+    const search = (url.searchParams.get('search') ?? '').toLowerCase().trim()
+    const active = materials.filter((m) => !m.deletedAt && (!search || m.name.toLowerCase().includes(search) || m.internalCode.toLowerCase().includes(search)))
     const content = active.slice(page * size, page * size + size)
     return HttpResponse.json({
       data: content,
@@ -59,7 +60,9 @@ export const materialsHandlers = [
   }),
 
   http.post('/materials', async ({ request }) => {
-    const body = (await request.json()) as CreateMaterialPayload
+    const form = await request.formData()
+    const body = Object.fromEntries(form.entries()) as unknown as CreateMaterialPayload
+    body.minQuantity = Number(body.minQuantity)
     const group = groups.find((g) => g.id === body.materialGroupId) ?? groups[0]
     const unit = units.find((u) => u.id === body.measurementUnitId) ?? units[0]
     const mat: Material = {
@@ -78,8 +81,18 @@ export const materialsHandlers = [
   http.patch('/materials/:id', async ({ request, params }) => {
     const idx = materials.findIndex((m) => m.id === String(params.id))
     if (idx === -1) return new HttpResponse(null, { status: 404 })
-    const body = (await request.json()) as Partial<Material>
-    materials[idx] = { ...materials[idx], ...body }
+    const form = await request.formData()
+    const body = Object.fromEntries(form.entries()) as unknown as Partial<CreateMaterialPayload>
+    const group = groups.find((g) => g.id === body.materialGroupId)
+    const unit = units.find((u) => u.id === body.measurementUnitId)
+    materials[idx] = { ...materials[idx],
+      ...(body.name !== undefined && { name: body.name }),
+      ...(body.internalCode !== undefined && { internalCode: body.internalCode }),
+      ...(body.description !== undefined && { description: body.description }),
+      ...(body.minQuantity !== undefined && { minQuantity: Number(body.minQuantity) }),
+      ...(group && { materialGroupName: group.name }),
+      ...(unit && { measurementUnitName: unit.name }),
+    }
     return HttpResponse.json(materials[idx])
   }),
 

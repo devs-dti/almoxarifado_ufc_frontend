@@ -3,7 +3,9 @@ import { toast } from "sonner";
 import Cookies from "js-cookie";
 import { sanitizeApiErrorMessage } from "@/shared/lib/sanitizeApiError";
 
-const baseURL = process.env.NEXT_PUBLIC_API_URL ?? "/api/backend";
+const baseURL = process.env.NEXT_PUBLIC_USE_MOCKS === "true"
+  ? ""
+  : (process.env.NEXT_PUBLIC_API_URL ?? "/api/backend");
 
 export const httpClient = axios.create({
   baseURL,

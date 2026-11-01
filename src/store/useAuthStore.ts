@@ -28,6 +28,9 @@ export const useAuthStore = create<AuthState>()(
         try {
           const res = await httpClient.post<User>('/auth/login', data)
           const user = res.data
+          if (process.env.NEXT_PUBLIC_USE_MOCKS === 'true') {
+            document.cookie = 'accessCookie=mock-session; Path=/; SameSite=Lax'
+          }
           set({ user, loading: false })
         } catch (err) {
           set({ loading: false })
@@ -40,6 +43,9 @@ export const useAuthStore = create<AuthState>()(
           await httpClient.post('/auth/logout')
         } catch {
           // Cookie pode já ter expirado — ignora o erro
+        }
+        if (process.env.NEXT_PUBLIC_USE_MOCKS === 'true') {
+          document.cookie = 'accessCookie=; Path=/; Max-Age=0; SameSite=Lax'
         }
         set({ user: null, loading: false })
         if (typeof window !== 'undefined') window.location.href = '/login'

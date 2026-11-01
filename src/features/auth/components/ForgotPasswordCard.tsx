@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button'
 import { parseApiError } from '@/shared/lib/parseApiError'
 import { authApi } from '@/features/auth/api'
 import { forgotPasswordSchema } from '@/features/auth/schemas'
-import { AUTH_INPUT_CLASS } from '@/features/auth/constants'
+const INPUT_CLASS = 'h-12 rounded-xl border-slate-300 bg-white px-4 text-slate-900 placeholder:text-slate-400 focus-visible:ring-violet-600'
 import type { ForgotPasswordPayload } from '@/features/auth/types'
 
 export function ForgotPasswordCard() {
@@ -32,17 +32,18 @@ export function ForgotPasswordCard() {
   }
 
   return (
-    <div className="bg-auth-card rounded-2xl p-6 w-full max-w-[320px] shadow-2xl">
+    <div className="w-full max-w-md">
       <Link
         href="/login"
-        className="flex items-center gap-1 text-gray-400 hover:text-gray-200 text-sm mb-5 w-fit"
+        className="flex items-center gap-2 text-slate-600 hover:text-violet-700 text-sm font-medium mb-10 w-fit"
       >
         <ArrowLeft size={14} />
-        Voltar
+        Voltar para o login
       </Link>
 
-      <h1 className="text-white text-xl font-bold mb-1">Esqueceu sua senha?</h1>
-      <p className="text-gray-400 text-sm mb-5">
+      <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-violet-700">Recuperação de acesso</p>
+      <h1 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">Esqueceu sua senha?</h1>
+      <p className="mt-3 mb-8 text-sm leading-6 text-slate-600">
         Informe seu e-mail e enviaremos um link para redefinir sua senha.
       </p>
 
@@ -53,17 +54,17 @@ export function ForgotPasswordCard() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-300 text-sm">E-mail</FormLabel>
+                <FormLabel className="text-slate-700 text-sm font-medium">E-mail</FormLabel>
                 <FormControl>
-                  <Input {...field} type="email" placeholder="seu@email.com" className={AUTH_INPUT_CLASS} />
+                  <Input {...field} type="email" autoComplete="email" placeholder="seu@email.com" className={INPUT_CLASS} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          <Button type="submit" disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting ? 'Enviando...' : 'Enviar'}
+          <Button type="submit" disabled={form.formState.isSubmitting} className="mt-2 h-12 w-full rounded-xl bg-violet-700 font-semibold text-white hover:bg-violet-800">
+            {form.formState.isSubmitting ? 'Enviando...' : 'Enviar link de recuperação'}
           </Button>
         </form>
       </Form>

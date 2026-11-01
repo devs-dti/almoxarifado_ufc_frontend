@@ -1,10 +1,10 @@
-import { AuthPageWrapper } from '@/shared/components/AuthPageWrapper'
+import { AuthShell } from '@/shared/components/AuthShell'
 import { ForgotPasswordCard } from '@/features/auth/components/ForgotPasswordCard'
 
 export default function ForgotPasswordPage() {
   return (
-    <AuthPageWrapper>
+    <AuthShell>
       <ForgotPasswordCard />
-    </AuthPageWrapper>
+    </AuthShell>
   )
 }
