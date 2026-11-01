@@ -6,7 +6,7 @@ import { Providers } from './providers'
 export const metadata: Metadata = {
   title: 'Almoxarifado UFC',
   description: 'Sistema de almoxarifado',
-  icons: { icon: '/ufc-brasao.png', shortcut: '/ufc-brasao.png', apple: '/ufc-brasao.png' },
+  icons: { icon: '/soma-logo.png', shortcut: '/soma-logo.png', apple: '/soma-logo.png' },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

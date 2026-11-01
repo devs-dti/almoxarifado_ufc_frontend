@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { ArrowUpRight } from 'lucide-react'
-import { UfcLogo } from '@/shared/components/UfcLogo'
+import { SomaLogo } from '@/shared/components/SomaLogo'
 
 export function AuthShell({ children }: { children: React.ReactNode }) {
   return (
@@ -8,7 +8,7 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
       <section className="relative hidden overflow-hidden bg-[#251448] p-12 text-white lg:flex lg:flex-col lg:justify-between xl:p-16">
         <div aria-hidden="true" className="absolute -right-32 top-1/4 h-96 w-96 rounded-full border border-white/10 shadow-[0_0_0_70px_rgba(255,255,255,0.025),0_0_0_140px_rgba(255,255,255,0.025)]" />
         <Link href="/" className="relative flex w-fit items-center gap-3">
-          <span className="rounded-xl bg-white p-2"><UfcLogo className="h-12" /></span>
+          <span className="rounded-xl bg-white p-2"><SomaLogo className="h-12" /></span>
           <span><strong className="block text-lg leading-tight">Sistema Soma</strong><span className="text-xs text-violet-200">Almoxarifado UFC Sobral</span></span>
         </Link>
         <div className="relative max-w-md py-16">
@@ -19,7 +19,7 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
         <div className="relative flex items-center justify-between border-t border-white/15 pt-6 text-sm text-violet-200"><span>Universidade Federal do Ceará</span><ArrowUpRight size={18} aria-hidden="true" /></div>
       </section>
       <section className="flex min-h-screen flex-col px-6 py-8 sm:px-12">
-        <Link href="/" className="flex w-fit items-center gap-2 text-sm font-semibold text-violet-900 lg:hidden"><UfcLogo className="h-10" /> Sistema Soma</Link>
+        <Link href="/" className="flex w-fit items-center gap-2 text-sm font-semibold text-violet-900 lg:hidden"><SomaLogo className="h-10" /> Sistema Soma</Link>
         <div className="flex flex-1 items-center justify-center py-12">{children}</div>
         <p className="text-center text-xs text-slate-500">Almoxarifado UFC Sobral · Desenvolvido pela DTI-UFC</p>
       </section>

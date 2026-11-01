@@ -1,237 +1,89 @@
-'use client'
-
 import Link from 'next/link'
-import Image from 'next/image'
+import { ArrowDown, ArrowRight, ArrowRightLeft, ClipboardCheck, Layers3, PackageCheck, PackageSearch } from 'lucide-react'
 import { UfcLogo } from '@/shared/components/UfcLogo'
-import {
-  ArrowRight,
-  Layers,
-  Clock,
-  ShieldCheck,
-} from 'lucide-react'
+import { SomaLogo } from '@/shared/components/SomaLogo'
+
+const recursos = [
+  { icon: PackageSearch, title: 'Materiais organizados', text: 'Consulte o catálogo e encontre as informações dos materiais cadastrados.' },
+  { icon: PackageCheck, title: 'Entradas e lotes', text: 'Registre o recebimento de materiais e acompanhe os dados de cada entrada.' },
+  { icon: ArrowRightLeft, title: 'Transferências', text: 'Acompanhe a movimentação de materiais destinados aos setores.' },
+  { icon: ClipboardCheck, title: 'Acompanhamento', text: 'Conte com auditorias e relatórios para apoiar a gestão do almoxarifado.' },
+]
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-white text-slate-900 flex flex-col selection:bg-[#7C3AED] selection:text-white">
-      {/* 1. Full-Height Hero Container with Soft Brand Purple */}
-      <div className="min-h-screen bg-[#F7F5FE] border-b border-[#EDE9FE] flex flex-col justify-between">
-        {/* Header / Navbar */}
-        <header className="w-full max-w-[1440px] mx-auto px-8 sm:px-14 lg:px-20 xl:px-24 h-20 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-3">
-            <UfcLogo />
-            <div className="flex flex-col leading-tight"><span className="font-bold text-lg text-slate-900 tracking-tight">Sistema Soma</span><span className="text-[11px] text-slate-500 font-medium">Almoxarifado UFC Sobral</span></div>
-          </div>
-
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
-            <a href="#sobre" className="hover:text-[#7C3AED] transition-colors">
-              Sobre
-            </a>
-            <a href="#recursos" className="hover:text-[#7C3AED] transition-colors">
-              Recursos
-            </a>
-            <Link href="/desenvolvedores" className="hover:text-[#7C3AED] transition-colors">
-              Desenvolvedores
-            </Link>
-            <Link href="/faq" className="hover:text-[#7C3AED] transition-colors">
-              FAQ
-            </Link>
+    <div className="min-h-screen bg-[#faf9f7] text-[#171b32] selection:bg-violet-200">
+      <header className="border-b border-[#e9e6ed]">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-4 px-5 sm:px-8 lg:px-12">
+          <Link href="/" aria-label="Sistema Soma, página inicial" className="flex min-h-20 items-center gap-3">
+            <SomaLogo /><span className="flex flex-col leading-tight"><span className="text-base font-bold tracking-tight">Sistema Soma</span><span className="mt-1 text-[11px] text-slate-500">Almoxarifado UFC Sobral</span></span>
+          </Link>
+          <nav aria-label="Navegação principal" className="order-3 flex w-full items-center gap-6 overflow-x-auto border-t border-[#e9e6ed] py-3 text-sm font-medium text-slate-600 md:order-none md:w-auto md:border-0 md:py-0">
+            <a href="#sobre" className="whitespace-nowrap hover:text-violet-700">Sobre</a><a href="#recursos" className="whitespace-nowrap hover:text-violet-700">Recursos</a><Link href="/desenvolvedores" className="whitespace-nowrap hover:text-violet-700">Desenvolvedores</Link><Link href="/faq" className="whitespace-nowrap hover:text-violet-700">FAQ</Link>
           </nav>
-
-          <div>
-            <Link
-              href="/login"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-medium text-xs transition-all shadow-sm"
-            >
-              <span>Acessar Sistema</span>
-              <ArrowRight size={14} />
-            </Link>
-          </div>
-        </header>
-
-        {/* Hero Section (Symmetrical Lateral Margins) */}
-        <section className="flex-1 flex items-center justify-center w-full max-w-[1440px] mx-auto px-8 sm:px-14 lg:px-20 xl:px-24 py-6 sm:py-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center w-full">
-            {/* Left Column (Big Typography + Action Button) */}
-            <div className="lg:col-span-6 space-y-6 lg:space-y-8 flex flex-col justify-center">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-[70px] font-serif font-normal text-slate-950 tracking-tight leading-[1.06]">
-                Gestão Ágil <br />
-                de materiais e <br className="hidden xl:inline" />
-                almoxarifado
-              </h1>
-
-              <p className="text-base sm:text-lg text-slate-600 font-normal leading-relaxed max-w-lg">
-                A forma simples, eficiente e transparente <br className="hidden sm:inline" />
-                de controlar o estoque e solicitar materiais para o seu setor.
-              </p>
-
-              <div className="pt-2">
-                <Link
-                  href="/login"
-                  className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-semibold text-sm transition-all shadow-lg shadow-[#7C3AED]/25 hover:shadow-xl hover:shadow-[#7C3AED]/30"
-                >
-                  <span>Acessar com Conta Institucional</span>
-                  <ArrowRight size={16} />
-                </Link>
+          <Link href="/login" className="inline-flex items-center gap-2 rounded-full bg-[#6e35e8] px-4 py-3 text-xs font-semibold text-white transition-colors hover:bg-violet-800 sm:px-5 sm:text-sm">Acessar sistema <ArrowRight size={16} aria-hidden="true" /></Link>
+        </div>
+      </header>
+      <main>
+        <section className="relative overflow-hidden border-b border-[#e9e6ed]">
+          <div aria-hidden="true" className="pointer-events-none absolute -right-48 -top-48 h-[600px] w-[600px] rounded-full bg-violet-100/60 blur-3xl" />
+          <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 py-16 sm:px-8 sm:py-24 lg:grid-cols-[1fr_0.9fr] lg:gap-20 lg:px-12 lg:py-28">
+            <div>
+              <p className="mb-6 inline-flex items-center gap-2.5 text-xs font-bold uppercase tracking-[0.18em] text-violet-700"><span className="h-2 w-2 rounded-full bg-violet-600" /> UFC Campus Sobral</p>
+              <h1 className="max-w-2xl text-[2.8rem] font-semibold leading-[1.08] tracking-[-0.045em] sm:text-6xl lg:text-[4.5rem]">Mais cuidado com cada <span className="text-[#713de0]">material.</span></h1>
+              <p className="mt-6 max-w-xl text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">O Sistema Soma reúne as informações do almoxarifado para apoiar o controle de materiais e sua movimentação entre os setores da UFC Sobral.</p>
+              <div className="mt-9 flex flex-wrap items-center gap-4">
+                <Link href="/login" className="inline-flex items-center justify-center gap-3 rounded-full bg-[#6e35e8] px-6 py-4 text-sm font-semibold text-white shadow-lg shadow-violet-200 transition-colors hover:bg-violet-800">Acessar o sistema <ArrowRight size={17} aria-hidden="true" /></Link>
+                <a href="#sobre" className="inline-flex items-center gap-2 px-3 py-4 text-sm font-semibold text-slate-700 hover:text-violet-700">Conheça o Soma <ArrowDown size={16} aria-hidden="true" /></a>
               </div>
+              <div className="mt-12 flex items-center gap-3 border-t border-[#e6e2eb] pt-6 text-sm text-slate-500"><span className="h-8 w-1 rounded-full bg-violet-400" /> Desenvolvido para o dia a dia da UFC Sobral.</div>
             </div>
-
-            {/* Right Column (Large Illustration aligned with Heading top) */}
-            <div className="lg:col-span-6 flex justify-center lg:justify-end items-center w-full">
-              <div className="w-full max-w-md lg:max-w-lg xl:max-w-xl h-[380px] sm:h-[480px] lg:h-[520px] xl:h-[560px] relative flex items-center justify-center -translate-y-8 sm:-translate-y-12 lg:-translate-y-16 xl:-translate-y-20">
-                <Image
-                  src="/almoxarifado-hero.png"
-                  alt="Ilustração do Almoxarifado UFC Sobral"
-                  fill
-                  className="object-contain object-top"
-                  priority
-                />
+            <div className="relative mx-auto w-full max-w-lg">
+              <div aria-hidden="true" className="absolute -inset-3 rotate-3 rounded-[2rem] bg-[#eae4fa] sm:-inset-5" />
+              <div className="relative rounded-[1.75rem] border border-white bg-white p-5 shadow-[0_25px_70px_-30px_rgba(51,30,97,0.35)] sm:p-7">
+                <div className="flex items-start justify-between gap-3 border-b border-slate-100 pb-5"><div><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-violet-600">Sistema Soma</p><p className="mt-2 text-xl font-semibold tracking-tight">Um olhar sobre o estoque</p></div><span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-violet-50 text-violet-600"><Layers3 size={21} aria-hidden="true" /></span></div>
+                <p className="mt-5 text-sm leading-6 text-slate-500">Informações essenciais para acompanhar a rotina do almoxarifado.</p>
+                <div className="mt-5 space-y-3">
+                  {[{ icon: PackageSearch, title: 'Catálogo de materiais', text: 'Consulte os itens cadastrados' }, { icon: PackageCheck, title: 'Entradas de materiais', text: 'Registre os recebimentos' }, { icon: ArrowRightLeft, title: 'Transferências', text: 'Acompanhe as movimentações' }].map(({ icon: Icon, title, text }) => (
+                    <div key={title} className="flex items-center gap-4 rounded-2xl border border-slate-100 bg-[#faf9fc] p-4"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-violet-600 shadow-sm"><Icon size={19} aria-hidden="true" /></span><div className="min-w-0"><p className="text-sm font-semibold">{title}</p><p className="mt-1 text-xs text-slate-500">{text}</p></div><ArrowRight size={16} aria-hidden="true" className="ml-auto shrink-0 text-slate-400" /></div>
+                  ))}
+                </div>
+                <div className="mt-5 flex items-center gap-2 text-xs text-slate-500"><span className="h-2 w-2 rounded-full bg-violet-400" /> Uma plataforma para a rotina do campus</div>
               </div>
             </div>
           </div>
         </section>
-
-        {/* Subtle Bottom Bar on Hero */}
-        <div className="w-full max-w-[1440px] mx-auto px-8 sm:px-14 lg:px-20 xl:px-24 pb-6 text-center text-[11px] text-slate-400 font-medium shrink-0">
-          <span>Divisão de Tecnologia da Informação — UFC Campus Sobral</span>
-        </div>
-      </div>
-
-      {/* 2. Middle Section (Why Sistema Soma) */}
-      <section id="recursos" className="py-24 sm:py-32 bg-white">
-        <div className="max-w-[1600px] mx-auto px-6 sm:px-12 lg:px-16 xl:px-20 text-center">
-          <h2 className="text-3xl sm:text-5xl font-serif font-normal text-slate-950 mb-20 tracking-tight">
-            Por que o Sistema Soma?
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 text-center">
-            {/* Feature 1 */}
-            <div className="flex flex-col items-center p-8 rounded-3xl bg-[#FAF8FF] border border-[#EDE9FE]/80 hover:border-[#DDD6FE] transition-colors shadow-xs">
-              <div className="w-14 h-14 rounded-2xl bg-[#EDE9FE] flex items-center justify-center text-[#7C3AED] mb-6">
-                <Layers size={24} strokeWidth={1.5} />
-              </div>
-              <h3 className="font-bold text-lg text-slate-900 mb-3">Controle Unificado</h3>
-              <p className="text-sm text-slate-500 leading-relaxed max-w-xs">
-                Consulta de saldo em tempo real, controle de validade por lote (FIFO) e catálogo padronizado de materiais.
-              </p>
-            </div>
-
-            {/* Feature 2 */}
-            <div className="flex flex-col items-center p-8 rounded-3xl bg-[#FAF8FF] border border-[#EDE9FE]/80 hover:border-[#DDD6FE] transition-colors shadow-xs">
-              <div className="w-14 h-14 rounded-2xl bg-[#EDE9FE] flex items-center justify-center text-[#7C3AED] mb-6">
-                <ShieldCheck size={24} strokeWidth={1.5} />
-              </div>
-              <h3 className="font-bold text-lg text-slate-900 mb-3">Suporte e Agilidade</h3>
-              <p className="text-sm text-slate-500 leading-relaxed max-w-xs">
-                Processo simplificado de pedidos para os setores solicitantes, com aprovação rápida e transparente.
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="flex flex-col items-center p-8 rounded-3xl bg-[#FAF8FF] border border-[#EDE9FE]/80 hover:border-[#DDD6FE] transition-colors shadow-xs">
-              <div className="w-14 h-14 rounded-2xl bg-[#EDE9FE] flex items-center justify-center text-[#7C3AED] mb-6">
-                <Clock size={24} strokeWidth={1.5} />
-              </div>
-              <h3 className="font-bold text-lg text-slate-900 mb-3">Economia de Tempo</h3>
-              <p className="text-sm text-slate-500 leading-relaxed max-w-xs">
-                Rastreabilidade instantânea de lotes, auditorias físicas periódicas e relatórios operacionais sem retrabalho.
-              </p>
+        <section id="sobre" className="scroll-mt-8 bg-white">
+          <div className="mx-auto grid max-w-7xl gap-10 px-5 py-20 sm:px-8 sm:py-24 lg:grid-cols-[0.85fr_1.15fr] lg:gap-24 lg:px-12">
+            <div><p className="text-xs font-bold uppercase tracking-[0.18em] text-violet-700">Sobre o sistema</p><h2 className="mt-5 text-3xl font-semibold leading-tight tracking-[-0.035em] sm:text-4xl">Do recebimento à entrega, tudo começa com organização.</h2><p className="mt-5 max-w-md text-base leading-7 text-slate-600">Criado para o almoxarifado da UFC Sobral, o Soma ajuda a reunir as informações necessárias para acompanhar os materiais e atender aos setores.</p></div>
+            <div className="divide-y divide-slate-100 border-y border-slate-100">
+              {[['01', 'Conheça os materiais', 'Consulte o catálogo e as informações dos itens cadastrados.'], ['02', 'Registre as entradas', 'Organize os dados de recebimento, materiais e lotes.'], ['03', 'Acompanhe as movimentações', 'Consulte as transferências e informações de apoio à gestão.']].map(([number, title, description]) => <div key={number} className="flex gap-5 py-6 sm:gap-8"><span className="pt-0.5 text-sm font-semibold text-violet-500">{number}</span><div><h3 className="font-semibold">{title}</h3><p className="mt-1.5 text-sm leading-6 text-slate-500">{description}</p></div></div>)}
             </div>
           </div>
-
-          {/* Statement */}
-          <div className="pt-28 max-w-3xl mx-auto">
-            <h3 className="text-2xl sm:text-4xl font-serif font-normal text-slate-950 tracking-tight leading-snug mb-4">
-              Uma plataforma única e eficiente para atender todas as necessidades de materiais da UFC Sobral.
-            </h3>
-            <p className="text-sm sm:text-base text-slate-500 leading-relaxed">
-              Desenvolvida para conectar almoxarifes, gerentes e colaboradores em um fluxo contínuo.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. Dark CTA Card */}
-      <section className="pb-24 sm:pb-32 px-6 sm:px-12 lg:px-16 xl:px-20 bg-white">
-        <div className="max-w-[1600px] mx-auto bg-slate-950 rounded-[32px] p-8 sm:p-16 text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-10 shadow-2xl">
-          <div className="space-y-3 max-w-xl">
-            <h3 className="text-3xl sm:text-4xl font-serif font-normal tracking-tight text-white">
-              Veja o almoxarifado em ação
-            </h3>
-            <p className="text-sm sm:text-base text-slate-400 leading-relaxed">
-              Acesse a plataforma com seu e-mail institucional para solicitar e acompanhar materiais.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-4">
-            <Link
-              href="/login"
-              className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-white hover:bg-slate-100 text-slate-950 font-semibold text-sm transition-all shadow-md"
-            >
-              <span>Acessar o Sistema</span>
-              <ArrowRight size={16} />
-            </Link>
-
-            <Link
-              href="/faq"
-              className="inline-flex items-center gap-1.5 px-6 py-3.5 rounded-full text-slate-300 hover:text-white text-sm font-medium transition-colors"
-            >
-              <span>Perguntas Frequentes</span>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. Footer (Soft Purple Matching the Header) */}
-      <footer className="bg-[#F7F5FE] border-t border-[#EDE9FE] py-16 text-slate-600 text-xs">
-        <div className="w-full max-w-[1440px] mx-auto px-8 sm:px-14 lg:px-20 xl:px-24">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-14">
-            <div className="space-y-3 md:col-span-1">
-              <div className="flex flex-col leading-tight">
-                <span className="font-bold text-base text-slate-900 tracking-tight">Sistema Soma</span>
-                <span className="text-[10px] text-slate-500 font-medium">Almoxarifado UFC Sobral</span>
-              </div>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Gestão de suprimentos e almoxarifado da Universidade Federal do Ceará — Campus Sobral.
-              </p>
-            </div>
-
-            <div>
-              <span className="font-bold text-slate-900 text-xs uppercase tracking-wider block mb-4">Navegação</span>
-              <ul className="space-y-2.5 text-xs text-slate-500">
-                <li><a href="#sobre" className="hover:text-[#7C3AED] transition-colors">Sobre</a></li>
-                <li><a href="#recursos" className="hover:text-[#7C3AED] transition-colors">Recursos</a></li>
-                <li><Link href="/desenvolvedores" className="hover:text-[#7C3AED] transition-colors">Desenvolvedores</Link></li>
-                <li><Link href="/faq" className="hover:text-[#7C3AED] transition-colors">FAQ</Link></li>
-              </ul>
-            </div>
-
-            <div>
-              <span className="font-bold text-slate-900 text-xs uppercase tracking-wider block mb-4">Institucional</span>
-              <ul className="space-y-2.5 text-xs text-slate-500">
-                <li><span>Divisão de Tecnologia da Informação (DTI)</span></li>
-                <li><span>Campus da UFC em Sobral</span></li>
-                <li><span>Universidade Federal do Ceará</span></li>
-              </ul>
-            </div>
-
-            <div>
-              <span className="font-bold text-slate-900 text-xs uppercase tracking-wider block mb-4">Acesso</span>
-              <p className="text-xs text-slate-500 mb-4 leading-relaxed">
-                Acesse com seu e-mail institucional cadastrado.
-              </p>
-              <Link
-                href="/login"
-                className="inline-block px-5 py-2.5 rounded-full bg-[#7C3AED] text-white font-semibold text-xs hover:bg-[#6D28D9] transition-all shadow-xs"
-              >
-                Portal de Acesso
-              </Link>
+        </section>
+        <section id="recursos" className="scroll-mt-8 bg-[#f5f3fa]">
+          <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-24 lg:px-12">
+            <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end"><div><p className="text-xs font-bold uppercase tracking-[0.18em] text-violet-700">Recursos</p><h2 className="mt-5 max-w-xl text-3xl font-semibold leading-tight tracking-[-0.035em] sm:text-4xl">O que você pode fazer no Soma</h2></div><p className="max-w-sm text-sm leading-6 text-slate-600">Ferramentas para apoiar as diferentes etapas da gestão de materiais.</p></div>
+            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {recursos.map(({ icon: Icon, title, text }, index) => <article key={title} className="flex min-h-56 flex-col rounded-2xl border border-[#e9e5f1] bg-white p-6"><div className="flex items-center justify-between"><span className="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-50 text-violet-600"><Icon size={21} aria-hidden="true" /></span><span className="text-xs font-semibold text-slate-400">0{index + 1}</span></div><h3 className="mt-7 font-semibold">{title}</h3><p className="mt-2 text-sm leading-6 text-slate-500">{text}</p></article>)}
             </div>
           </div>
-
-          <div className="pt-8 border-t border-[#EDE9FE] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
-            <span>© {new Date().getFullYear()} Divisão de Tecnologia da Informação — UFC Campus Sobral.</span>
-            <span>Sistema Soma de Almoxarifado</span>
+        </section>
+        <section className="bg-white px-5 py-16 sm:px-8 sm:py-20 lg:px-12">
+          <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 rounded-[1.75rem] bg-[#191630] p-8 text-white sm:p-12 md:flex-row md:items-center">
+            <div className="max-w-xl"><p className="text-xs font-bold uppercase tracking-[0.18em] text-violet-300">Sistema Soma</p><h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">Acesse o almoxarifado.</h2><p className="mt-4 text-sm leading-6 text-slate-300 sm:text-base">Entre para consultar os materiais e acompanhar as atividades disponíveis para seu perfil.</p></div>
+            <div className="flex flex-wrap items-center gap-4"><Link href="/login" className="inline-flex items-center gap-3 rounded-full bg-white px-6 py-4 text-sm font-semibold text-[#191630] hover:bg-violet-100">Acessar sistema <ArrowRight size={17} aria-hidden="true" /></Link><Link href="/faq" className="px-2 py-4 text-sm font-medium text-slate-300 hover:text-white">Dúvidas frequentes</Link></div>
           </div>
+        </section>
+      </main>
+      <footer className="border-t border-[#e9e6ed]">
+        <div className="mx-auto max-w-7xl px-5 pt-14 sm:px-8 lg:px-12">
+          <div className="grid gap-10 pb-12 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1.5fr]">
+            <div><div className="flex items-center gap-3"><UfcLogo /><div><p className="font-bold">Sistema Soma</p><p className="mt-1 text-xs text-slate-500">Almoxarifado UFC Sobral</p></div></div><p className="mt-5 max-w-xs text-sm leading-6 text-slate-500">Gestão de materiais para a Universidade Federal do Ceará, Campus Sobral.</p></div>
+            <div><p className="text-xs font-bold uppercase tracking-wider">Navegação</p><ul className="mt-5 space-y-3 text-sm text-slate-600"><li><a href="#sobre" className="hover:text-violet-700">Sobre</a></li><li><a href="#recursos" className="hover:text-violet-700">Recursos</a></li><li><Link href="/desenvolvedores" className="hover:text-violet-700">Desenvolvedores</Link></li><li><Link href="/faq" className="hover:text-violet-700">FAQ</Link></li></ul></div>
+            <div><p className="text-xs font-bold uppercase tracking-wider">Institucional</p><p className="mt-5 text-sm leading-6 text-slate-600">Divisão de Tecnologia da Informação<br />Universidade Federal do Ceará<br />Campus Sobral</p></div>
+          </div>
+          <div className="flex flex-col justify-between gap-2 border-t border-[#e9e6ed] py-6 text-xs text-slate-500 sm:flex-row"><span>© {new Date().getFullYear()} DTI — UFC Campus Sobral.</span><span>Sistema Soma de Almoxarifado</span></div>
         </div>
       </footer>
     </div>
