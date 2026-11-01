@@ -33,3 +33,15 @@ export type CreateMaterialPayload = {
 }
 
 export type UpdateMaterialPayload = Partial<CreateMaterialPayload>
+
+export type MaterialDetails = {
+  id: EntityId
+  name: string
+  internalCode: string
+  description: string | null
+  imageUrl: string | null
+  minQuantity: number
+  updatedAt: string | null
+  materialGroup: { id: EntityId; name: string }
+  measurementUnit: { id: EntityId; name: string }
+}

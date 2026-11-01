@@ -56,7 +56,10 @@ export const materialsHandlers = [
 
   http.get('/materials/:id', ({ params }) => {
     const mat = materials.find((m) => m.id === String(params.id) && !m.deletedAt)
-    return mat ? HttpResponse.json(mat) : new HttpResponse(null, { status: 404 })
+    if (!mat) return new HttpResponse(null, { status: 404 })
+    const group = groups.find((g) => g.name === mat.materialGroupName)
+    const unit = units.find((u) => u.name === mat.measurementUnitName)
+    return HttpResponse.json({ ...mat, updatedAt: null, materialGroup: group ?? { id: '', name: mat.materialGroupName }, measurementUnit: unit ?? { id: '', name: mat.measurementUnitName } })
   }),
 
   http.post('/materials', async ({ request }) => {

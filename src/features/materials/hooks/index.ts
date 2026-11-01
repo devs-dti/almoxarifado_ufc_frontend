@@ -19,6 +19,14 @@ export function useMaterials(params?: Parameters<typeof materialsApi.list>[0]) {
 }
 
 
+export function useMaterialDetails(id: EntityId | undefined) {
+  return useQuery({
+    queryKey: ['materials', 'detail', id],
+    queryFn: () => materialsApi.get(id!),
+    enabled: id !== undefined,
+  })
+}
+
 export function useMeasurementUnits() {
   return useQuery({
     queryKey: materialsKeys.units(),

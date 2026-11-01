@@ -1,15 +1,15 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { toast } from 'sonner'
 
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog'
 import {
@@ -29,7 +29,7 @@ import {
 } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Upload } from 'lucide-react'
+import { ImagePlus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useMeasurementUnits, useSaveMaterial } from '../hooks'
 import { useMaterialGroups } from '@/features/material-groups/hooks'
@@ -47,11 +47,20 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
   const groups = groupsResponse?.content
   const { data: units } = useMeasurementUnits()
   const { saveMaterial, isPending } = useSaveMaterial()
+  const [preview, setPreview] = useState<string | null>(null)
 
   const form = useForm<MaterialFormData>({
     resolver: zodResolver(materialSchema),
     defaultValues: { name: '', internalCode: '', description: '', minQuantity: 1, materialGroupId: '', measurementUnitId: '' },
   })
+
+  const selectedFile = form.watch('file') as File | undefined
+  useEffect(() => {
+    if (!(selectedFile instanceof File)) { setPreview(null); return }
+    const url = URL.createObjectURL(selectedFile)
+    setPreview(url)
+    return () => URL.revokeObjectURL(url)
+  }, [selectedFile])
 
   useEffect(() => {
     if (open) {
@@ -62,7 +71,7 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
           name: editing.name,
           internalCode: editing.internalCode,
           description: editing.description ?? '',
-          minQuantity: editing.minQuantity || 1,
+          minQuantity: editing.minQuantity ?? 1,
           materialGroupId: matchedGroup ? String(matchedGroup.id) : '',
           measurementUnitId: matchedUnit ? String(matchedUnit.id) : '',
         })
@@ -70,7 +79,7 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
         form.reset({ name: '', internalCode: '', description: '', minQuantity: 1, materialGroupId: '', measurementUnitId: '' })
       }
     }
-  }, [editing, open, groups, units])
+  }, [editing, open, groups, units, form])
 
   async function onSubmit(data: MaterialFormData) {
     const success = await saveMaterial(data, editing)
@@ -81,13 +90,32 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm">
+      <DialogContent className="max-h-[90dvh] overflow-y-auto rounded-2xl p-5 sm:max-w-2xl sm:p-7">
         <DialogHeader>
-          <DialogTitle>{editing ? 'Editar material' : 'Novo material'}</DialogTitle>
+          <DialogTitle className="text-xl text-slate-900">{editing ? 'Editar material' : 'Novo material'}</DialogTitle>
+          <DialogDescription>{editing ? 'Atualize as informações do material.' : 'Preencha as informações para cadastrar um material.'}</DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5">
+            <FormField control={form.control} name="file" render={({ field: { value, onChange, ...field } }) => (
+              <FormItem>
+                <FormLabel>Foto do material <span className="font-normal text-slate-500">(opcional)</span></FormLabel>
+                <div className="flex flex-col gap-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 sm:flex-row sm:items-center">
+                  <div className="grid h-24 w-24 shrink-0 place-items-center overflow-hidden rounded-xl bg-white text-violet-600 ring-1 ring-slate-200">
+                    {preview || editing?.imageUrl ? <img src={preview || editing?.imageUrl || ''} alt="Prévia da foto do material" className="h-full w-full object-cover" /> : <ImagePlus size={28} aria-hidden="true" />}
+                  </div>
+                  <div className="min-w-0 space-y-2">
+                    <p className="text-sm font-medium text-slate-800">{editing?.imageUrl || preview ? 'Foto do material' : 'Adicione uma foto'}</p>
+                    <p className="text-xs leading-5 text-slate-500">Uma imagem ajuda a identificar o material mais rapidamente.</p>
+                    <FormControl><input {...field} type="file" accept="image/*" className="block w-full text-xs text-slate-600 file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-violet-100 file:px-3 file:py-2 file:font-semibold file:text-violet-800 hover:file:bg-violet-200" onChange={(e) => onChange(e.target.files?.[0])} /></FormControl>
+                    {value instanceof File && <p className="break-all text-xs text-slate-500">{value.name}</p>}
+                  </div>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )} />
+
             <FormField
               control={form.control}
               name="name"
@@ -165,7 +193,7 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
                     value={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Selecione um grupo" />
                       </SelectTrigger>
                     </FormControl>
@@ -193,7 +221,7 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
                     value={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Selecione uma unidade" />
                       </SelectTrigger>
                     </FormControl>
@@ -210,35 +238,9 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
               )}
             />
 
-            <FormField control={form.control} name="file" render={({ field: { value, onChange, ...field } }) => (
-              <FormItem className="col-span-2">
-                <FormLabel>Foto do Material (Opcional)</FormLabel>
-                <FormControl>
-                  <div className="flex items-center gap-3">
-                    <label className="cursor-pointer bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2.5 rounded-xl text-sm transition-colors shadow-sm flex items-center gap-2 font-medium">
-                      <Upload size={16} className="text-brand" />
-                      Escolher arquivo
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0]
-                          if (file) onChange(file)
-                        }}
-                        {...field}
-                      />
-                    </label>
-                    <span className="text-sm text-gray-500 truncate max-w-[250px]" title={value instanceof File ? value.name : ''}>
-                      {value instanceof File ? value.name : 'Nenhum arquivo escolhido'}
-                    </span>
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
 
-            <DialogFooter className="pt-2">
+
+            <DialogFooter className="border-t border-slate-100 pt-4">
               <Button
                 type="button"
                 variant="ghost"

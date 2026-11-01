@@ -5,6 +5,7 @@ import type { PageLike, PageParams } from '@/shared/types/pagination'
 import type { EntityId } from '@/shared/types/id'
 import type {
   Material,
+  MaterialDetails,
   MaterialGroup,
   MeasurementUnit,
   CreateMaterialPayload,
@@ -27,7 +28,7 @@ export const materialsApi = {
       .then((r) => unwrapPage(r.data)),
 
   get: (id: EntityId) =>
-    httpClient.get<Material>(`/materials/${id}`).then((r) => r.data),
+    httpClient.get<MaterialDetails>(`/materials/${id}`).then((r) => r.data),
 
   create: (data: CreateMaterialPayload) =>
     httpClient.post<Material>('/materials', buildFormData(data), {

@@ -1,13 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { Search, Pencil, Trash2, Plus, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Search, Pencil, Trash2, Plus, ChevronLeft, ChevronRight, Eye } from 'lucide-react'
 import { useDebounceValue } from 'usehooks-ts'
 
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useMaterials } from '../hooks'
+import { MaterialDetailsDialog } from './MaterialDetailsDialog'
 import { MaterialFormDialog } from './MaterialFormDialog'
 import { DeleteMaterialDialog } from './DeleteMaterialDialog'
 import { MATERIALS_PAGE_SIZE, MATERIALS_SKELETON_COUNT } from '../constants'
@@ -21,6 +22,7 @@ export function MaterialList() {
   const [debouncedSearch] = useDebounceValue(search, 300)
 
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [selected, setSelected] = useState<Material | null>(null)
   const [editing, setEditing] = useState<Material | null>(null)
   const [deleting, setDeleting] = useState<Material | null>(null)
   const role = useAuthStore((s) => s.user?.role)
@@ -58,6 +60,7 @@ export function MaterialList() {
             <Input
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(0) }}
+              aria-label="Buscar materiais por nome ou código"
               placeholder="Buscar por nome, código..."
               className="pl-8 h-8 rounded-lg text-xs w-full placeholder:text-gray-400/80"
             />
@@ -105,9 +108,9 @@ export function MaterialList() {
                     <span className="text-xs font-bold uppercase">{m.name.substring(0, 2)}</span>
                   </div>
                 )}
-                <div className="flex flex-col">
+                <div className="flex min-w-0 flex-col">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-semibold text-gray-900 text-sm truncate">{m.name}</span>
+                    <span className="font-semibold text-gray-900 text-sm break-words">{m.name}</span>
                   </div>
                   <span className="text-xs text-gray-400">
                     {m.internalCode}
@@ -128,8 +131,8 @@ export function MaterialList() {
               </div>
             </div>
 
-            {(canWrite || canDelete) && (
-              <div className="flex items-center gap-1 shrink-0 ml-2">
+            <div className="flex items-center gap-1 shrink-0 ml-2">
+                <button onClick={() => setSelected(m)} className="p-2 rounded-xl text-gray-500 hover:text-brand hover:bg-purple-50 transition-colors" aria-label={`Ver detalhes de ${m.name}`}><Eye size={17} /></button>
                 {canWrite && (
                   <button
                     onClick={() => handleEdit(m)}
@@ -148,8 +151,7 @@ export function MaterialList() {
                     <Trash2 size={15} />
                   </button>
                 )}
-              </div>
-            )}
+            </div>
           </div>
         ))
       }
@@ -177,6 +179,8 @@ export function MaterialList() {
           </button>
         </div>
       )}
+
+      <MaterialDetailsDialog material={selected} onClose={() => setSelected(null)} onEdit={canWrite ? (material) => { setSelected(null); handleEdit(material) } : undefined} />
 
       {canWrite && (
         <MaterialFormDialog
