@@ -42,8 +42,11 @@ export const materialsHandlers = [
     const size = Number(url.searchParams.get('size') ?? 10)
     const search = (url.searchParams.get('search') ?? '').toLowerCase().trim()
     const code = (url.searchParams.get('internalCode') ?? '').toLowerCase().trim()
-    const active = materials.filter((m) => !m.deletedAt && (!search || m.name.toLowerCase().includes(search) || (m.description ?? '').toLowerCase().includes(search)) && (!code || m.internalCode.toLowerCase().includes(code)))
-      .sort((a, b) => a.name.localeCompare(b.name))
+    const group = (url.searchParams.get('materialGroup') ?? '').toLowerCase().trim()
+    const unit = (url.searchParams.get('measurementUnit') ?? '').toLowerCase().trim()
+    const [sortField, direction] = (url.searchParams.get('sort') ?? 'name,asc').split(',')
+    const active = materials.filter((m) => !m.deletedAt && (!search || m.name.toLowerCase().includes(search) || (m.description ?? '').toLowerCase().includes(search)) && (!code || m.internalCode.toLowerCase().includes(code)) && (!group || m.materialGroupName.toLowerCase().includes(group)) && (!unit || m.measurementUnitName.toLowerCase().includes(unit)))
+      .sort((a, b) => (sortField === 'internalCode' ? a.internalCode.localeCompare(b.internalCode) : a.name.localeCompare(b.name)) * (direction === 'desc' ? -1 : 1))
     const content = active.slice(page * size, page * size + size)
     return HttpResponse.json({
       data: content,

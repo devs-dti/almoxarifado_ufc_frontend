@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Search, Pencil, Trash2, Plus, ChevronLeft, ChevronRight, Eye } from 'lucide-react'
+import { Search, Pencil, Trash2, Plus, ChevronLeft, ChevronRight, Eye, ArrowDownUp, ChevronDown, SlidersHorizontal } from 'lucide-react'
 import { useDebounceValue } from 'usehooks-ts'
 
 import { Input } from '@/components/ui/input'
@@ -11,7 +11,7 @@ import { useMaterials } from '../hooks'
 import { MaterialDetailsDialog } from './MaterialDetailsDialog'
 import { MaterialFormDialog } from './MaterialFormDialog'
 import { DeleteMaterialDialog } from './DeleteMaterialDialog'
-import { MATERIALS_PAGE_SIZE, MATERIALS_SKELETON_COUNT } from '../constants'
+import { MATERIALS_SKELETON_COUNT } from '../constants'
 import { hasAnyRole } from '@/shared/lib/rbac'
 import { useAuthStore } from '@/store/useAuthStore'
 import type { Material } from '../types'
@@ -19,7 +19,16 @@ import type { Material } from '../types'
 export function MaterialList() {
   const [page, setPage] = useState(0)
   const [search, setSearch] = useState('')
-  const [debouncedSearch] = useDebounceValue(search, 300)
+  const [code, setCode] = useState('')
+  const [group, setGroup] = useState('')
+  const [unit, setUnit] = useState('')
+  const [pageSize, setPageSize] = useState(10)
+  const [sort, setSort] = useState('name,asc')
+  const [debouncedSearch] = useDebounceValue(search.trim(), 300)
+  const [debouncedCode] = useDebounceValue(code.trim(), 300)
+  const [debouncedGroup] = useDebounceValue(group.trim(), 300)
+  const [debouncedUnit] = useDebounceValue(unit.trim(), 300)
+  const sortLabels: Record<string, string> = { 'name,asc': 'Nome (A–Z)', 'name,desc': 'Nome (Z–A)', 'internalCode,asc': 'Código (A–Z)', 'internalCode,desc': 'Código (Z–A)' }
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selected, setSelected] = useState<Material | null>(null)
@@ -31,8 +40,12 @@ export function MaterialList() {
 
   const { data: pageData, isLoading, isError } = useMaterials({
     page,
-    size: MATERIALS_PAGE_SIZE,
+    size: pageSize,
+    sort,
     search: debouncedSearch || undefined,
+    internalCode: debouncedCode || undefined,
+    materialGroup: debouncedGroup || undefined,
+    measurementUnit: debouncedUnit || undefined,
   })
 
   const materials = pageData?.content ?? []
@@ -54,23 +67,25 @@ export function MaterialList() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Materiais</h2>
 
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-          <div className="relative flex-1 sm:w-72">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <Input
-              value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(0) }}
-              aria-label="Buscar materiais por nome ou código"
-              placeholder="Buscar por nome, código..."
-              className="pl-8 h-8 rounded-lg text-xs w-full placeholder:text-gray-400/80"
-            />
+        {canWrite && <Button onClick={handleNew} className="gap-1.5 rounded-xl px-4 bg-brand hover:bg-brand/90 shrink-0" size="sm"><Plus size={15} /> Novo material</Button>}
+      </div>
+
+      <div className="space-y-4 border-b border-slate-200/80 pb-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2.5"><span className="grid h-8 w-8 place-items-center rounded-lg bg-violet-100/70 text-violet-700"><ArrowDownUp size={16} aria-hidden="true" /></span><div><p className="text-sm font-semibold text-slate-800">Todos os materiais</p>{pageData && !isError && <p className="text-xs text-slate-500">{pageData.totalElements} {pageData.totalElements === 1 ? 'registro' : 'registros'}</p>}</div></div>
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="relative flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-slate-200 bg-white py-2 pl-3 pr-8 text-xs text-slate-500 transition-colors hover:border-violet-200 focus-within:ring-2 focus-within:ring-violet-200 sm:flex-none"><span aria-hidden="true">Ordenar por</span><span aria-hidden="true" className="text-sm font-medium text-slate-800">{sortLabels[sort]}</span><select aria-label="Ordenar materiais por" value={sort} onChange={(e) => { setSort(e.target.value); setPage(0) }} className="absolute inset-0 h-full w-full cursor-pointer opacity-0"><option value="name,asc">Nome (A–Z)</option><option value="name,desc">Nome (Z–A)</option><option value="internalCode,asc">Código (A–Z)</option><option value="internalCode,desc">Código (Z–A)</option></select><ChevronDown size={14} className="pointer-events-none absolute right-3 text-slate-400" aria-hidden="true" /></label>
+            <label className="relative flex items-center gap-2 rounded-xl border border-slate-200 bg-white py-2 pl-3 pr-8 text-xs text-slate-500 hover:border-violet-200 focus-within:ring-2 focus-within:ring-violet-200"><span aria-hidden="true" className="text-sm font-medium text-slate-800">{pageSize}</span><span aria-hidden="true">por página</span><select aria-label="Materiais por página" value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setPage(0) }} className="absolute inset-0 h-full w-full cursor-pointer opacity-0"><option value={10}>10</option><option value={20}>20</option><option value={50}>50</option></select><ChevronDown size={14} className="pointer-events-none absolute right-3 text-slate-400" aria-hidden="true" /></label>
           </div>
-          {canWrite && (
-            <Button onClick={handleNew} className="gap-1.5 rounded-xl px-3 bg-brand hover:bg-brand/90 shrink-0" size="sm">
-              <Plus size={15} />
-              Novo
-            </Button>
-          )}
+        </div>
+        <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+          <div className="mb-3 flex items-center justify-between gap-2"><p className="flex items-center gap-2 text-sm font-semibold text-slate-800"><SlidersHorizontal size={16} className="text-violet-700" aria-hidden="true" /> Filtros</p>{(search || code || group || unit) && <button type="button" onClick={() => { setSearch(''); setCode(''); setGroup(''); setUnit(''); setPage(0) }} className="text-xs font-semibold text-violet-700 hover:underline">Limpar filtros</button>}</div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <label className="space-y-1 text-xs font-medium text-slate-600">Nome ou descrição<div className="relative"><Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" /><Input value={search} onChange={(e) => { setSearch(e.target.value); setPage(0) }} placeholder="Buscar material" className="h-10 rounded-xl bg-white pl-9 text-sm" /></div></label>
+            <label className="space-y-1 text-xs font-medium text-slate-600">Código interno<Input value={code} onChange={(e) => { setCode(e.target.value); setPage(0) }} placeholder="Ex.: MAT-001" className="h-10 rounded-xl bg-white text-sm" /></label>
+            <label className="space-y-1 text-xs font-medium text-slate-600">Grupo<Input value={group} onChange={(e) => { setGroup(e.target.value); setPage(0) }} placeholder="Nome do grupo" className="h-10 rounded-xl bg-white text-sm" /></label>
+            <label className="space-y-1 text-xs font-medium text-slate-600">Unidade de medida<Input value={unit} onChange={(e) => { setUnit(e.target.value); setPage(0) }} placeholder="Nome da unidade" className="h-10 rounded-xl bg-white text-sm" /></label>
+          </div>
         </div>
       </div>
 
@@ -156,28 +171,11 @@ export function MaterialList() {
         ))
       }
 
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-3 pt-2">
-          <button
-            onClick={() => setPage((p) => Math.max(0, p - 1))}
-            disabled={page === 0}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 disabled:opacity-30"
-            aria-label="Página anterior"
-          >
-            <ChevronLeft size={18} />
-          </button>
-          <span className="text-sm text-gray-500">
-            {page + 1} / {totalPages}
-          </span>
-          <button
-            onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-            disabled={page >= totalPages - 1}
-            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 disabled:opacity-30"
-            aria-label="Próxima página"
-          >
-            <ChevronRight size={18} />
-          </button>
-        </div>
+      {!isLoading && !isError && pageData && pageData.totalElements > 0 && (
+        <nav aria-label="Paginação de materiais" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-white px-4 py-3 shadow-sm">
+          <p className="text-sm text-slate-600">Mostrando {page * pageSize + 1}–{Math.min((page + 1) * pageSize, pageData.totalElements)} de {pageData.totalElements} {pageData.totalElements === 1 ? 'material' : 'materiais'}</p>
+          <div className="flex items-center gap-2"><button type="button" onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={page === 0} className="rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-50 disabled:opacity-40" aria-label="Página anterior"><ChevronLeft size={17} /></button><span aria-live="polite" className="px-2 text-sm text-slate-600">Página {page + 1} de {totalPages}</span><button type="button" onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1} className="rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-50 disabled:opacity-40" aria-label="Próxima página"><ChevronRight size={17} /></button></div>
+        </nav>
       )}
 
       <MaterialDetailsDialog material={selected} onClose={() => setSelected(null)} onEdit={canWrite ? (material) => { setSelected(null); handleEdit(material) } : undefined} />
