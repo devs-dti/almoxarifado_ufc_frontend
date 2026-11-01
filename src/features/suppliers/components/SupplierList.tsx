@@ -1,29 +1,61 @@
 'use client'
 
 import { useState } from 'react'
-import { Pencil, Trash2, Plus, Mail, Phone } from 'lucide-react'
+import { Pencil, Trash2, Plus, Truck, Search, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react'
 import { toast } from 'sonner'
+import { useDebounceValue } from 'usehooks-ts'
+import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import type { EntityId } from '@/shared/types/id'
 import { hasAnyRole } from '@/shared/lib/rbac'
 import { useAuthStore } from '@/store/useAuthStore'
-import { useSuppliers, useDeleteSupplier } from '../hooks'
+import { suppliersApi } from '../api'
+import { maskCNPJ, maskPhone } from '@/lib/masks'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { useSuppliersPage, useDeleteSupplier } from '../hooks'
 import { SupplierFormDialog } from './SupplierFormDialog'
 import type { Supplier } from '../types'
 
 export function SupplierList() {
+  const [page, setPage] = useState(0)
+  const [search, setSearch] = useState('')
+  const [term] = useDebounceValue(search.trim(), 300)
+  const [pageSize, setPageSize] = useState(10)
+  const [sort, setSort] = useState('corporateName,asc')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editing, setEditing] = useState<Supplier | null>(null)
   const [deletingId, setDeletingId] = useState<EntityId | null>(null)
   const role = useAuthStore((s) => s.user?.role)
   const canManage = hasAnyRole(role, ['ADMIN', 'MANAGER'])
+  const canDelete = hasAnyRole(role, ['ADMIN'])
 
-  const { data: suppliers = [], isLoading, isError } = useSuppliers()
+  const normalizedSearch = /^[\d.\/\-\s]+$/.test(term) ? term.replace(/\D/g, '') : term
+  const { data, isLoading, isError, refetch } = useSuppliersPage({ page, size: pageSize, sort, search: normalizedSearch || undefined })
+  const suppliers = data?.content ?? []
   const deleteMutation = useDeleteSupplier()
 
-  async function handleDelete(id: EntityId) {
+  async function openEdit(supplier: Supplier) {
     try {
-      await deleteMutation.mutateAsync(id)
+      const details = await suppliersApi.get(supplier.id)
+      setEditing({ ...supplier, ...details, phone: details.phone ?? supplier.phone })
+      setDialogOpen(true)
+    } catch { /* O cliente HTTP apresenta o erro. */ }
+  }
+
+  async function handleDelete() {
+    if (!deletingId) return
+    try {
+      await deleteMutation.mutateAsync(deletingId)
+      if (suppliers.length === 1 && page > 0) setPage((current) => current - 1)
       toast.success('Fornecedor removido.')
     } catch {
       // O interceptor do axios em client.ts já exibe o toast com a mensagem exata do backend
@@ -34,70 +66,55 @@ export function SupplierList() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Fornecedores</h2>
-        {canManage && (
-          <Button onClick={() => { setEditing(null); setDialogOpen(true) }} className="gap-1.5 rounded-xl px-3" size="sm">
-            <Plus size={15} />
-            Novo
-          </Button>
-        )}
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div><h2 className="text-2xl font-bold tracking-tight text-slate-900">Fornecedores</h2><p className="mt-1 text-sm text-slate-500">Gerencie os dados dos fornecedores cadastrados.</p></div>
+        {canManage && <Button onClick={() => { setEditing(null); setDialogOpen(true) }} className="gap-1.5 rounded-xl px-4" size="sm"><Plus size={15} /> Novo fornecedor</Button>}
       </div>
+      <div className="flex flex-col gap-3 border-b border-slate-200/80 pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2.5"><span className="grid h-8 w-8 place-items-center rounded-lg bg-violet-100/70 text-violet-700"><Truck size={16} aria-hidden="true" /></span><div><p className="text-sm font-semibold text-slate-800">Todos os fornecedores</p>{data && !isError && <p className="text-xs text-slate-500">{data.totalElements} {data.totalElements === 1 ? 'registro' : 'registros'}</p>}</div></div>
+        <div className="flex flex-wrap gap-2">
+          <label className="relative flex flex-1 items-center gap-2 rounded-xl border border-slate-200 bg-white py-2 pl-3 pr-8 text-xs text-slate-500 focus-within:ring-2 focus-within:ring-violet-200 sm:flex-none"><span aria-hidden="true">Ordenar por</span><span aria-hidden="true" className="text-sm font-medium text-slate-800">{sort === 'corporateName,asc' ? 'Nome (A–Z)' : 'Nome (Z–A)'}</span><select aria-label="Ordenar fornecedores por" value={sort} onChange={(e) => { setSort(e.target.value); setPage(0) }} className="absolute inset-0 h-full w-full cursor-pointer opacity-0"><option value="corporateName,asc">Nome (A–Z)</option><option value="corporateName,desc">Nome (Z–A)</option></select><ChevronDown size={14} className="pointer-events-none absolute right-3 text-slate-400" aria-hidden="true" /></label>
+          <label className="relative flex items-center gap-2 rounded-xl border border-slate-200 bg-white py-2 pl-3 pr-8 text-xs text-slate-500 focus-within:ring-2 focus-within:ring-violet-200"><span aria-hidden="true" className="text-sm font-medium text-slate-800">{pageSize}</span><span aria-hidden="true">por página</span><select aria-label="Fornecedores por página" value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setPage(0) }} className="absolute inset-0 h-full w-full cursor-pointer opacity-0"><option value={10}>10</option><option value={20}>20</option><option value={50}>50</option></select><ChevronDown size={14} className="pointer-events-none absolute right-3 text-slate-400" aria-hidden="true" /></label>
+        </div>
+      </div>
+      <div className="relative w-full sm:max-w-md"><Search size={16} aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" /><Input aria-label="Buscar fornecedores por nome ou CNPJ" value={search} onChange={(e) => { setSearch(e.target.value); setPage(0) }} placeholder="Buscar por nome ou CNPJ" className="h-10 rounded-xl bg-white pl-10 text-sm" /></div>
 
       {isLoading && (
         <div className="flex flex-col gap-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-20 bg-gray-100 rounded-2xl animate-pulse" />
+            <div key={i} className="h-16 bg-gray-100 rounded-2xl animate-pulse" />
           ))}
         </div>
       )}
 
-      {isError && <p className="text-center text-sm text-destructive py-8">Erro ao carregar fornecedores.</p>}
+      {isError && <div role="alert" className="py-8 text-center text-sm text-destructive">Erro ao carregar fornecedores. <button type="button" onClick={() => refetch()} className="font-semibold underline">Tentar novamente</button></div>}
 
-      {!isLoading && suppliers.length === 0 && (
-        <div className="text-center py-12 text-gray-400 text-sm">Nenhum fornecedor cadastrado.</div>
+      {!isLoading && !isError && suppliers.length === 0 && (
+        <div className="text-center py-12 text-gray-400 text-sm">{search ? 'Nenhum fornecedor encontrado para esta busca.' : 'Nenhum fornecedor cadastrado.'}</div>
       )}
 
       {!isLoading && suppliers.map((supplier) => (
-        <div key={supplier.id} className="bg-white rounded-2xl border border-gray-100 px-4 py-3 flex items-start justify-between shadow-sm">
-          <div className="flex flex-col gap-1 min-w-0">
-            <span className="font-semibold text-gray-900 text-sm">{supplier.corporateName}</span>
-            {supplier.cnpj && <span className="text-xs text-gray-400 font-mono">{supplier.cnpj}</span>}
-            <div className="flex items-center gap-3 flex-wrap">
-              {supplier.email && (
-                <span className="flex items-center gap-1 text-[11px] text-gray-400">
-                  <Mail size={10} />{supplier.email}
-                </span>
-              )}
-              {supplier.phone && (
-                <span className="flex items-center gap-1 text-[11px] text-gray-400">
-                  <Phone size={10} />{supplier.phone}
-                </span>
-              )}
-            </div>
+        <div key={supplier.id} className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition hover:border-violet-200 sm:gap-4">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-violet-50 text-violet-700"><Truck size={20} aria-hidden="true" /></span>
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <span className="break-words font-semibold text-slate-900 text-sm">{supplier.corporateName}</span>
+            {supplier.cnpj && <span className="text-xs text-slate-500">CNPJ: {maskCNPJ(supplier.cnpj)}</span>}
+            {supplier.phone && <span className="text-xs text-slate-500">Telefone: {maskPhone(supplier.phone)}</span>}
           </div>
           {canManage && (
-          <div className="flex items-center gap-1 shrink-0 ml-2">
-            {deletingId === supplier.id ? (
-              <div className="flex items-center gap-1">
-                <span className="text-xs text-gray-400">Confirmar?</span>
-                <button onClick={() => handleDelete(supplier.id)} className="text-xs font-medium text-destructive px-2 py-1 rounded-lg hover:bg-red-50">Sim</button>
-                <button onClick={() => setDeletingId(null)} className="text-xs text-gray-400 px-2 py-1 rounded-lg hover:bg-gray-100">Não</button>
-              </div>
-            ) : (
-              <>
-                <button onClick={() => { setEditing(supplier); setDialogOpen(true) }} className="p-2 rounded-xl text-gray-400 hover:text-brand hover:bg-purple-50 transition-colors" aria-label="Editar">
-                  <Pencil size={15} />
-                </button>
-                <button onClick={() => setDeletingId(supplier.id)} className="p-2 rounded-xl text-gray-400 hover:text-destructive hover:bg-red-50 transition-colors" aria-label="Remover">
-                  <Trash2 size={15} />
-                </button>
-              </>
-            )}
-          </div>
+            <div className="flex items-center gap-1 shrink-0 ml-2">
+              <button onClick={() => { openEdit(supplier) }} className="p-2 rounded-xl text-gray-400 hover:text-brand hover:bg-purple-50 transition-colors" aria-label={`Editar fornecedor ${supplier.corporateName}`}>
+                <Pencil size={15} />
+              </button>
+              {canDelete && <button onClick={() => setDeletingId(supplier.id)} className="p-2 rounded-xl text-gray-400 hover:text-destructive hover:bg-red-50 transition-colors" aria-label={`Remover fornecedor ${supplier.corporateName}`}>
+                <Trash2 size={15} />
+              </button>}
+            </div>
           )}
         </div>
       ))}
+
+      {!isLoading && !isError && data && data.totalElements > 0 && <nav aria-label="Paginação de fornecedores" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-white px-4 py-3 shadow-sm"><p className="text-sm text-slate-600">Mostrando {page * pageSize + 1}–{Math.min((page + 1) * pageSize, data.totalElements)} de {data.totalElements} {data.totalElements === 1 ? 'fornecedor' : 'fornecedores'}</p><div className="flex items-center gap-2"><button type="button" aria-label="Página anterior" disabled={page === 0} onClick={() => setPage((p) => p - 1)} className="rounded-lg border border-slate-200 p-2 text-slate-600 disabled:opacity-40"><ChevronLeft size={17} /></button><span aria-live="polite" className="px-2 text-sm text-slate-600">Página {page + 1} de {data.totalPages}</span><button type="button" aria-label="Próxima página" disabled={page + 1 >= data.totalPages} onClick={() => setPage((p) => p + 1)} className="rounded-lg border border-slate-200 p-2 text-slate-600 disabled:opacity-40"><ChevronRight size={17} /></button></div></nav>}
 
       {canManage && (
         <SupplierFormDialog
@@ -106,6 +123,26 @@ export function SupplierList() {
           editing={editing}
         />
       )}
+
+      <AlertDialog open={canDelete && deletingId !== null} onOpenChange={(v) => { if (!v) setDeletingId(null) }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remover fornecedor</AlertDialogTitle>
+            <AlertDialogDescription>
+              O fornecedor será removido da listagem. Confirme para continuar.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-white hover:bg-destructive/90"
+            >
+              Remover
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import type { PageParams } from '@/shared/types/pagination'
 import type { EntityId } from '@/shared/types/id'
 import { suppliersApi } from '../api'
 import type { CreateSupplierPayload, UpdateSupplierPayload } from '../types'
@@ -10,6 +11,10 @@ export const suppliersKeys = {
 
 export function useSuppliers() {
   return useQuery({ queryKey: suppliersKeys.list(), queryFn: () => suppliersApi.list() })
+}
+
+export function useSuppliersPage(params: PageParams & { search?: string }) {
+  return useQuery({ queryKey: [...suppliersKeys.all, 'page', params], queryFn: () => suppliersApi.listPage(params) })
 }
 
 export function useCreateSupplier() {

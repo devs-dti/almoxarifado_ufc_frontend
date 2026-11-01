@@ -8,6 +8,7 @@ const suppliers: Supplier[] = [
     corporateName: 'Papelaria Central',
     cnpj: '12.345.678/0001-90',
     email: 'contato@papelaria.com',
+    phone: '85999999999',
     address: { street: 'Rua A', number: '123', city: 'Sobral', state: 'CE', cep: '62000-000' },
   },
   {
@@ -26,13 +27,23 @@ export function getMockSupplierName(id: string) {
 let nextId = 3
 
 export const suppliersHandlers = [
-  http.get('/suppliers', () =>
-    HttpResponse.json(suppliers.filter((s) => !s.deletedAt))
-  ),
+  http.get('/suppliers', ({ request }) => {
+    const params = new URL(request.url).searchParams
+    const page = Number(params.get('page') ?? 0)
+    const size = Number(params.get('size') ?? 10)
+    const search = (params.get('search') ?? '').toLowerCase().trim()
+    const direction = params.get('sort')?.endsWith(',desc') ? -1 : 1
+    const filtered = suppliers.filter((s) => !s.deletedAt && (!search || s.corporateName.toLowerCase().includes(search) || (s.cnpj ?? '').toLowerCase().includes(search))).sort((a, b) => a.corporateName.localeCompare(b.corporateName) * direction)
+    const data = filtered.slice(page * size, (page + 1) * size).map(({ id, corporateName, cnpj, phone }) => ({ id, corporateName, cnpj, phone }))
+    return HttpResponse.json({ data, meta: { page, size, totalElements: filtered.length, totalPages: Math.ceil(filtered.length / size) } })
+  }),
 
   http.get('/suppliers/:id', ({ params }) => {
     const s = suppliers.find((s) => s.id === String(params.id) && !s.deletedAt)
-    return s ? HttpResponse.json(s) : new HttpResponse(null, { status: 404 })
+    if (!s) return new HttpResponse(null, { status: 404 })
+    const { phone: _phone, ...details } = s
+    void _phone
+    return HttpResponse.json(details)
   }),
 
   http.post('/suppliers', async ({ request }) => {

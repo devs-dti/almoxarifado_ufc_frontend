@@ -5,6 +5,8 @@ import type { PageLike, PageParams } from '@/shared/types/pagination'
 import type { Supplier, CreateSupplierPayload, UpdateSupplierPayload } from '../types'
 
 export const suppliersApi = {
+  listPage: (params?: PageParams & { search?: string }) =>
+    api.get<PageLike<Supplier>>('/suppliers', { params }).then((r) => unwrapPage(r.data)),
   list: (params?: PageParams & { search?: string }) =>
     api.get<PageLike<Supplier>>('/suppliers', { params }).then((r) => unwrapPage(r.data).content),
   get: (id: EntityId) => api.get<Supplier>(`/suppliers/${id}`).then((r) => r.data),
