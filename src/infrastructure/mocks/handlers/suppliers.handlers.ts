@@ -19,6 +19,10 @@ const suppliers: Supplier[] = [
   },
 ]
 
+export function getMockSupplierName(id: string) {
+  return suppliers.find((supplier) => supplier.id === id && !supplier.deletedAt)?.corporateName ?? null
+}
+
 let nextId = 3
 
 export const suppliersHandlers = [

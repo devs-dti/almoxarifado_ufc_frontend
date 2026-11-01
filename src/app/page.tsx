@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
+import { UfcLogo } from '@/shared/components/UfcLogo'
 import {
   ArrowRight,
   Layers,
@@ -16,9 +17,9 @@ export default function LandingPage() {
       <div className="min-h-screen bg-[#F7F5FE] border-b border-[#EDE9FE] flex flex-col justify-between">
         {/* Header / Navbar */}
         <header className="w-full max-w-[1440px] mx-auto px-8 sm:px-14 lg:px-20 xl:px-24 h-20 flex items-center justify-between shrink-0">
-          <div className="flex flex-col leading-tight">
-            <span className="font-bold text-lg text-slate-900 tracking-tight">Sistema Soma</span>
-            <span className="text-[11px] text-slate-500 font-medium">Almoxarifado UFC Sobral</span>
+          <div className="flex items-center gap-3">
+            <UfcLogo />
+            <div className="flex flex-col leading-tight"><span className="font-bold text-lg text-slate-900 tracking-tight">Sistema Soma</span><span className="text-[11px] text-slate-500 font-medium">Almoxarifado UFC Sobral</span></div>
           </div>
 
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">

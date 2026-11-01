@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { UfcLogo } from '@/shared/components/UfcLogo'
 import { ArrowRight, ArrowLeft, Code2, Sparkles, Terminal } from 'lucide-react'
 
 export default function DesenvolvedoresPage() {
@@ -9,9 +10,9 @@ export default function DesenvolvedoresPage() {
       {/* 1. Header / Navbar */}
       <div className="bg-[#F7F5FE] border-b border-[#EDE9FE]">
         <header className="w-full max-w-[1440px] mx-auto px-8 sm:px-14 lg:px-20 xl:px-24 h-20 flex items-center justify-between">
-          <Link href="/" className="flex flex-col leading-tight hover:opacity-90 transition-opacity">
-            <span className="font-bold text-lg text-slate-900 tracking-tight">Sistema Soma</span>
-            <span className="text-[11px] text-slate-500 font-medium">Almoxarifado UFC Sobral</span>
+          <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
+            <UfcLogo />
+            <span className="flex flex-col leading-tight"><span className="font-bold text-lg text-slate-900 tracking-tight">Sistema Soma</span><span className="text-[11px] text-slate-500 font-medium">Almoxarifado UFC Sobral</span></span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">

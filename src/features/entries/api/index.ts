@@ -10,14 +10,14 @@ import type {
 import type { PageLike, PageParams } from '@/shared/types/pagination'
 
 export const entriesApi = {
-  list: (params?: PageParams & { status?: string; search?: string }) =>
+  list: (params?: PageParams) =>
     api.get<PageLike<Entry>>('/entries', { params }).then((r) => unwrapPage(r.data)),
 
   get: (id: EntityId) =>
     api.get<Entry>(`/entries/${id}`).then((r) => r.data),
 
   create: (data: CreateEntryPayload) =>
-    api.post<Entry>('/entries', data).then((r) => r.data),
+    api.post<{ id: EntityId }>('/entries', data).then((r) => r.data),
 
   updateDetails: (id: EntityId, data: UpdateEntryDetailsPayload) =>
     api.patch<Entry>(`/entries/${id}/details`, data).then((r) => r.data),

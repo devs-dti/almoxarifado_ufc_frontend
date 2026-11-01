@@ -4,6 +4,7 @@ import { useRef } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuthStore } from '@/store/useAuthStore'
+import { UfcLogo } from '@/shared/components/UfcLogo'
 import {
   Package,
   ArrowDownCircle,
@@ -94,9 +95,7 @@ export function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
     <>
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-6 pt-6 pb-5 border-b border-gray-100 shrink-0">
-        <div className="w-8 h-8 rounded-lg bg-brand flex items-center justify-center shrink-0 shadow-sm">
-          <Package size={18} className="text-white" />
-        </div>
+        <UfcLogo className="h-12 shrink-0" />
         <div className="flex flex-col leading-tight">
           <span className="text-[14px] font-bold text-gray-900">Sistema Soma</span>
           <span className="text-[10px] text-gray-400 font-medium truncate w-36">Almoxarifado UFC Sobral</span>

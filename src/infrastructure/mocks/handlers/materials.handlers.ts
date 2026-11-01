@@ -41,7 +41,9 @@ export const materialsHandlers = [
     const page = Number(url.searchParams.get('page') ?? 0)
     const size = Number(url.searchParams.get('size') ?? 10)
     const search = (url.searchParams.get('search') ?? '').toLowerCase().trim()
-    const active = materials.filter((m) => !m.deletedAt && (!search || m.name.toLowerCase().includes(search) || m.internalCode.toLowerCase().includes(search)))
+    const code = (url.searchParams.get('internalCode') ?? '').toLowerCase().trim()
+    const active = materials.filter((m) => !m.deletedAt && (!search || m.name.toLowerCase().includes(search) || (m.description ?? '').toLowerCase().includes(search)) && (!code || m.internalCode.toLowerCase().includes(code)))
+      .sort((a, b) => a.name.localeCompare(b.name))
     const content = active.slice(page * size, page * size + size)
     return HttpResponse.json({
       data: content,

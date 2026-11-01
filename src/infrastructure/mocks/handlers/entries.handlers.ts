@@ -1,5 +1,6 @@
 import { http, HttpResponse } from 'msw'
 import { mockId } from '../utils'
+import { getMockSupplierName } from './suppliers.handlers'
 import type { AddEntryItemPayload, CreateEntryPayload, Entry, EntryItem } from '@/features/entries/types'
 
 const entries: Entry[] = [
@@ -8,6 +9,7 @@ const entries: Entry[] = [
     status: 'FINISHED',
     entryType: 'SUPPLIER',
     responsible: 'Daniele Silva',
+    supplierDetails: { supplierId: mockId(1), supplierName: 'Papelaria Central', invoiceNumber: 'NF-1001', invoiceIssueDate: '2025-05-30T10:00:00', totalAmount: 1500, biddingCode: 'LIC-001', commitmentNote: 'EMP-001' },
     items: [
       {
         id: mockId(61),
@@ -36,7 +38,12 @@ export const entriesHandlers = [
     const url = new URL(request.url)
     const page = Number(url.searchParams.get('page') ?? 0)
     const size = Number(url.searchParams.get('size') ?? 10)
-    const content = entries.slice(page * size, page * size + size)
+    const [field, direction] = (url.searchParams.get('sort') ?? 'status,asc').split(',')
+    const ordered = [...entries].sort((a, b) => {
+      const key = field === 'arrivalAt' || field === 'entryType' ? field : 'status'
+      return String(a[key]).localeCompare(String(b[key])) * (direction === 'desc' ? -1 : 1)
+    })
+    const content = ordered.slice(page * size, page * size + size)
     return HttpResponse.json({
       data: content,
       meta: {
@@ -62,10 +69,11 @@ export const entriesHandlers = [
       arrivalAt: body.arrivalAt || new Date().toISOString(),
       notes: body.notes,
       responsible: 'Usuário Conectado',
+      supplierDetails: body.supplierDetails ? { ...body.supplierDetails, supplierName: getMockSupplierName(body.supplierDetails.supplierId) } : null,
       items: [],
     }
     entries.push(entry)
-    return HttpResponse.json(entry, { status: 201 })
+    return HttpResponse.json({ id: entry.id }, { status: 201 })
   }),
 
   http.patch('/entries/:id/details', async ({ request, params }) => {
@@ -77,6 +85,7 @@ export const entriesHandlers = [
       arrivalAt: body.arrivalAt || entries[idx].arrivalAt,
       entryType: body.entryType || entries[idx].entryType,
       notes: body.notes !== undefined ? body.notes : entries[idx].notes,
+      supplierDetails: body.entryType && body.entryType !== 'SUPPLIER' ? null : body.supplierDetails ? { ...body.supplierDetails, supplierName: getMockSupplierName(body.supplierDetails.supplierId) } : entries[idx].supplierDetails,
     }
     return HttpResponse.json(entries[idx])
   }),

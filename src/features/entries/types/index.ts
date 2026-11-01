@@ -22,6 +22,8 @@ export type SupplierDetails = {
   commitmentNote: string
 }
 
+export type SupplierDetailsResponse = SupplierDetails & { supplierName: string | null }
+
 export type Entry = {
   id: EntityId
   arrivalAt: string
@@ -29,6 +31,7 @@ export type Entry = {
   status: EntryStatus
   responsible?: string
   notes?: string
+  supplierDetails?: SupplierDetailsResponse | null
   items: EntryItem[]
 }
 

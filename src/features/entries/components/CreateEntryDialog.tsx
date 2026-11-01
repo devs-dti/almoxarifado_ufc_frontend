@@ -1,6 +1,7 @@
 'use client'
 
 import { useForm } from 'react-hook-form'
+import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 
@@ -9,6 +10,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog'
 import {
@@ -50,6 +52,7 @@ type Props = {
 export function CreateEntryDialog({ open, onOpenChange }: Props) {
   const { data: suppliers = [] } = useSuppliers()
   const create = useCreateEntry()
+  const router = useRouter()
 
   const form = useForm<CreateEntryInput>({
     resolver: zodResolver(createEntrySchema),
@@ -97,10 +100,11 @@ export function CreateEntryDialog({ open, onOpenChange }: Props) {
           commitmentNote: data.supplierDetails.commitmentNote?.trim() || '',
         } : undefined,
       }
-      await create.mutateAsync(payload)
+      const created = await create.mutateAsync(payload)
       toast.success('Entrada criada!')
       form.reset()
       onOpenChange(false)
+      router.push(`/dashboard/entradas/${encodeURIComponent(created.id)}`)
     } catch {
       // O interceptor do axios em client.ts já exibe o toast com a mensagem exata do backend
     }
@@ -108,22 +112,23 @@ export function CreateEntryDialog({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm">
+      <DialogContent className="max-h-[90dvh] overflow-y-auto rounded-2xl p-5 sm:max-w-2xl sm:p-7">
         <DialogHeader>
-          <DialogTitle>Nova Entrada</DialogTitle>
+          <DialogTitle className="text-xl text-slate-900">Nova Entrada</DialogTitle>
+          <DialogDescription>Registre a chegada dos materiais ao almoxarifado.</DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4 pt-2">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5 pt-2">
             <FormField
               control={form.control}
               name="entryType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tipo de Entrada</FormLabel>
+                  <FormLabel>Tipo de entrada</FormLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Selecione o tipo" />
                       </SelectTrigger>
                     </FormControl>
@@ -140,7 +145,7 @@ export function CreateEntryDialog({ open, onOpenChange }: Props) {
 
             <FormField control={form.control} name="arrivalAt" render={({ field }) => (
               <FormItem>
-                <FormLabel>Data/Hora de Chegada</FormLabel>
+                <FormLabel>Data e hora de chegada</FormLabel>
                 <FormControl>
                   <Input
                     type="datetime-local"
@@ -156,28 +161,28 @@ export function CreateEntryDialog({ open, onOpenChange }: Props) {
 
             <FormField control={form.control} name="notes" render={({ field }) => (
               <FormItem>
-                <FormLabel>Observações (Opcional)</FormLabel>
-                <FormControl><Textarea className="rounded-xl resize-none" {...field} /></FormControl>
+                <FormLabel>Observações <span className="font-normal text-slate-500">(opcional)</span></FormLabel>
+                <FormControl><Textarea className="rounded-xl resize-none" placeholder="Acrescente informações relevantes sobre a entrada" {...field} /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
 
             {type === 'SUPPLIER' && (
-              <div className="space-y-4 border-t border-gray-100 pt-4 mt-2">
-                <h3 className="text-sm font-semibold text-gray-900">Dados da Nota Fiscal</h3>
-                <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-4 rounded-2xl border border-slate-100 bg-slate-50 p-4 sm:p-5">
+                <div><h3 className="text-sm font-semibold text-slate-900">Dados da nota fiscal</h3><p className="mt-1 text-xs leading-5 text-slate-500">Informe os dados associados à entrada do fornecedor.</p></div>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="supplierDetails.supplierId"
                     render={({ field }) => (
-                      <FormItem className="col-span-2">
+                      <FormItem className="sm:col-span-2">
                         <FormLabel>Fornecedor</FormLabel>
                         <Select
                           value={field.value ?? ''}
                           onValueChange={field.onChange}
                         >
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger className="w-full">
                               <SelectValue placeholder="Selecione..." />
                             </SelectTrigger>
                           </FormControl>
@@ -198,7 +203,7 @@ export function CreateEntryDialog({ open, onOpenChange }: Props) {
                     <FormItem><FormLabel>Valor Total (R$)</FormLabel><FormControl><Input type="number" step="0.01" className="rounded-xl" {...field} /></FormControl><FormMessage /></FormItem>
                   )} />
                   <FormField control={form.control} name="supplierDetails.invoiceIssueDate" render={({ field }) => (
-                    <FormItem className="col-span-2">
+                    <FormItem className="sm:col-span-2">
                       <FormLabel>Data de Emissão da NF</FormLabel>
                       <FormControl>
                         <Input
@@ -222,12 +227,12 @@ export function CreateEntryDialog({ open, onOpenChange }: Props) {
               </div>
             )}
 
-            <DialogFooter className="pt-2">
+            <DialogFooter className="border-t border-slate-100 pt-4">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancelar
               </Button>
               <Button type="submit" disabled={create.isPending}>
-                {create.isPending ? 'Criando...' : 'Criar'}
+                {create.isPending ? 'Criando...' : 'Criar entrada'}
               </Button>
             </DialogFooter>
           </form>
