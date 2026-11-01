@@ -15,6 +15,8 @@ export const sectorsApi = {
 }
 
 export const unitsApi = {
+  listPage: (params?: PageParams & { search?: string }) =>
+    api.get<PageLike<MeasurementUnit>>('/measurement-units', { params }).then((r) => unwrapPage(r.data)),
   list: (params?: PageParams & { search?: string }) =>
     api.get<PageLike<MeasurementUnit>>('/measurement-units', { params }).then((r) => unwrapPage(r.data).content),
   create: (data: CreateMeasurementUnitPayload) => api.post<MeasurementUnit>('/measurement-units', data).then((r) => r.data),

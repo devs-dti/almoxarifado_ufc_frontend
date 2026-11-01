@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -49,9 +49,10 @@ export function UnitFormDialog({ open, onOpenChange, editing }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm">
+      <DialogContent className="max-h-[90dvh] overflow-y-auto rounded-2xl p-5 sm:max-w-lg sm:p-7">
         <DialogHeader>
-          <DialogTitle>{editing ? 'Editar Unidade' : 'Nova Unidade de Medida'}</DialogTitle>
+          <DialogTitle className="text-xl text-slate-900">{editing ? 'Editar unidade de medida' : 'Nova unidade de medida'}</DialogTitle>
+          <DialogDescription>{editing ? 'Atualize os dados da unidade.' : 'Informe o nome e a abreviação da unidade.'}</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4 pt-2">
@@ -69,7 +70,7 @@ export function UnitFormDialog({ open, onOpenChange, editing }: Props) {
                 <FormMessage />
               </FormItem>
             )} />
-            <DialogFooter className="pt-2">
+            <DialogFooter className="border-t border-slate-100 pt-4">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
               <Button type="submit" disabled={create.isPending || update.isPending}>
                 {(create.isPending || update.isPending) ? 'Salvando...' : 'Salvar'}

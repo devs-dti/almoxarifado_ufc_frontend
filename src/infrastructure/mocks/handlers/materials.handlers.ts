@@ -171,7 +171,15 @@ export const materialsHandlers = [
     return new HttpResponse(null, { status: 204 })
   }),
 
-  http.get('/measurement-units', () => HttpResponse.json(units)),
+  http.get('/measurement-units', ({ request }) => {
+    const params = new URL(request.url).searchParams
+    const page = Number(params.get('page') ?? 0)
+    const size = Number(params.get('size') ?? 10)
+    const search = (params.get('search') ?? '').toLowerCase().trim()
+    const direction = params.get('sort')?.endsWith(',desc') ? -1 : 1
+    const filtered = units.filter((u) => !u.deletedAt && (!search || u.name.toLowerCase().includes(search) || u.abbreviation.toLowerCase().includes(search))).sort((a, b) => a.name.localeCompare(b.name) * direction)
+    return HttpResponse.json({ data: filtered.slice(page * size, (page + 1) * size), meta: { page, size, totalElements: filtered.length, totalPages: Math.ceil(filtered.length / size) } })
+  }),
 
   http.post('/measurement-units', async ({ request }) => {
     const body = (await request.json()) as { name: string; abbreviation: string }

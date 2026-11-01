@@ -50,6 +50,10 @@ export function useMeasurementUnitsList() {
   return useQuery({ queryKey: unitsKeys.list(), queryFn: () => unitsApi.list() })
 }
 
+export function useMeasurementUnitsPage(params: PageParams & { search?: string }) {
+  return useQuery({ queryKey: [...unitsKeys.all, 'page', params], queryFn: () => unitsApi.listPage(params) })
+}
+
 export function useCreateUnit() {
   const qc = useQueryClient()
   return useMutation({
