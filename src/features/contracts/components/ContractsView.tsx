@@ -1,199 +1,62 @@
 'use client'
 
-import React, { useState } from 'react'
-import { ContractsList } from './ContractsList'
-import { ContractForm, type ContractFormMode } from './ContractForm'
+import { useState } from 'react'
+import { useDebounceValue } from 'usehooks-ts'
+import { ChevronDown, ChevronLeft, ChevronRight, Eye, FileSignature, Pencil, Plus, RotateCw, Search, Trash2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Plus, Search } from 'lucide-react'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import type { Contract } from '../types'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
+import { useAuthStore } from '@/store/useAuthStore'
+import { hasAnyRole } from '@/shared/lib/rbac'
+import { contractsApi, useDeleteContract, useGetContracts } from '../api/useContracts'
+import { ContractForm, type ContractFormMode } from './ContractForm'
+import type { Contract, ContractDetail } from '../types'
 
-const MOCK_COMPANIES = [
-  { id: '3fa85f64-5717-4562-b3fc-2c963f66afa6', name: 'Odonto Corp' },
-  { id: '77785f64-5717-4562-b3fc-2c963f66afa6', name: 'Fornecedora ABC' },
-]
-
+function dateLabel(value: string) { return value.slice(0, 10).split('-').reverse().join('/') }
 export function ContractsView() {
-  const [isFormOpen, setIsFormOpen] = useState(false)
-  const [formMode, setFormMode] = useState<ContractFormMode>('create')
-  const [selectedContract, setSelectedContract] = useState<Contract | undefined>()
+  const [page, setPage] = useState(0)
+  const [size, setSize] = useState(10)
+  const [sort, setSort] = useState('startDate,asc')
   const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState<string>('all')
-  const [companyFilter, setCompanyFilter] = useState<string>('all')
-  const [isViewOpen, setIsViewOpen] = useState(false)
-  const [viewContract, setViewContract] = useState<Contract | undefined>()
-
-  const handleOpenCreate = () => {
-    setFormMode('create')
-    setSelectedContract(undefined)
-    setIsFormOpen(true)
+  const [company, setCompany] = useState('')
+  const [status, setStatus] = useState('')
+  const [term] = useDebounceValue(search.trim(), 300)
+  const [companyTerm] = useDebounceValue(company.trim(), 300)
+  const [mode, setMode] = useState<ContractFormMode>('create')
+  const [formOpen, setFormOpen] = useState(false)
+  const [detail, setDetail] = useState<ContractDetail | null>(null)
+  const [viewOpen, setViewOpen] = useState(false)
+  const [loadingId, setLoadingId] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState<Contract | null>(null)
+  const canManage = hasAnyRole(useAuthStore((s) => s.user?.role), ['ADMIN', 'MANAGER'])
+  const canDelete = hasAnyRole(useAuthStore((s) => s.user?.role), ['ADMIN'])
+  const { data, isLoading, isError, refetch } = useGetContracts({ page, size, sort, search: term || undefined, companyName: companyTerm || undefined, status: status === '' ? undefined : status === 'true' })
+  const remove = useDeleteContract()
+  const contracts = data?.content ?? []
+  async function openDetails(contract: Contract, action: 'view' | 'edit' | 'renew') {
+    setLoadingId(contract.id)
+    try { const result = await contractsApi.getById(contract.id); setDetail(result); if (action === 'view') setViewOpen(true); else { setMode(action); setFormOpen(true) } } catch { /* Erro exibido pelo cliente HTTP. */ } finally { setLoadingId(null) }
   }
-
-  const handleOpenEdit = (contract: Contract) => {
-    setFormMode('edit')
-    setSelectedContract(contract)
-    setIsFormOpen(true)
+  async function handleDelete() {
+    if (!deleting) return
+    try { await remove.mutateAsync(deleting.id); if (contracts.length === 1 && page > 0) setPage((p) => p - 1); setDeleting(null); toast.success('Contrato removido.') } catch { /* Erro exibido pelo cliente HTTP. */ }
   }
-
-  const handleOpenRenew = (contract: Contract) => {
-    setFormMode('renew')
-    setSelectedContract(contract)
-    setIsFormOpen(true)
-  }
-
-  const handleOpenView = (contract: Contract) => {
-    setViewContract(contract)
-    setIsViewOpen(true)
-  }
-
-  return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Contratos</h2>
-          <div className="md:hidden">
-            <Button onClick={handleOpenCreate} className="gap-1.5 rounded-xl px-3 bg-brand hover:bg-brand/90 shrink-0" size="sm">
-              <Plus size={15} />
-              Novo Contrato
-            </Button>
-          </div>
-        </div>
-        
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
-          <div className="relative flex-1">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar contrato..."
-              className="pl-8 h-8 text-xs bg-white border-gray-200 shadow-sm rounded-lg w-full md:w-56"
-            />
-          </div>
-          <div className="flex gap-2">
-            <select
-              value={companyFilter}
-              onChange={(e) => setCompanyFilter(e.target.value)}
-              className="flex-1 min-w-0 h-8 text-xs bg-white border border-gray-200 shadow-sm rounded-lg px-2 outline-none text-slate-600 cursor-pointer"
-            >
-              <option value="all">Todas as Empresas</option>
-              {MOCK_COMPANIES.map(c => (
-                <option key={c.id} value={c.name}>{c.name}</option>
-              ))}
-            </select>
-
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="flex-1 min-w-0 h-8 text-xs bg-white border border-gray-200 shadow-sm rounded-lg px-2 outline-none text-slate-600 cursor-pointer"
-            >
-              <option value="all">Todos os Status</option>
-              <option value="true">Ativos</option>
-              <option value="false">Inativos</option>
-            </select>
-          </div>
-
-          <div className="hidden md:block">
-            <Button onClick={handleOpenCreate} className="gap-1.5 rounded-xl px-3 bg-brand hover:bg-brand/90 shrink-0" size="sm">
-              <Plus size={15} />
-              Novo Contrato
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-auto">
-        <ContractsList 
-          search={search} 
-          statusFilter={statusFilter === 'all' ? null : statusFilter === 'true'}
-          companyNameFilter={companyFilter === 'all' ? undefined : companyFilter}
-          onView={handleOpenView} 
-          onEdit={handleOpenEdit} 
-          onRenew={handleOpenRenew} 
-        />
-      </div>
-
-      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>
-              {formMode === 'create' && 'Novo Contrato'}
-              {formMode === 'edit' && 'Editar Contrato'}
-              {formMode === 'renew' && 'Renovar Contrato'}
-            </DialogTitle>
-            <DialogDescription>
-              {formMode === 'create' && 'Preencha os dados abaixo para cadastrar um novo contrato.'}
-              {formMode === 'edit' && 'Altere os dados necessários do contrato.'}
-              {formMode === 'renew' && 'Renove a vigência. Isso inativará o contrato atual e criará um novo mantendo os vínculos.'}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <ContractForm 
-            mode={formMode}
-            initialData={selectedContract}
-            onSuccess={() => setIsFormOpen(false)} 
-          />
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Detalhes do Contrato</DialogTitle>
-          </DialogHeader>
-          
-          {viewContract && (
-            <div className="flex flex-col gap-4 text-sm mt-4">
-              <div className="grid grid-cols-2 gap-y-4">
-                <div className="flex flex-col gap-1">
-                  <span className="text-gray-500">Referência</span>
-                  <span className="font-medium text-slate-800">{viewContract.referenceNumber}</span>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-gray-500">Status</span>
-                  <span className={`font-medium ${viewContract.status ? 'text-green-600' : 'text-red-500'}`}>
-                    {viewContract.status ? "Ativo" : "Inativo"}
-                  </span>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-gray-500">Data de Início</span>
-                  <span className="font-medium text-slate-800">{new Date(viewContract.startDate).toLocaleDateString('pt-BR')}</span>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-gray-500">Data de Término</span>
-                  <span className="font-medium text-slate-800">{new Date(viewContract.endDate).toLocaleDateString('pt-BR')}</span>
-                </div>
-              </div>
-
-              {viewContract.companyName && (
-                <div className="flex flex-col gap-1 mt-2">
-                  <span className="text-gray-500">Empresa Vinculada</span>
-                  <span className="font-medium text-slate-800">{viewContract.companyName}</span>
-                </div>
-              )}
-
-              {viewContract.users && viewContract.users.length > 0 && (
-                <div className="flex flex-col gap-1 mt-2">
-                  <span className="text-gray-500">Fiscais (Usuários)</span>
-                  <div className="flex flex-col gap-1 mt-1">
-                    {viewContract.users.map(u => (
-                      <span key={u.id} className="text-sm font-medium text-slate-700 bg-slate-50 px-2 py-1 rounded border border-slate-100">
-                        {u.name}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-    </div>
-  )
+  return <div className="flex flex-col gap-6">
+    <div className="flex flex-wrap items-start justify-between gap-4"><div><h2 className="text-2xl font-bold tracking-tight text-slate-900">Contratos</h2><p className="mt-1 text-sm text-slate-500">Acompanhe a vigência e os vínculos dos contratos.</p></div>{canManage && <Button size="sm" className="rounded-xl px-4" onClick={() => { setDetail(null); setMode('create'); setFormOpen(true) }}><Plus size={15} /> Novo contrato</Button>}</div>
+    <div className="flex flex-col gap-3 border-b border-slate-200/80 pb-4 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-center gap-2.5"><span className="grid h-8 w-8 place-items-center rounded-lg bg-violet-100/70 text-violet-700"><FileSignature size={16} /></span><div><p className="text-sm font-semibold text-slate-800">Todos os contratos</p>{data && !isError && <p className="text-xs text-slate-500">{data.totalElements} {data.totalElements === 1 ? 'registro' : 'registros'}</p>}</div></div><div className="flex flex-wrap gap-2">
+      <label className="relative flex flex-1 items-center gap-2 rounded-xl border border-slate-200 bg-white py-2 pl-3 pr-8 text-xs text-slate-500 focus-within:ring-2 focus-within:ring-violet-200 sm:flex-none"><span aria-hidden="true">Ordenar por</span><span aria-hidden="true" className="text-sm font-medium text-slate-800">{sort === 'startDate,asc' ? 'Início mais antigo' : sort === 'startDate,desc' ? 'Início mais recente' : sort === 'referenceNumber,asc' ? 'Referência (A–Z)' : 'Referência (Z–A)'}</span><select aria-label="Ordenar contratos por" value={sort} onChange={(e) => { setSort(e.target.value); setPage(0) }} className="absolute inset-0 h-full w-full cursor-pointer opacity-0"><option value="startDate,asc">Início mais antigo</option><option value="startDate,desc">Início mais recente</option><option value="referenceNumber,asc">Referência (A–Z)</option><option value="referenceNumber,desc">Referência (Z–A)</option></select><ChevronDown size={14} className="pointer-events-none absolute right-3 text-slate-400" /></label>
+      <label className="relative flex items-center gap-2 rounded-xl border border-slate-200 bg-white py-2 pl-3 pr-8 text-xs text-slate-500 focus-within:ring-2 focus-within:ring-violet-200"><span aria-hidden="true" className="text-sm font-medium text-slate-800">{size}</span><span aria-hidden="true">por página</span><select aria-label="Contratos por página" value={size} onChange={(e) => { setSize(Number(e.target.value)); setPage(0) }} className="absolute inset-0 h-full w-full cursor-pointer opacity-0"><option value={10}>10</option><option value={20}>20</option><option value={50}>50</option></select><ChevronDown size={14} className="pointer-events-none absolute right-3 text-slate-400" /></label>
+    </div></div>
+    <div className="grid gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-3"><label className="space-y-1 text-xs font-medium text-slate-600">Referência<div className="relative"><Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" /><Input value={search} onChange={(e) => { setSearch(e.target.value); setPage(0) }} placeholder="Buscar referência" className="h-10 rounded-xl bg-white pl-9 text-sm" /></div></label><label className="space-y-1 text-xs font-medium text-slate-600">Empresa<Input value={company} onChange={(e) => { setCompany(e.target.value); setPage(0) }} placeholder="Nome da empresa" className="h-10 rounded-xl bg-white text-sm" /></label><label className="space-y-1 text-xs font-medium text-slate-600">Status<select value={status} onChange={(e) => { setStatus(e.target.value); setPage(0) }} className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-800"><option value="">Todos</option><option value="true">Ativos</option><option value="false">Inativos</option></select></label></div>
+    {isLoading && <p role="status" className="py-8 text-center text-sm text-slate-500">Carregando contratos...</p>}
+    {isError && <div role="alert" className="py-8 text-center text-sm text-red-700">Erro ao carregar contratos. <button type="button" className="font-semibold underline" onClick={() => refetch()}>Tentar novamente</button></div>}
+    {!isLoading && !isError && !contracts.length && <p className="py-12 text-center text-sm text-slate-500">Nenhum contrato encontrado.</p>}
+    {!isLoading && !isError && contracts.map((contract) => <div key={contract.id} className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:gap-4"><span className="hidden h-11 w-11 shrink-0 place-items-center rounded-xl bg-violet-50 text-violet-700 sm:grid"><FileSignature size={20} /></span><button type="button" onClick={() => openDetails(contract, 'view')} disabled={loadingId !== null} className="min-w-0 flex-1 rounded-lg text-left focus-visible:outline-2 focus-visible:outline-violet-600" aria-label={`Ver detalhes do contrato ${contract.referenceNumber}`}><span className="flex flex-wrap items-center gap-2"><span className="break-words text-sm font-semibold text-slate-900">{contract.referenceNumber}</span><span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${contract.status ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-slate-200 bg-slate-50 text-slate-600'}`}>{contract.status ? 'Ativo' : 'Inativo'}</span></span><span className="mt-1 block text-xs leading-5 text-slate-500">Vigência: {dateLabel(contract.startDate)} até {dateLabel(contract.endDate)} · Empresa: {contract.companyName}</span></button><div className="flex shrink-0 items-center gap-1"><button type="button" onClick={() => openDetails(contract, 'view')} disabled={loadingId !== null} aria-label={`Ver contrato ${contract.referenceNumber}`} className="rounded-lg p-2 text-slate-500 hover:bg-violet-50 hover:text-violet-700"><Eye size={16} /></button>{canManage && <><button type="button" onClick={() => openDetails(contract, 'renew')} disabled={loadingId !== null} aria-label={`Renovar contrato ${contract.referenceNumber}`} className="rounded-lg p-2 text-slate-500 hover:bg-violet-50 hover:text-violet-700"><RotateCw size={16} /></button><button type="button" onClick={() => openDetails(contract, 'edit')} disabled={loadingId !== null} aria-label={`Editar contrato ${contract.referenceNumber}`} className="rounded-lg p-2 text-slate-500 hover:bg-violet-50 hover:text-violet-700"><Pencil size={16} /></button></>}{canDelete && <button type="button" onClick={() => setDeleting(contract)} disabled={contract.status} aria-label={`Remover contrato ${contract.referenceNumber}`} title={contract.status ? 'Somente contratos inativos podem ser removidos' : 'Remover contrato'} className="rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-700 disabled:opacity-40"><Trash2 size={16} /></button>}</div></div>)}
+    {!isLoading && !isError && data && data.totalElements > 0 && <nav aria-label="Paginação de contratos" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-100 bg-white px-4 py-3 shadow-sm"><p className="text-sm text-slate-600">Mostrando {page * size + 1}–{Math.min((page + 1) * size, data.totalElements)} de {data.totalElements} {data.totalElements === 1 ? 'contrato' : 'contratos'}</p><div className="flex items-center gap-2"><button aria-label="Página anterior" disabled={page === 0} onClick={() => setPage((p) => p - 1)} className="rounded-lg border p-2 disabled:opacity-40"><ChevronLeft size={17} /></button><span aria-live="polite" className="px-2 text-sm text-slate-600">Página {page + 1} de {data.totalPages}</span><button aria-label="Próxima página" disabled={page + 1 >= data.totalPages} onClick={() => setPage((p) => p + 1)} className="rounded-lg border p-2 disabled:opacity-40"><ChevronRight size={17} /></button></div></nav>}
+    <Dialog open={formOpen} onOpenChange={setFormOpen}><DialogContent className="max-h-[90dvh] overflow-y-auto rounded-2xl p-5 sm:max-w-2xl sm:p-7"><DialogHeader><DialogTitle className="text-xl">{mode === 'create' ? 'Novo contrato' : mode === 'edit' ? 'Editar contrato' : 'Renovar contrato'}</DialogTitle><DialogDescription>{mode === 'renew' ? 'Informe a nova vigência. Os vínculos serão mantidos.' : 'Preencha os dados e vínculos do contrato.'}</DialogDescription></DialogHeader><ContractForm key={`${mode}-${detail?.id ?? 'new'}`} mode={mode} initialData={detail ?? undefined} onCancel={() => setFormOpen(false)} onSuccess={() => setFormOpen(false)} /></DialogContent></Dialog>
+    <Dialog open={viewOpen} onOpenChange={setViewOpen}><DialogContent className="max-h-[90dvh] overflow-y-auto rounded-2xl p-5 sm:max-w-xl sm:p-7"><DialogHeader><DialogTitle>Detalhes do contrato</DialogTitle><DialogDescription>Dados e vínculos cadastrados.</DialogDescription></DialogHeader>{detail && <dl className="grid gap-5 sm:grid-cols-2"><div><dt className="text-xs text-slate-500">Referência</dt><dd className="mt-1 break-words text-sm font-semibold">{detail.referenceNumber}</dd></div><div><dt className="text-xs text-slate-500">Status</dt><dd className="mt-1 text-sm font-semibold">{detail.status ? 'Ativo' : 'Inativo'}</dd></div><div><dt className="text-xs text-slate-500">Início</dt><dd className="mt-1 text-sm">{dateLabel(detail.startDate)}</dd></div><div><dt className="text-xs text-slate-500">Término</dt><dd className="mt-1 text-sm">{dateLabel(detail.endDate)}</dd></div><div><dt className="text-xs text-slate-500">Empresa</dt><dd className="mt-1 text-sm">{detail.company?.name || 'Não informada'}</dd></div><div className="sm:col-span-2"><dt className="text-xs text-slate-500">Fiscais</dt><dd className="mt-1 text-sm">{detail.users?.map((u) => u.name).join(', ') || 'Nenhum fiscal vinculado'}</dd></div></dl>}</DialogContent></Dialog>
+    <AlertDialog open={!!deleting && canDelete} onOpenChange={(open) => { if (!open) setDeleting(null) }}><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Remover contrato</AlertDialogTitle><AlertDialogDescription>O contrato {deleting?.referenceNumber} será removido da listagem. Confirme para continuar.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel disabled={remove.isPending}>Cancelar</AlertDialogCancel><AlertDialogAction disabled={remove.isPending} onClick={(e) => { e.preventDefault(); handleDelete() }} className="bg-destructive text-white hover:bg-destructive/90">{remove.isPending ? 'Removendo...' : 'Remover'}</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>
+  </div>
 }

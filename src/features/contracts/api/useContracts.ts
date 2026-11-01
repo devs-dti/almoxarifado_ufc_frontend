@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { httpClient as api } from '@/infrastructure/http/client'
-import type { Contract, ContractDTO } from '../types'
+import type { Contract, ContractDetail, ContractDTO } from '../types'
 import { unwrapPage } from '@/shared/lib/pagination'
 import type { PageLike, PageParams } from '@/shared/types/pagination'
 
@@ -18,7 +18,7 @@ export const contractsApi = {
     api.get<PageLike<Contract>>('/contracts', { params }).then((r) => unwrapPage(r.data)),
   
   getById: (id: string) =>
-    api.get<Contract>(`/contracts/${id}`).then((r) => r.data),
+    api.get<ContractDetail>(`/contracts/${id}`).then((r) => r.data),
     
   create: (data: ContractDTO) =>
     api.post<Contract>('/contracts', data).then((r) => r.data),

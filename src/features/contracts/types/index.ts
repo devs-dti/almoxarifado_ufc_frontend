@@ -1,18 +1,23 @@
-
 export interface Contract {
-  id: string; // UUID
-  referenceNumber: string;
-  startDate: string;
-  endDate: string;
-  status: boolean; // true = Ativo, false = Inativo
-  companyName: string; // Nome da Empresa retornado do backend
-  userIds: string[]; // UUIDs dos usuários
-  users?: { id: string; name: string }[]; // Populated by backend
-  createdAt?: string;
-  updatedAt?: string;
-  deletedAt?: string | null;
+  id: string
+  referenceNumber: string
+  startDate: string
+  endDate: string
+  status: boolean
+  companyName: string
 }
 
-export type ContractDTO = Omit<Contract, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'users' | 'companyName'> & {
-  companyId: string;
-};
+export interface ContractDetail extends Omit<Contract, 'companyName'> {
+  company: { id: string; name: string }
+  users: { id: string; name: string; cpf?: string; jobTitle?: string }[]
+  updatedAt?: string
+}
+
+export type ContractDTO = {
+  referenceNumber: string
+  startDate: string
+  endDate: string
+  status: boolean
+  companyId: string
+  userIds: string[]
+}

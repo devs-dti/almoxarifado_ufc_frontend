@@ -8,6 +8,8 @@ const users: UserListItem[] = [
   { id: mockId(3), name: 'Maria Staff', email: 'staff@ufc.br', role: 'STAFF', enabled: true },
 ]
 
+export function getMockUsers() { return users.filter((user) => !user.deletedAt) }
+
 let nextId = 4
 
 export const usersHandlers = [

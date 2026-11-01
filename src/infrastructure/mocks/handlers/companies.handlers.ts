@@ -9,6 +9,8 @@ const companies: Company[] = Array.from({ length: 15 }).map((_, i) => ({
   updatedAt: new Date().toISOString(),
 }))
 
+export function getMockCompanies() { return companies.filter((company) => !company.deletedAt) }
+
 export const companiesHandlers = [
   // Listar empresas
   http.get('/companies', ({ request }) => {

@@ -1,19 +1,13 @@
 import { http, HttpResponse } from 'msw'
 import type { Contract, ContractDTO } from '@/features/contracts/types'
-
-const MOCK_COMPANIES = [
-  { id: '3fa85f64-5717-4562-b3fc-2c963f66afa6', name: 'Odonto Corp' },
-  { id: '77785f64-5717-4562-b3fc-2c963f66afa6', name: 'Fornecedora ABC' },
-]
-
-const MOCK_USERS = [
-  { id: '3fa85f64-5717-4562-b3fc-2c963f66afa6', name: 'João Admin' },
-  { id: '2', name: 'Maria Fiscal' },
-]
+import { getMockCompanies } from './companies.handlers'
+import { getMockUsers } from './users.handlers'
 
 // Geração do mock de contratos
-const contracts: Contract[] = Array.from({ length: 15 }).map((_, i) => {
-  const company = i % 2 === 0 ? MOCK_COMPANIES[0] : MOCK_COMPANIES[1]
+type MockContract = Contract & { companyId: string; userIds: string[]; createdAt?: string; updatedAt?: string; deletedAt?: string | null }
+
+const contracts: MockContract[] = Array.from({ length: 15 }).map((_, i) => {
+  const company = i % 2 === 0 ? getMockCompanies()[0] : getMockCompanies()[1]
   return {
     id: crypto.randomUUID(),
     referenceNumber: `CTR-00${i + 1}`,
@@ -21,7 +15,8 @@ const contracts: Contract[] = Array.from({ length: 15 }).map((_, i) => {
     endDate: new Date(2026, i % 12, 1).toISOString(),
     status: i % 4 !== 0,
     companyName: company.name,
-    userIds: ['3fa85f64-5717-4562-b3fc-2c963f66afa6'],
+    companyId: company.id,
+    userIds: [getMockUsers()[0].id],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   }
@@ -52,9 +47,11 @@ export const contractsHandlers = [
       activeContracts = activeContracts.filter(c => c.companyName.toLowerCase().includes(companyName.toLowerCase()))
     }
 
+    const [sortField, direction] = (url.searchParams.get('sort') ?? 'startDate,asc').split(',')
+    activeContracts.sort((a, b) => String(sortField === 'referenceNumber' ? a.referenceNumber : a.startDate).localeCompare(String(sortField === 'referenceNumber' ? b.referenceNumber : b.startDate)) * (direction === 'desc' ? -1 : 1))
     const data = activeContracts.slice(page * size, page * size + size).map(c => ({
       ...c,
-      users: MOCK_USERS.filter(u => c.userIds.includes(u.id))
+      users: getMockUsers().filter(u => c.userIds.includes(u.id))
     }))
     
     return HttpResponse.json({ 
@@ -75,7 +72,8 @@ export const contractsHandlers = [
     
     const populated = {
       ...c,
-      users: MOCK_USERS.filter(u => c.userIds.includes(u.id))
+      company: { id: c.companyId, name: c.companyName },
+      users: getMockUsers().filter(u => c.userIds.includes(u.id))
     }
     return HttpResponse.json(populated)
   }),
@@ -83,8 +81,8 @@ export const contractsHandlers = [
   // Criar contrato
   http.post('/contracts', async ({ request }) => {
     const body = await request.json() as ContractDTO
-    const company = MOCK_COMPANIES.find(c => c.id === body.companyId)
-    const newContract: Contract = {
+    const company = getMockCompanies().find(c => c.id === body.companyId)
+    const newContract: MockContract = {
       ...body,
       companyName: company?.name || 'Unknown',
       id: crypto.randomUUID(),
@@ -106,13 +104,14 @@ export const contractsHandlers = [
     contracts[idx] = { ...contracts[idx], status: false, updatedAt: new Date().toISOString() }
 
     // Cria o novo mantendo vinculos
-    const newContract: Contract = {
+    const newContract: MockContract = {
       id: crypto.randomUUID(),
       referenceNumber: body.referenceNumber,
       startDate: body.startDate,
       endDate: body.endDate,
       status: true,
       companyName: contracts[idx].companyName,
+      companyId: contracts[idx].companyId,
       userIds: contracts[idx].userIds,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -131,7 +130,7 @@ export const contractsHandlers = [
     
     let updatedCompanyName = contracts[idx].companyName
     if (body.companyId) {
-      const company = MOCK_COMPANIES.find(c => c.id === body.companyId)
+      const company = getMockCompanies().find(c => c.id === body.companyId)
       if (company) updatedCompanyName = company.name
     }
     
