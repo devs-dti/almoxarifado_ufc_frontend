@@ -22,6 +22,7 @@ import { formatLongDate } from '@/shared/lib/format'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { EditProfileDialog } from './EditProfileDialog'
+import { ChangePasswordDialog } from './ChangePasswordDialog'
 
 const ROLE_INFO = {
   ADMIN: {
@@ -47,6 +48,7 @@ const ROLE_INFO = {
 export function ProfileView() {
   const { data: user, isLoading, isError, refetch } = useProfile()
   const [editOpen, setEditOpen] = useState(false)
+  const [passwordOpen, setPasswordOpen] = useState(false)
 
   if (isLoading) {
     return (
@@ -208,6 +210,11 @@ export function ProfileView() {
           )}
         </div>
 
+        <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-xs">
+          <div><h3 className="text-base font-bold text-gray-900">Segurança</h3><p className="mt-1 text-sm text-gray-500">Altere a senha usada para acessar sua conta.</p></div>
+          <Button variant="outline" onClick={() => setPasswordOpen(true)}>Alterar senha</Button>
+        </div>
+
         {/* Card: Permissões de Acesso */}
         <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-xs">
           <div className="pb-4 mb-4 border-b border-gray-100">
@@ -263,6 +270,7 @@ export function ProfileView() {
 
       {/* Edit Profile Modal */}
       <EditProfileDialog open={editOpen} onOpenChange={setEditOpen} user={user} />
+      <ChangePasswordDialog open={passwordOpen} onOpenChange={setPasswordOpen} />
     </div>
   )
 }

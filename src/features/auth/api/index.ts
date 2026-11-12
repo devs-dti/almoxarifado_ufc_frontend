@@ -12,6 +12,9 @@ export const authApi = {
   updateProfile: (data: FormData) =>
     httpClient.patch<AuthResponse>('/auth/me', data, { headers: { 'Content-Type': undefined } }).then((r) => r.data),
 
+  changePassword: (data: { currentPassword: string; newPassword: string }) =>
+    httpClient.patch('/auth/me/password', data),
+
   refreshToken: () =>
     httpClient.post<{ token: string }>('/auth/refresh-token').then((r) => r.data),
 
@@ -19,5 +22,5 @@ export const authApi = {
     httpClient.post('/auth/forgot-password', data),
 
   resetPassword: (token: string, data: ResetPasswordPayload) =>
-    httpClient.post(`/auth/reset-password/${token}`, data),
+    httpClient.post(`/auth/reset-password/${token}`, { newPassword: data.password }),
 }
