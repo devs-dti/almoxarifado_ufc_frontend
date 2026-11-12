@@ -11,7 +11,8 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
-import { usersApi } from '@/features/users/api'
+import { authApi } from '../api'
+import { UserAvatar } from '@/features/users/components/UserAvatar'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useQueryClient } from '@tanstack/react-query'
 import { authKeys } from '../hooks/useProfile'
@@ -28,6 +29,8 @@ export function EditProfileDialog({ open, onOpenChange, user }: EditProfileDialo
   const [jobTitle, setJobTitle] = useState(user.jobTitle ?? '')
   const [email, setEmail] = useState(user.email ?? '')
   const [loading, setLoading] = useState(false)
+  const [file, setFile] = useState<File | null>(null)
+  const [preview, setPreview] = useState<string | null>(null)
   const setAuth = useAuthStore((s) => s.setAuth)
   const queryClient = useQueryClient()
 
@@ -36,8 +39,16 @@ export function EditProfileDialog({ open, onOpenChange, user }: EditProfileDialo
       setName(user.name ?? '')
       setJobTitle(user.jobTitle ?? '')
       setEmail(user.email ?? '')
+      setFile(null)
     }
   }, [open, user])
+
+  useEffect(() => {
+    if (!open || !file) { setPreview(null); return }
+    const url = URL.createObjectURL(file)
+    setPreview(url)
+    return () => URL.revokeObjectURL(url)
+  }, [open, file])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -53,19 +64,12 @@ export function EditProfileDialog({ open, onOpenChange, user }: EditProfileDialo
 
     setLoading(true)
     try {
-      const updated = await usersApi.update(user.id, {
-        name: name.trim(),
-        jobTitle: jobTitle.trim() || undefined,
-        email: email.trim(),
-        role: user.role,
-      })
-
-      const updatedUser: User = {
-        ...user,
-        name: updated.name ?? name.trim(),
-        jobTitle: updated.jobTitle ?? jobTitle.trim(),
-        email: updated.email ?? email.trim(),
-      }
+      const formData = new FormData()
+      formData.append('name', name.trim())
+      formData.append('jobTitle', jobTitle.trim())
+      formData.append('email', email.trim())
+      if (file) formData.append('file', file)
+      const updatedUser = await authApi.updateProfile(formData)
 
       setAuth(updatedUser)
       queryClient.setQueryData(authKeys.me(), updatedUser)
@@ -82,12 +86,34 @@ export function EditProfileDialog({ open, onOpenChange, user }: EditProfileDialo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-h-[90dvh] overflow-y-auto max-w-md">
         <DialogHeader>
           <DialogTitle>Editar Perfil</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+          <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-violet-100 bg-violet-50/50 p-4">
+            <UserAvatar src={preview ?? user.imageUrl} name={name || 'Usuário'} large />
+            <div className="min-w-0 flex-1 space-y-2">
+              <p className="text-sm font-semibold text-slate-800">Foto do perfil</p>
+              <p className="text-xs text-slate-500">JPEG, PNG ou WebP, até 5 MB.</p>
+              <label className="inline-flex cursor-pointer items-center rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                Escolher foto
+                <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={(e) => {
+                  const selected = e.target.files?.[0]
+                  if (!selected) return
+                  if (!['image/jpeg', 'image/png', 'image/webp'].includes(selected.type) || selected.size > 5 * 1024 * 1024) {
+                    toast.error('Escolha uma imagem JPEG, PNG ou WebP de até 5 MB.')
+                    e.target.value = ''
+                    return
+                  }
+                  setFile(selected)
+                  e.target.value = ''
+                }} />
+              </label>
+              {file && <button type="button" className="ml-3 text-xs font-medium text-violet-700 hover:underline" onClick={() => setFile(null)}>Desfazer seleção</button>}
+            </div>
+          </div>
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-gray-700">Nome Completo</label>
             <Input
