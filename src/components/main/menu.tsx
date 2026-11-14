@@ -28,7 +28,7 @@ export default function Menu({ className }: MenuProps) {
           </button>
         </SheetTrigger>
         
-        <SheetContent side="left" className="w-64 p-0 flex flex-col bg-white border-r-0">
+        <SheetContent side="left" overlayClassName="mobile-menu-overlay" className="mobile-menu-panel w-64 p-0 flex flex-col bg-white border-r-0">
           <SheetTitle className="sr-only">Menu de Navegação</SheetTitle>
           <SidebarContent onLinkClick={() => setOpen(false)} />
         </SheetContent>
