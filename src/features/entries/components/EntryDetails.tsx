@@ -6,7 +6,7 @@ import { ArrowLeft, Check, Plus, Trash2, X, PackageOpen } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { hasAnyRole } from '@/shared/lib/rbac'
-import { formatCurrency, formatDate } from '@/shared/lib/format'
+import { formatCurrency, formatDate, formatShortId } from '@/shared/lib/format'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useEntry, useFinishEntry, useCancelEntry, useRemoveEntryItem } from '../hooks'
 import { AddItemDialog } from './AddItemDialog'
@@ -76,7 +76,7 @@ export function EntryDetails({ id }: { id: EntityId }) {
       {isError && <div role="alert" className="rounded-2xl bg-white p-8 text-center"><p className="text-sm text-red-700">Não foi possível carregar esta entrada.</p><Button variant="outline" className="mt-4" onClick={() => refetch()}>Tentar novamente</Button></div>}
       {entry && !isError && <>
         <header className="flex flex-wrap items-start justify-between gap-4">
-          <div className="min-w-0"><p className="text-xs font-semibold uppercase tracking-wider text-violet-700">Movimentação de estoque</p><h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-900">Detalhes da entrada</h1><p className="mt-1 break-all text-xs text-slate-500">Código: {entry.id}</p></div>
+          <div className="min-w-0"><p className="text-xs font-semibold uppercase tracking-wider text-violet-700">Movimentação de estoque</p><h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-900">Detalhes da entrada</h1><p title={entry.id} className="mt-1 text-xs text-slate-500">Código: {formatShortId(entry.id)}</p></div>
           <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${STATUS_COLORS[entry.status]}`}>{STATUS_LABELS[entry.status]}</span>
         </header>
         <section className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm sm:p-6">

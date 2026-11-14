@@ -1,3 +1,8 @@
+// Referência visual: consultas e operações devem continuar usando o ID completo.
+export function formatShortId(id: string): string {
+  return id.slice(0, 8)
+}
+
 export function formatDate(iso: string): string {
   try {
     const d = new Date(iso)
