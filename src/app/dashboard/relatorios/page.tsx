@@ -1,7 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { ArrowRight, ArrowRightLeft, CalendarDays, FileBarChart, PackageOpen, TriangleAlert } from 'lucide-react'
+import Link from 'next/link'
+import { ArrowRight, ArrowRightLeft, CalendarDays, FileBarChart, Mail, PackageOpen, TriangleAlert } from 'lucide-react'
+import { useAuthStore } from '@/store/useAuthStore'
 import { InventoryReportDialog } from '@/features/reports/components/InventoryReportDialog'
 import { LowStockReportDialog } from '@/features/reports/components/LowStockReportDialog'
 import { ExpiringReportDialog } from '@/features/reports/components/ExpiringReportDialog'
@@ -32,6 +34,7 @@ const reportGroups = [
 
 export default function RelatoriosPage() {
   const [active, setActive] = useState<ReportKey | null>(null)
+  const role = useAuthStore((state) => state.user?.role)
 
   return (
     <div className="flex-1 space-y-7 p-4 pt-6 md:p-8">
@@ -39,6 +42,8 @@ export default function RelatoriosPage() {
         <h1 className="text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">Relatórios &amp; Registros</h1>
         <p className="mt-2 text-sm leading-6 text-slate-600">Consulte informações do estoque e das movimentações. Você também pode exportar os dados em PDF ou Excel.</p>
       </header>
+
+      {role === 'ADMIN' && <Link href="/dashboard/relatorios/notificacoes" className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm hover:border-violet-200 hover:text-violet-700 focus-visible:outline-2 focus-visible:outline-violet-600"><Mail size={16} aria-hidden="true" />Notificações por e-mail</Link>}
 
       <div className="space-y-7">
         {reportGroups.map((group) => (
