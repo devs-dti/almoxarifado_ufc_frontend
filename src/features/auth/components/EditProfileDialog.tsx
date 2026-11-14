@@ -134,12 +134,12 @@ export function EditProfileDialog({ open, onOpenChange, user }: EditProfileDialo
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-gray-700">E-mail Institucional</label>
+            <label className="text-xs font-semibold text-gray-700">E-mail</label>
             <Input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="seu.email@ufc.br"
+              placeholder="seu@email.com"
               required
             />
           </div>
