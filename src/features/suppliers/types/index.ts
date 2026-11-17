@@ -1,27 +1,27 @@
 import type { EntityId } from '@/shared/types/id'
 
 export type Address = {
-  street: string
-  number: string
-  complement?: string
-  city: string
-  state: string
-  cep: string
+  street?: string | null
+  number?: string | null
+  complement?: string | null
+  city?: string | null
+  state?: string | null
+  cep?: string | null
 }
 
 export type Supplier = {
   id: EntityId
   corporateName: string
   cnpj?: string
-  email?: string
-  phone?: string
-  address?: Address
+  email?: string | null
+  phone?: string | null
+  address?: Address | null
   deletedAt?: string | null
 }
 
 export type CreateSupplierPayload = {
   corporateName: string
-  cnpj?: string
+  cnpj: string
   email?: string
   phone?: string
   address?: Address

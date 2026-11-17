@@ -92,19 +92,20 @@ export function SupplierFormDialog({ open, onOpenChange, editing }: Props) {
   }, [watchCep, form, editing])
 
   async function onSubmit(data: SupplierFormData) {
+    const address = {
+      street: data.address?.street || undefined,
+      number: data.address?.number || undefined,
+      complement: data.address?.complement || undefined,
+      city: data.address?.city || undefined,
+      state: data.address?.state || undefined,
+      cep: data.address?.cep || undefined,
+    }
     const payload = {
       corporateName: data.corporateName,
-      cnpj: data.cnpj || undefined,
+      cnpj: data.cnpj,
       email: data.email || undefined,
       phone: data.phone || undefined,
-      address: {
-        street: data.address.street,
-        number: data.address.number,
-        complement: data.address.complement,
-        city: data.address.city,
-        state: data.address.state,
-        cep: data.address.cep,
-      },
+      address: Object.values(address).some(Boolean) ? address : undefined,
     }
     try {
       if (editing) {
@@ -125,34 +126,34 @@ export function SupplierFormDialog({ open, onOpenChange, editing }: Props) {
       <DialogContent className="max-h-[90dvh] overflow-y-auto rounded-2xl p-5 sm:max-w-2xl sm:p-7">
         <DialogHeader>
           <DialogTitle className="text-xl text-slate-900">{editing ? 'Editar fornecedor' : 'Novo fornecedor'}</DialogTitle>
-          <DialogDescription>{editing ? 'Atualize os dados do fornecedor.' : 'Preencha os dados para cadastrar um fornecedor.'}</DialogDescription>
+          <DialogDescription>{editing ? 'Atualize os dados do fornecedor.' : 'Cadastre o fornecedor com razão social e CNPJ.'} Os demais dados são opcionais.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4 pt-2">
             <FormField control={form.control} name="corporateName" render={({ field }) => (
               <FormItem>
                 <FormLabel>Razão Social *</FormLabel>
-                <FormControl><Input className="rounded-xl" {...field} value={field.value ?? ''} /></FormControl>
+                <FormControl><Input className="rounded-xl" aria-required="true" {...field} value={field.value ?? ''} /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
             <FormField control={form.control} name="cnpj" render={({ field }) => (
               <FormItem>
-                <FormLabel>CNPJ</FormLabel>
-                <FormControl><Input className="rounded-xl" placeholder="00.000.000/0000-00" {...field} value={field.value ?? ''} onChange={(e) => field.onChange(maskCNPJ(e.target.value))} /></FormControl>
+                <FormLabel>CNPJ *</FormLabel>
+                <FormControl><Input className="rounded-xl" aria-required="true" placeholder="00.000.000/0000-00" {...field} value={field.value ?? ''} onChange={(e) => field.onChange(maskCNPJ(e.target.value))} /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
             <FormField control={form.control} name="email" render={({ field }) => (
               <FormItem>
-                <FormLabel>E-mail</FormLabel>
+                <FormLabel>E-mail (opcional)</FormLabel>
                 <FormControl><Input type="email" className="rounded-xl" {...field} value={field.value ?? ''} /></FormControl>
                 <FormMessage />
               </FormItem>
             )} />
             <FormField control={form.control} name="phone" render={({ field }) => (
               <FormItem>
-                <FormLabel>Telefone</FormLabel>
+                <FormLabel>Telefone (opcional)</FormLabel>
                 <FormControl><Input className="rounded-xl" placeholder="(85) 9 0000-0000" {...field} value={field.value ?? ''} onChange={(e) => field.onChange(maskPhone(e.target.value))} /></FormControl>
                 <FormMessage />
               </FormItem>
@@ -160,7 +161,8 @@ export function SupplierFormDialog({ open, onOpenChange, editing }: Props) {
 
             {/* Endereço */}
             <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4 sm:p-5">
-              <span className="text-sm font-semibold text-gray-700 mb-4 block">Endereço</span>
+              <span className="text-sm font-semibold text-gray-700 mb-1 block">Endereço (opcional)</span>
+              <p className="mb-4 text-xs leading-5 text-slate-500">Preencha apenas os dados disponíveis. Você pode completar o endereço depois.</p>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <FormField control={form.control} name="address.cep" render={({ field }) => (
                   <FormItem>
@@ -172,35 +174,35 @@ export function SupplierFormDialog({ open, onOpenChange, editing }: Props) {
                 <FormField control={form.control} name="address.street" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Logradouro</FormLabel>
-                    <FormControl><Input className="rounded-xl" {...field} /></FormControl>
+                    <FormControl><Input className="rounded-xl" {...field} value={field.value ?? ''} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
                 <FormField control={form.control} name="address.number" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Número</FormLabel>
-                    <FormControl><Input className="rounded-xl" {...field} /></FormControl>
+                    <FormControl><Input className="rounded-xl" {...field} value={field.value ?? ''} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
                 <FormField control={form.control} name="address.complement" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Complemento</FormLabel>
-                    <FormControl><Input className="rounded-xl" {...field} /></FormControl>
+                    <FormControl><Input className="rounded-xl" {...field} value={field.value ?? ''} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
                 <FormField control={form.control} name="address.city" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Cidade</FormLabel>
-                    <FormControl><Input className="rounded-xl" {...field} /></FormControl>
+                    <FormControl><Input className="rounded-xl" {...field} value={field.value ?? ''} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
                 <FormField control={form.control} name="address.state" render={({ field }) => (
                   <FormItem>
                     <FormLabel>UF</FormLabel>
-                    <FormControl><Input className="rounded-xl" placeholder="CE" {...field} /></FormControl>
+                    <FormControl><Input className="rounded-xl" placeholder="CE" maxLength={2} {...field} value={field.value ?? ''} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />

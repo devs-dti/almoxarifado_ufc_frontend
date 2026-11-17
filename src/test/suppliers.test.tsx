@@ -5,9 +5,47 @@ import { http, HttpResponse } from 'msw'
 import { server } from '@/infrastructure/mocks/server'
 import { useAuthStore } from '@/store/useAuthStore'
 import { SupplierList } from '@/features/suppliers/components/SupplierList'
+import { SupplierFormDialog } from '@/features/suppliers/components/SupplierFormDialog'
 import { renderWithProviders } from '@/test/render'
 
 describe('Fornecedores', () => {
+  it('cadastra com apenas razão social e CNPJ, sem enviar contato ou endereço vazios', async () => {
+    let submitted: Record<string, unknown> | undefined
+    server.use(http.post('/suppliers', async ({ request }) => {
+      submitted = await request.json() as Record<string, unknown>
+      return new HttpResponse(null, { status: 201 })
+    }))
+    const user = userEvent.setup()
+    renderWithProviders(<SupplierFormDialog open onOpenChange={() => {}} />)
+    await user.click(screen.getByRole('button', { name: 'Salvar' }))
+    expect(await screen.findByText('Razão Social é obrigatória')).toBeInTheDocument()
+    expect(submitted).toBeUndefined()
+
+    await user.type(screen.getByLabelText(/Razão Social/), 'Fornecedor mínimo')
+    await user.type(screen.getByLabelText(/CNPJ/), '12345678000190')
+    await user.click(screen.getByRole('button', { name: 'Salvar' }))
+    await waitFor(() => expect(submitted).toEqual({ corporateName: 'Fornecedor mínimo', cnpj: '12345678000190' }))
+  })
+
+  it('permite informar apenas parte do endereço do fornecedor', async () => {
+    let submitted: Record<string, unknown> | undefined
+    server.use(http.post('/suppliers', async ({ request }) => {
+      submitted = await request.json() as Record<string, unknown>
+      return new HttpResponse(null, { status: 201 })
+    }))
+    const user = userEvent.setup()
+    renderWithProviders(<SupplierFormDialog open onOpenChange={() => {}} />)
+    await user.type(screen.getByLabelText(/Razão Social/), 'Fornecedor parcial')
+    await user.type(screen.getByLabelText(/CNPJ/), '12345678000190')
+    await user.type(screen.getByLabelText('Cidade'), 'Sobral')
+    await user.type(screen.getByLabelText('UF'), 'ce')
+    await user.click(screen.getByRole('button', { name: 'Salvar' }))
+    await waitFor(() => expect(submitted).toEqual({
+      corporateName: 'Fornecedor parcial', cnpj: '12345678000190',
+      address: { city: 'Sobral', state: 'CE' },
+    }))
+  })
+
   it('envia busca e paginação e restringe a remoção ao administrador', async () => {
     useAuthStore.setState({ user: { id: '1', name: 'Gestor', email: 'g@ufc.br', role: 'MANAGER' } })
     const requests: string[] = []
