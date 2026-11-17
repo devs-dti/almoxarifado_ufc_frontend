@@ -8,7 +8,7 @@ export const materialSchema = z.object({
     .number()
     .int('A quantidade deve ser um número inteiro')
     .min(1, 'Quantidade mínima deve ser maior que 0'),
-  materialGroupId: z.string().min(1, 'Selecione um grupo de materiais'),
+  materialGroupId: z.string().trim().optional(),
   measurementUnitId: z.string().min(1, 'Selecione uma unidade de medida'),
   file: z.any().optional(),
 })

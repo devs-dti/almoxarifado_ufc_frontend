@@ -26,7 +26,7 @@ export function MaterialDetailsDialog({ material, onClose, onEdit }: { material:
               <div className="min-w-0"><p className="text-xs font-semibold uppercase tracking-wider text-violet-700">{data.internalCode}</p><h2 className="mt-1 break-words text-xl font-semibold text-slate-900">{data.name}</h2></div>
             </div>
             <dl className="grid gap-4 sm:grid-cols-2">
-              <div><dt className="text-xs font-medium uppercase tracking-wide text-slate-500">Grupo</dt><dd className="mt-1 break-words text-sm font-medium text-slate-900">{data.materialGroup?.name || 'Não informado'}</dd></div>
+              <div><dt className="text-xs font-medium uppercase tracking-wide text-slate-500">Grupo</dt><dd className="mt-1 break-words text-sm font-medium text-slate-900">{data.materialGroup?.name || 'Sem grupo'}</dd></div>
               <div><dt className="text-xs font-medium uppercase tracking-wide text-slate-500">Unidade de medida</dt><dd className="mt-1 text-sm font-medium text-slate-900">{data.measurementUnit?.name || 'Não informada'}</dd></div>
               <div><dt className="text-xs font-medium uppercase tracking-wide text-slate-500">Quantidade mínima</dt><dd className="mt-1 text-sm font-medium text-slate-900">{data.minQuantity}</dd></div>
               <div><dt className="text-xs font-medium uppercase tracking-wide text-slate-500">Última atualização</dt><dd className="mt-1 text-sm font-medium text-slate-900">{data.updatedAt ? new Date(data.updatedAt).toLocaleDateString('pt-BR') : 'Não informada'}</dd></div>

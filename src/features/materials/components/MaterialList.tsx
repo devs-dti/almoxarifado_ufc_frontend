@@ -136,7 +136,7 @@ export function MaterialList() {
               </div>
               <div className="flex items-center gap-2 mt-1 flex-wrap">
                 <Badge variant="secondary" className="text-[10px] rounded-full">
-                  {m.materialGroupName}
+                  {m.materialGroupName || 'Sem grupo'}
                 </Badge>
                 <span className="text-xs text-gray-500">
                   {m.measurementUnitName}

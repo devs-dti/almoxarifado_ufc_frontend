@@ -17,7 +17,7 @@ export type Material = {
   description?: string | null
   imageUrl?: string | null
   minQuantity: number
-  materialGroupName: string
+  materialGroupName?: string | null
   measurementUnitName: string
   deletedAt?: string | null
 }
@@ -27,7 +27,7 @@ export type CreateMaterialPayload = {
   internalCode: string
   description?: string
   minQuantity: number
-  materialGroupId: EntityId
+  materialGroupId?: EntityId
   measurementUnitId: EntityId
   file?: File
 }
@@ -42,6 +42,6 @@ export type MaterialDetails = {
   imageUrl: string | null
   minQuantity: number
   updatedAt: string | null
-  materialGroup: { id: EntityId; name: string }
+  materialGroup: { id: EntityId; name: string } | null
   measurementUnit: { id: EntityId; name: string }
 }

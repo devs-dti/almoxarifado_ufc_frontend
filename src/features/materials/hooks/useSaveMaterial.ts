@@ -1,7 +1,7 @@
 import { toast } from 'sonner'
 import { useCreateMaterial, useUpdateMaterial, useMeasurementUnits } from './index'
 import { useMaterialGroups } from '@/features/material-groups/hooks'
-import type { Material, CreateMaterialPayload, UpdateMaterialPayload } from '../types'
+import type { Material, MaterialDetails, CreateMaterialPayload, UpdateMaterialPayload } from '../types'
 import type { MaterialFormData } from '../schemas'
 
 export function useSaveMaterial() {
@@ -11,7 +11,7 @@ export function useSaveMaterial() {
   const groups = groupsResponse?.content
   const { data: units } = useMeasurementUnits()
 
-  async function saveMaterial(data: MaterialFormData, editing?: Material | null): Promise<boolean> {
+  async function saveMaterial(data: MaterialFormData, editing?: Material | null, details?: MaterialDetails): Promise<boolean> {
     try {
       if (editing) {
         const patchPayload: Partial<UpdateMaterialPayload> = {}
@@ -33,12 +33,14 @@ export function useSaveMaterial() {
         }
 
         const matchedGroup = groups?.find((g) => g.name === editing.materialGroupName)
-        if (data.materialGroupId && String(matchedGroup?.id) !== String(data.materialGroupId)) {
+        const currentGroupId = details ? details.materialGroup?.id : matchedGroup?.id
+        if (data.materialGroupId && currentGroupId !== data.materialGroupId) {
           patchPayload.materialGroupId = data.materialGroupId
         }
 
         const matchedUnit = units?.find((u) => u.name === editing.measurementUnitName)
-        if (data.measurementUnitId && String(matchedUnit?.id) !== String(data.measurementUnitId)) {
+        const currentUnitId = details ? details.measurementUnit.id : matchedUnit?.id
+        if (data.measurementUnitId && currentUnitId !== data.measurementUnitId) {
           patchPayload.measurementUnitId = data.measurementUnitId
         }
 
@@ -61,7 +63,7 @@ export function useSaveMaterial() {
         internalCode: data.internalCode.trim(),
         description: data.description?.trim() || undefined,
         minQuantity: Math.max(1, Math.floor(Number(data.minQuantity) || 1)),
-        materialGroupId: data.materialGroupId,
+        materialGroupId: data.materialGroupId || undefined,
         measurementUnitId: data.measurementUnitId,
         file: data.file instanceof File ? data.file : undefined,
       }

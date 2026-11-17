@@ -45,7 +45,7 @@ export const materialsHandlers = [
     const group = (url.searchParams.get('materialGroup') ?? '').toLowerCase().trim()
     const unit = (url.searchParams.get('measurementUnit') ?? '').toLowerCase().trim()
     const [sortField, direction] = (url.searchParams.get('sort') ?? 'name,asc').split(',')
-    const active = materials.filter((m) => !m.deletedAt && (!search || m.name.toLowerCase().includes(search) || (m.description ?? '').toLowerCase().includes(search)) && (!code || m.internalCode.toLowerCase().includes(code)) && (!group || m.materialGroupName.toLowerCase().includes(group)) && (!unit || m.measurementUnitName.toLowerCase().includes(unit)))
+    const active = materials.filter((m) => !m.deletedAt && (!search || m.name.toLowerCase().includes(search) || (m.description ?? '').toLowerCase().includes(search)) && (!code || m.internalCode.toLowerCase().includes(code)) && (!group || (m.materialGroupName ?? '').toLowerCase().includes(group)) && (!unit || m.measurementUnitName.toLowerCase().includes(unit)))
       .sort((a, b) => (sortField === 'internalCode' ? a.internalCode.localeCompare(b.internalCode) : a.name.localeCompare(b.name)) * (direction === 'desc' ? -1 : 1))
     const content = active.slice(page * size, page * size + size)
     return HttpResponse.json({
@@ -64,14 +64,15 @@ export const materialsHandlers = [
     if (!mat) return new HttpResponse(null, { status: 404 })
     const group = groups.find((g) => g.name === mat.materialGroupName)
     const unit = units.find((u) => u.name === mat.measurementUnitName)
-    return HttpResponse.json({ ...mat, updatedAt: null, materialGroup: group ?? { id: '', name: mat.materialGroupName }, measurementUnit: unit ?? { id: '', name: mat.measurementUnitName } })
+    return HttpResponse.json({ ...mat, updatedAt: null, materialGroup: group ?? null, measurementUnit: unit ?? { id: '', name: mat.measurementUnitName } })
   }),
 
   http.post('/materials', async ({ request }) => {
     const form = await request.formData()
     const body = Object.fromEntries(form.entries()) as unknown as CreateMaterialPayload
     body.minQuantity = Number(body.minQuantity)
-    const group = groups.find((g) => g.id === body.materialGroupId) ?? groups[0]
+    const group = groups.find((g) => g.id === body.materialGroupId)
+    if (body.materialGroupId && !group) return new HttpResponse(null, { status: 404 })
     const unit = units.find((u) => u.id === body.measurementUnitId) ?? units[0]
     const mat: Material = {
       id: mockId(nextId++),
@@ -79,7 +80,7 @@ export const materialsHandlers = [
       internalCode: body.internalCode,
       minQuantity: body.minQuantity,
       description: body.description,
-      materialGroupName: group.name,
+      materialGroupName: group?.name ?? null,
       measurementUnitName: unit.name,
     }
     materials.push(mat)
@@ -92,6 +93,7 @@ export const materialsHandlers = [
     const form = await request.formData()
     const body = Object.fromEntries(form.entries()) as unknown as Partial<CreateMaterialPayload>
     const group = groups.find((g) => g.id === body.materialGroupId)
+    if (body.materialGroupId && !group) return new HttpResponse(null, { status: 404 })
     const unit = units.find((u) => u.id === body.measurementUnitId)
     materials[idx] = { ...materials[idx],
       ...(body.name !== undefined && { name: body.name }),

@@ -31,7 +31,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { ImagePlus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { useMeasurementUnits, useSaveMaterial } from '../hooks'
+import { useMaterialDetails, useMeasurementUnits, useSaveMaterial } from '../hooks'
 import { useMaterialGroups } from '@/features/material-groups/hooks'
 import { materialSchema, type MaterialFormData } from '../schemas'
 import type { Material } from '../types'
@@ -47,6 +47,12 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
   const groups = groupsResponse?.content
   const { data: units } = useMeasurementUnits()
   const { saveMaterial, isPending } = useSaveMaterial()
+  const { data: details, isPending: isLoadingDetails, isError: detailsError, refetch: refetchDetails } = useMaterialDetails(open && editing ? editing.id : undefined)
+  // O vínculo atual vem dos detalhes, mesmo quando seu grupo não está na página de opções.
+  const currentGroup = details ? details.materialGroup : groups?.find((group) => group.name === editing?.materialGroupName)
+  const groupOptions = currentGroup && !groups?.some((group) => group.id === currentGroup.id)
+    ? [currentGroup, ...(groups ?? [])]
+    : groups ?? []
   const [preview, setPreview] = useState<string | null>(null)
 
   const form = useForm<MaterialFormData>({
@@ -72,17 +78,17 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
           internalCode: editing.internalCode,
           description: editing.description ?? '',
           minQuantity: editing.minQuantity ?? 1,
-          materialGroupId: matchedGroup ? String(matchedGroup.id) : '',
-          measurementUnitId: matchedUnit ? String(matchedUnit.id) : '',
+          materialGroupId: details ? details.materialGroup?.id ?? '' : matchedGroup?.id ?? '',
+          measurementUnitId: details ? details.measurementUnit.id : matchedUnit?.id ?? '',
         })
       } else {
         form.reset({ name: '', internalCode: '', description: '', minQuantity: 1, materialGroupId: '', measurementUnitId: '' })
       }
     }
-  }, [editing, open, groups, units, form])
+  }, [editing, open, groups, units, details, form])
 
   async function onSubmit(data: MaterialFormData) {
-    const success = await saveMaterial(data, editing)
+    const success = await saveMaterial(data, editing, details)
     if (success) {
       onOpenChange(false)
     }
@@ -96,7 +102,9 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
           <DialogDescription>{editing ? 'Atualize as informações do material.' : 'Preencha as informações para cadastrar um material.'}</DialogDescription>
         </DialogHeader>
 
-        <Form {...form}>
+        {editing && isLoadingDetails ? <p role="status" className="py-6 text-sm text-slate-500">Carregando dados do material...</p>
+          : editing && detailsError ? <div role="alert" className="space-y-3 py-6"><p className="text-sm text-red-700">Não foi possível carregar os dados para edição.</p><Button type="button" variant="outline" onClick={() => refetchDetails()}>Tentar novamente</Button></div>
+          : <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5">
             <FormField control={form.control} name="file" render={({ field: { value, onChange, ...field } }) => (
               <FormItem>
@@ -187,18 +195,19 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
               name="materialGroupId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Grupo</FormLabel>
+                  <FormLabel>Grupo (opcional)</FormLabel>
                   <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
+                    onValueChange={(value) => field.onChange(value === 'no-group' ? '' : value)}
+                    value={field.value || 'no-group'}
                   >
                     <FormControl>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Selecione um grupo" />
+                        <SelectValue placeholder="Sem grupo" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {groups?.map((g) => (
+                      <SelectItem value="no-group" disabled={!!editing && !!currentGroup}>Sem grupo</SelectItem>
+                      {groupOptions.map((g) => (
                         <SelectItem key={g.id} value={g.id}>
                           {g.name}
                         </SelectItem>
@@ -226,6 +235,9 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
+                      {details?.measurementUnit && !units?.some((unit) => unit.id === details.measurementUnit.id) && (
+                        <SelectItem value={details.measurementUnit.id}>{details.measurementUnit.name}</SelectItem>
+                      )}
                       {units?.map((u) => (
                         <SelectItem key={u.id} value={u.id}>
                           {u.name} ({u.abbreviation})
@@ -254,7 +266,7 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
               </Button>
             </DialogFooter>
           </form>
-        </Form>
+        </Form>}
       </DialogContent>
     </Dialog>
   )
