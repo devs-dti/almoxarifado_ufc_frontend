@@ -6,7 +6,7 @@ import { BottomNav } from "@/components/main/bottom-nav";
 import { Sidebar } from "@/components/main/sidebar";
 
 export const metadata: Metadata = {
-  title: "Dashboard — Almoxarifado UFC",
+  title: "Dashboard — SIGMA",
 };
 
 export default function DashboardLayout({

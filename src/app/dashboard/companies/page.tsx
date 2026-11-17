@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import { CompaniesList } from '@/features/companies/components/CompaniesList'
 
 export const metadata: Metadata = {
-  title: 'Empresas | Almoxarifado UFC',
+  title: 'Empresas | SIGMA',
   description: 'Gerenciamento de empresas e órgãos',
 }
 

@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { SomaLogo } from '@/shared/components/SomaLogo'
+import { SigmaLogo } from '@/shared/components/SigmaLogo'
 import { ArrowRight, ArrowLeft, Code2, Sparkles, Terminal } from 'lucide-react'
 
 export default function DesenvolvedoresPage() {
@@ -11,8 +11,8 @@ export default function DesenvolvedoresPage() {
       <div className="bg-[#F7F5FE] border-b border-[#EDE9FE]">
         <header className="w-full max-w-[1440px] mx-auto px-8 sm:px-14 lg:px-20 xl:px-24 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
-            <SomaLogo />
-            <span className="flex flex-col leading-tight"><span className="font-bold text-lg text-slate-900 tracking-tight">Sistema Soma</span><span className="text-[11px] text-slate-500 font-medium">Almoxarifado UFC Sobral</span></span>
+            <SigmaLogo />
+            <span className="flex flex-col leading-tight"><span className="font-bold text-lg text-slate-900 tracking-tight">SIGMA</span><span className="text-[11px] text-slate-500 font-medium">Almoxarifado UFC Sobral</span></span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
@@ -73,7 +73,7 @@ export default function DesenvolvedoresPage() {
             </h2>
 
             <p className="text-sm text-slate-600 leading-relaxed max-w-md mb-8">
-              Estamos estruturando este espaço para destacar os membros da equipe da Divisão de Tecnologia da Informação (DTI), stack tecnológica e contribuições para o Sistema Soma.
+              Estamos estruturando este espaço para destacar os membros da equipe da Divisão de Tecnologia da Informação (DTI), stack tecnológica e contribuições para o SIGMA.
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-3">
@@ -102,7 +102,7 @@ export default function DesenvolvedoresPage() {
         <div className="w-full max-w-[1440px] mx-auto px-8 sm:px-14 lg:px-20 xl:px-24">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
             <span>© {new Date().getFullYear()} Divisão de Tecnologia da Informação — UFC Campus Sobral.</span>
-            <span>Sistema Soma de Almoxarifado</span>
+            <span>SIGMA — Sistema de Gestão de Materiais e Almoxarifado</span>
           </div>
         </div>
       </footer>

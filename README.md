@@ -1,6 +1,6 @@
-# Almoxarifado UFC — Frontend
+# SIGMA — Frontend
 
-Aplicação Next.js para o Sistema Soma. Requer Node.js e npm.
+Aplicação Next.js para o SIGMA — Sistema de Gestão de Materiais e Almoxarifado da UFC Sobral. Requer Node.js e npm.
 
 ## Desenvolvimento
 

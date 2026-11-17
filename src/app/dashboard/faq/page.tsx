@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import { HelpCircle, Package, ArrowDownCircle, ArrowUpCircle, FileBarChart, Shield, Lock } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'FAQ / Perguntas Frequentes — Almoxarifado UFC',
-  description: 'Dúvidas frequentes e guia de uso do Sistema Soma Almoxarifado UFC',
+  title: 'FAQ / Perguntas Frequentes — SIGMA',
+  description: 'Dúvidas frequentes e guia de uso do SIGMA da UFC Sobral',
 }
 
 const FAQ_ITEMS = [
@@ -59,7 +59,7 @@ export default function FAQPage() {
           Perguntas Frequentes (FAQ)
         </h1>
         <p className="text-sm text-gray-500 mt-1">
-          Confira as respostas para as dúvidas mais comuns sobre o funcionamento do Sistema Soma Almoxarifado UFC.
+          Confira as respostas para as dúvidas mais comuns sobre o funcionamento do SIGMA da UFC Sobral.
         </p>
       </div>
 

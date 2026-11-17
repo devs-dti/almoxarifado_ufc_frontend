@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import { ProfileView } from '@/features/auth/components/ProfileView'
 
 export const metadata: Metadata = {
-  title: 'Meu Perfil — Almoxarifado UFC',
-  description: 'Visualização e gerenciamento do perfil do usuário no Sistema Soma UFC',
+  title: 'Meu Perfil — SIGMA',
+  description: 'Visualização e gerenciamento do perfil do usuário no SIGMA da UFC Sobral',
 }
 
 export default function PerfilPage() {

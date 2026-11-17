@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { SomaLogo } from '@/shared/components/SomaLogo'
+import { SigmaLogo } from '@/shared/components/SigmaLogo'
 import {
   ArrowRight,
   ChevronDown,
@@ -72,8 +72,8 @@ export default function PublicFAQPage() {
       <div className="bg-[#F7F5FE] border-b border-[#EDE9FE]">
         <header className="w-full max-w-[1440px] mx-auto px-8 sm:px-14 lg:px-20 xl:px-24 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 hover:opacity-90 transition-opacity">
-            <SomaLogo />
-            <span className="flex flex-col leading-tight"><span className="font-bold text-lg text-slate-900 tracking-tight">Sistema Soma</span><span className="text-[11px] text-slate-500 font-medium">Almoxarifado UFC Sobral</span></span>
+            <SigmaLogo />
+            <span className="flex flex-col leading-tight"><span className="font-bold text-lg text-slate-900 tracking-tight">SIGMA</span><span className="text-[11px] text-slate-500 font-medium">Almoxarifado UFC Sobral</span></span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
@@ -111,7 +111,7 @@ export default function PublicFAQPage() {
             Perguntas Frequentes
           </h1>
           <p className="text-base sm:text-lg text-slate-600 font-normal leading-relaxed max-w-2xl mx-auto">
-            Tire suas dúvidas sobre o funcionamento do Sistema Soma e os fluxos de almoxarifado da UFC Sobral.
+            Tire suas dúvidas sobre o funcionamento do SIGMA e os fluxos de almoxarifado da UFC Sobral.
           </p>
         </section>
       </div>
@@ -182,7 +182,7 @@ export default function PublicFAQPage() {
         <div className="w-full max-w-[1440px] mx-auto px-8 sm:px-14 lg:px-20 xl:px-24">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
             <span>© {new Date().getFullYear()} Divisão de Tecnologia da Informação — UFC Campus Sobral.</span>
-            <span>Sistema Soma de Almoxarifado</span>
+            <span>SIGMA — Sistema de Gestão de Materiais e Almoxarifado</span>
           </div>
         </div>
       </footer>

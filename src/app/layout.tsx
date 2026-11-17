@@ -4,9 +4,9 @@ import { Providers } from './providers'
 
 
 export const metadata: Metadata = {
-  title: 'Almoxarifado UFC',
-  description: 'Sistema de almoxarifado',
-  icons: { icon: '/soma-logo.png', shortcut: '/soma-logo.png', apple: '/soma-logo.png' },
+  title: 'SIGMA | UFC Sobral',
+  description: 'SIGMA — Sistema de Gestão de Materiais e Almoxarifado da UFC Sobral.',
+  icons: { icon: '/sigma-logo.png', shortcut: '/sigma-logo.png', apple: '/sigma-logo.png' },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
