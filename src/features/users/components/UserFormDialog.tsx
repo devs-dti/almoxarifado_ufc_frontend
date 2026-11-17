@@ -16,7 +16,7 @@ import { formatCPF } from '@/shared/lib/format'
 import { useSectors } from '@/features/sectors/hooks'
 import { useCreateUser, useUpdateUser, useUser } from '../hooks'
 import { userFormDialogSchema, type UserFormDialogData } from '../schemas'
-import type { UserListItem } from '../types'
+import type { UserListItem, UpdateUserPayload } from '../types'
 import { UserAvatar } from './UserAvatar'
 
 const ROLE_LABELS: Record<string, string> = {
@@ -60,29 +60,50 @@ export function UserFormDialog({ open, onOpenChange, editing }: Props) {
   }, [open, form])
 
   useEffect(() => {
-    if (isEditing && userDetail) {
+    if (open && isEditing && userDetail) {
       form.reset({
         name: userDetail.name,
         email: userDetail.email,
         password: '',
         role: userDetail.role,
-        cpf: userDetail.cpf || '',
+        cpf: (userDetail.cpf || '').replace(/\D/g, ''),
         jobTitle: userDetail.jobTitle || '',
         sectorId: userDetail.sector?.id || '',
         enabled: userDetail.enabled ?? true,
       })
     }
-  }, [isEditing, userDetail, form])
+  }, [open, isEditing, userDetail, form])
 
   async function onSubmit(data: UserFormDialogData) {
     try {
       if (isEditing) {
+        if (!userDetail || userDetail.id !== editing.id) {
+          toast.error('Aguarde o carregamento dos dados do usuário antes de salvar.')
+          return
+        }
+
+        const patch: UpdateUserPayload = {}
+        if (data.name !== userDetail.name) patch.name = data.name
+        if (data.email !== userDetail.email) patch.email = data.email
+        const cpf = data.cpf.replace(/\D/g, '')
+        if (cpf !== (userDetail.cpf ?? '').replace(/\D/g, '')) patch.cpf = cpf
+        if (data.jobTitle !== (userDetail.jobTitle ?? '')) patch.jobTitle = data.jobTitle
+        if (data.role !== userDetail.role) patch.role = data.role
+        if (data.sectorId !== (userDetail.sector?.id ?? '')) patch.sectorId = data.sectorId
+        if (data.enabled !== undefined && data.enabled !== (userDetail.enabled ?? true)) {
+          patch.enabled = data.enabled
+        }
+        if (data.password) patch.password = data.password
+        if (data.file instanceof File && data.file.size > 0) patch.file = data.file
+
+        if (Object.keys(patch).length === 0) {
+          toast.info('Nenhuma alteração realizada.')
+          return
+        }
+
         await update.mutateAsync({
           id: editing.id,
-          data: {
-            ...data,
-            password: data.password || undefined,
-          },
+          data: patch,
         })
         toast.success('Usuário atualizado!')
       } else {
@@ -208,7 +229,7 @@ export function UserFormDialog({ open, onOpenChange, editing }: Props) {
                 <FormField control={form.control} name="password" render={({ field }) => (
                   <FormItem className="sm:col-span-2">
                     <FormLabel>{isEditing ? 'Nova Senha (opcional)' : 'Senha'}</FormLabel>
-                    <FormControl><PasswordInput className="rounded-xl" {...field} value={field.value ?? ''} /></FormControl>
+                    <FormControl><PasswordInput className="rounded-xl" autoComplete="new-password" {...field} value={field.value ?? ''} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
