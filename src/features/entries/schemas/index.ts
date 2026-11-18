@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { parseInvoiceAmount } from '../lib/invoice-amount'
 
 const isValidYear = (val?: string) => {
   if (!val) return false
@@ -10,7 +11,15 @@ export const supplierDetailsSchema = z.object({
   supplierId: z.string().optional(),
   invoiceNumber: z.string().optional(),
   invoiceIssueDate: z.string().optional(),
-  totalAmount: z.coerce.number().optional(),
+  totalAmount: z.union([z.string(), z.number()]).transform((value, ctx) => {
+    if (typeof value === 'string' && value.trim() === '') return undefined
+    const amount = parseInvoiceAmount(value)
+    if (amount === null) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Informe um valor válido, como 4.700,00, com até 2 casas decimais' })
+      return z.NEVER
+    }
+    return amount
+  }).optional(),
   biddingCode: z.string().optional(),
   commitmentNote: z.string().optional(),
 })

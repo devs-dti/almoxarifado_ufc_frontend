@@ -33,7 +33,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { useSuppliers } from '@/features/suppliers/hooks'
 import { useCreateEntry } from '../hooks'
-import { createEntrySchema, type CreateEntryInput } from '../schemas'
+import { createEntrySchema, type CreateEntryInput, type CreateEntryOutput } from '../schemas'
+import { formatInvoiceAmount, parseInvoiceAmount } from '../lib/invoice-amount'
 import type { CreateEntryPayload } from '../types'
 
 const TYPE_LABELS: Record<string, string> = {
@@ -54,7 +55,7 @@ export function CreateEntryDialog({ open, onOpenChange }: Props) {
   const create = useCreateEntry()
   const router = useRouter()
 
-  const form = useForm<CreateEntryInput>({
+  const form = useForm<CreateEntryInput, unknown, CreateEntryOutput>({
     resolver: zodResolver(createEntrySchema),
     defaultValues: { 
       entryType: 'SUPPLIER', 
@@ -64,7 +65,7 @@ export function CreateEntryDialog({ open, onOpenChange }: Props) {
         supplierId: '',
         invoiceNumber: '',
         invoiceIssueDate: '',
-        totalAmount: 0,
+        totalAmount: '',
         biddingCode: '',
         commitmentNote: '',
       }
@@ -73,7 +74,7 @@ export function CreateEntryDialog({ open, onOpenChange }: Props) {
 
   const type = form.watch('entryType')
 
-  async function onSubmit(data: CreateEntryInput) {
+  async function onSubmit(data: CreateEntryOutput) {
     try {
       const formatIso = (val?: string) => {
         if (!val) return undefined
@@ -95,7 +96,7 @@ export function CreateEntryDialog({ open, onOpenChange }: Props) {
           supplierId: data.supplierDetails.supplierId,
           invoiceNumber: data.supplierDetails.invoiceNumber?.trim() || '',
           invoiceIssueDate: formatIso(data.supplierDetails.invoiceIssueDate) || new Date().toISOString(),
-          totalAmount: Number(data.supplierDetails.totalAmount) || 0,
+          totalAmount: data.supplierDetails.totalAmount ?? 0,
           biddingCode: data.supplierDetails.biddingCode?.trim() || '',
           commitmentNote: data.supplierDetails.commitmentNote?.trim() || '',
         } : undefined,
@@ -200,7 +201,25 @@ export function CreateEntryDialog({ open, onOpenChange }: Props) {
                     <FormItem><FormLabel>Nº da NF</FormLabel><FormControl><Input className="rounded-xl" {...field} /></FormControl><FormMessage /></FormItem>
                   )} />
                   <FormField control={form.control} name="supplierDetails.totalAmount" render={({ field }) => (
-                    <FormItem><FormLabel>Valor Total (R$)</FormLabel><FormControl><Input type="number" step="0.01" className="rounded-xl" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem>
+                      <FormLabel>Valor Total (R$)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="text"
+                          inputMode="decimal"
+                          placeholder="Ex.: 4.700,00"
+                          className="rounded-xl"
+                          {...field}
+                          value={field.value ?? ''}
+                          onBlur={() => {
+                            const amount = parseInvoiceAmount(field.value ?? '')
+                            if (amount !== null) field.onChange(formatInvoiceAmount(amount))
+                            field.onBlur()
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )} />
                   <FormField control={form.control} name="supplierDetails.invoiceIssueDate" render={({ field }) => (
                     <FormItem className="sm:col-span-2">
