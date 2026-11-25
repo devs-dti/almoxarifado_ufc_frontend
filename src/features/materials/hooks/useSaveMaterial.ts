@@ -1,19 +1,16 @@
 import { toast } from 'sonner'
-import { useCreateMaterial, useUpdateMaterial, useMeasurementUnits } from './index'
-import { useMaterialGroups } from '@/features/material-groups/hooks'
+import { useCreateMaterial, useUpdateMaterial } from './index'
 import type { Material, MaterialDetails, CreateMaterialPayload, UpdateMaterialPayload } from '../types'
 import type { MaterialFormData } from '../schemas'
 
 export function useSaveMaterial() {
   const create = useCreateMaterial()
   const update = useUpdateMaterial()
-  const { data: groupsResponse } = useMaterialGroups({ page: 0, size: 100 })
-  const groups = groupsResponse?.content
-  const { data: units } = useMeasurementUnits()
 
   async function saveMaterial(data: MaterialFormData, editing?: Material | null, details?: MaterialDetails): Promise<boolean> {
     try {
       if (editing) {
+        if (!details) return false
         const patchPayload: Partial<UpdateMaterialPayload> = {}
 
         if (data.name.trim() !== editing.name) {
@@ -32,14 +29,12 @@ export function useSaveMaterial() {
           patchPayload.minQuantity = minQty
         }
 
-        const matchedGroup = groups?.find((g) => g.name === editing.materialGroupName)
-        const currentGroupId = details ? details.materialGroup?.id : matchedGroup?.id
+        const currentGroupId = details.materialGroup?.id
         if (data.materialGroupId && currentGroupId !== data.materialGroupId) {
           patchPayload.materialGroupId = data.materialGroupId
         }
 
-        const matchedUnit = units?.find((u) => u.name === editing.measurementUnitName)
-        const currentUnitId = details ? details.measurementUnit.id : matchedUnit?.id
+        const currentUnitId = details.measurementUnit.id
         if (data.measurementUnitId && currentUnitId !== data.measurementUnitId) {
           patchPayload.measurementUnitId = data.measurementUnitId
         }

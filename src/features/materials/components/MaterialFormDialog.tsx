@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
@@ -20,19 +20,14 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { AsyncSearchSelect, type SearchSelectOption, type SearchSelectParams } from '@/components/ui/async-search-select'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { ImagePlus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { useMaterialDetails, useMeasurementUnits, useSaveMaterial } from '../hooks'
-import { useMaterialGroups } from '@/features/material-groups/hooks'
+import { useMaterialDetails, useSaveMaterial } from '../hooks'
+import { materialGroupsApi } from '@/features/material-groups/api'
+import { unitsApi } from '@/features/sectors/api'
 import { materialSchema, type MaterialFormData } from '../schemas'
 import type { Material } from '../types'
 
@@ -42,17 +37,22 @@ type Props = {
   editing?: Material | null
 }
 
+async function loadGroups(params: SearchSelectParams) {
+  const page = await materialGroupsApi.list(params)
+  return { ...page, content: page.content.map((group) => ({ id: group.id, label: group.name })) }
+}
+
+async function loadUnits(params: SearchSelectParams) {
+  const page = await unitsApi.listPage(params)
+  return { ...page, content: page.content.map((unit) => ({ id: unit.id, label: `${unit.name} (${unit.abbreviation})` })) }
+}
+
 export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
-  const { data: groupsResponse } = useMaterialGroups({ page: 0, size: 100 })
-  const groups = groupsResponse?.content
-  const { data: units } = useMeasurementUnits()
   const { saveMaterial, isPending } = useSaveMaterial()
   const { data: details, isPending: isLoadingDetails, isError: detailsError, refetch: refetchDetails } = useMaterialDetails(open && editing ? editing.id : undefined)
-  // O vínculo atual vem dos detalhes, mesmo quando seu grupo não está na página de opções.
-  const currentGroup = details ? details.materialGroup : groups?.find((group) => group.name === editing?.materialGroupName)
-  const groupOptions = currentGroup && !groups?.some((group) => group.id === currentGroup.id)
-    ? [currentGroup, ...(groups ?? [])]
-    : groups ?? []
+  const [selectedGroup, setSelectedGroup] = useState<SearchSelectOption | null>(null)
+  const [selectedUnit, setSelectedUnit] = useState<SearchSelectOption | null>(null)
+  const initializedFor = useRef<string | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
 
   const form = useForm<MaterialFormData>({
@@ -69,23 +69,32 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
   }, [selectedFile])
 
   useEffect(() => {
-    if (open) {
-      if (editing) {
-        const matchedGroup = groups?.find(g => g.name === editing.materialGroupName)
-        const matchedUnit = units?.find(u => u.name === editing.measurementUnitName)
-        form.reset({
-          name: editing.name,
-          internalCode: editing.internalCode,
-          description: editing.description ?? '',
-          minQuantity: editing.minQuantity ?? 1,
-          materialGroupId: details ? details.materialGroup?.id ?? '' : matchedGroup?.id ?? '',
-          measurementUnitId: details ? details.measurementUnit.id : matchedUnit?.id ?? '',
-        })
-      } else {
-        form.reset({ name: '', internalCode: '', description: '', minQuantity: 1, materialGroupId: '', measurementUnitId: '' })
-      }
+    if (!open) {
+      initializedFor.current = null
+      return
     }
-  }, [editing, open, groups, units, details, form])
+    if (editing && !details) return
+    const key = editing?.id ?? 'new'
+    // Buscar opções ou atualizar o cache não deve apagar o que já foi digitado.
+    if (initializedFor.current === key) return
+    initializedFor.current = key
+    if (editing && details) {
+      form.reset({
+        name: editing.name,
+        internalCode: editing.internalCode,
+        description: editing.description ?? '',
+        minQuantity: editing.minQuantity ?? 1,
+        materialGroupId: details.materialGroup?.id ?? '',
+        measurementUnitId: details.measurementUnit.id,
+      })
+      setSelectedGroup(details.materialGroup ? { id: details.materialGroup.id, label: details.materialGroup.name } : null)
+      setSelectedUnit({ id: details.measurementUnit.id, label: details.measurementUnit.name })
+    } else {
+      form.reset({ name: '', internalCode: '', description: '', minQuantity: 1, materialGroupId: '', measurementUnitId: '' })
+      setSelectedGroup(null)
+      setSelectedUnit(null)
+    }
+  }, [editing, open, details, form])
 
   async function onSubmit(data: MaterialFormData) {
     const success = await saveMaterial(data, editing, details)
@@ -196,24 +205,20 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Grupo (opcional)</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(value === 'no-group' ? '' : value)}
-                    value={field.value || 'no-group'}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Sem grupo" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="no-group" disabled={!!editing && !!currentGroup}>Sem grupo</SelectItem>
-                      {groupOptions.map((g) => (
-                        <SelectItem key={g.id} value={g.id}>
-                          {g.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <AsyncSearchSelect
+                      ref={field.ref}
+                      name={field.name}
+                      onBlur={field.onBlur}
+                      value={selectedGroup}
+                      onValueChange={(option) => { field.onChange(option.id); setSelectedGroup(option.id ? option : null) }}
+                      queryKey="material-groups"
+                      loadOptions={loadGroups}
+                      placeholder="Sem grupo"
+                      searchPlaceholder="Buscar grupo pelo nome..."
+                      emptyOption={{ id: '', label: 'Sem grupo', disabled: !!editing && !!details?.materialGroup }}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -225,26 +230,19 @@ export function MaterialFormDialog({ open, onOpenChange, editing }: Props) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Unidade de medida</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Selecione uma unidade" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {details?.measurementUnit && !units?.some((unit) => unit.id === details.measurementUnit.id) && (
-                        <SelectItem value={details.measurementUnit.id}>{details.measurementUnit.name}</SelectItem>
-                      )}
-                      {units?.map((u) => (
-                        <SelectItem key={u.id} value={u.id}>
-                          {u.name} ({u.abbreviation})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <AsyncSearchSelect
+                      ref={field.ref}
+                      name={field.name}
+                      onBlur={field.onBlur}
+                      value={selectedUnit}
+                      onValueChange={(option) => { field.onChange(option.id); setSelectedUnit(option) }}
+                      queryKey="measurement-units"
+                      loadOptions={loadUnits}
+                      placeholder="Selecione uma unidade"
+                      searchPlaceholder="Buscar unidade pelo nome ou sigla..."
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
