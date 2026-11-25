@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react'
+import { fireEvent, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { http, HttpResponse } from 'msw'
@@ -7,6 +7,36 @@ import { MaterialFormDialog } from '@/features/materials/components/MaterialForm
 import { renderWithProviders } from '@/test/render'
 
 describe('Busca de grupos e unidades no formulário de material', () => {
+  it('permite rolar as opções com a roda do mouse dentro do modal e mantém o formulário aberto ao fechar a lista', async () => {
+    server.use(http.get('/measurement-units', () => HttpResponse.json(
+      Array.from({ length: 10 }, (_, index) => ({ id: `unit-${index}`, name: `Unidade ${index}`, abbreviation: `u${index}` })),
+    )))
+    const user = userEvent.setup()
+    renderWithProviders(<MaterialFormDialog open onOpenChange={() => {}} />)
+    const formDialog = screen.getByRole('dialog', { name: 'Novo material' })
+    await user.click(screen.getByRole('combobox', { name: 'Unidade de medida' }))
+    const option = await screen.findByRole('option', { name: 'Unidade 0 (u0)' })
+    const scrollArea = screen.getByRole('listbox', { name: 'Resultados da busca' }).parentElement!
+    // JSDOM não calcula layout: fornece uma área com espaço para rolar nos dois sentidos.
+    scrollArea.style.overflowY = 'auto'
+    Object.defineProperties(scrollArea, {
+      clientHeight: { configurable: true, value: 150 },
+      scrollHeight: { configurable: true, value: 600 },
+    })
+    const down = new WheelEvent('wheel', { bubbles: true, cancelable: true, deltaY: 100 })
+    fireEvent(option, down)
+    expect(down.defaultPrevented).toBe(false)
+
+    scrollArea.scrollTop = 200
+    const up = new WheelEvent('wheel', { bubbles: true, cancelable: true, deltaY: -100 })
+    fireEvent(option, up)
+    expect(up.defaultPrevented).toBe(false)
+    await user.keyboard('{Escape}')
+    expect(formDialog).toBeVisible()
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+    await waitFor(() => expect(screen.getByRole('combobox', { name: 'Unidade de medida' })).toHaveFocus())
+  })
+
   it('pagina e pesquisa grupos no servidor sem apagar os dados preenchidos', async () => {
     const requests: URLSearchParams[] = []
     server.use(http.get('/material-groups', ({ request }) => {

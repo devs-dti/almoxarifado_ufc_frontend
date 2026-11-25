@@ -75,8 +75,10 @@ export const AsyncSearchSelect = forwardRef<HTMLButtonElement, Props>(function A
     }
   }
 
+  // O popup tem seu próprio bloqueio de rolagem para funcionar dentro de Dialogs,
+  // mesmo com o conteúdo renderizado em um portal fora do formulário.
   return (
-    <Popover.Root open={open} onOpenChange={changeOpen}>
+    <Popover.Root modal open={open} onOpenChange={changeOpen}>
       <Popover.Trigger asChild>
         <button
           {...triggerProps}
@@ -97,10 +99,14 @@ export const AsyncSearchSelect = forwardRef<HTMLButtonElement, Props>(function A
       <Popover.Portal>
         <Popover.Content
           align="start"
+          side="bottom"
           sideOffset={6}
-          className="z-50 flex max-h-[min(26rem,var(--radix-popover-content-available-height))] w-[var(--radix-popover-trigger-width)] min-w-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white p-2 shadow-lg"
+          avoidCollisions
+          collisionPadding={12}
+          sticky="always"
+          className="z-50 flex h-80 max-h-[var(--radix-popover-content-available-height)] w-[var(--radix-popover-trigger-width)] min-w-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white p-2 shadow-lg"
           aria-label={searchPlaceholder}
-          onOpenAutoFocus={(event) => { event.preventDefault(); inputRef.current?.focus() }}
+          onOpenAutoFocus={(event) => { event.preventDefault(); inputRef.current?.focus({ preventScroll: true }) }}
         >
           <div className="relative shrink-0">
             <Search size={16} aria-hidden="true" className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-slate-400" />
@@ -128,29 +134,31 @@ export const AsyncSearchSelect = forwardRef<HTMLButtonElement, Props>(function A
               }}
             />
           </div>
-          <div id={listId} role="listbox" aria-label="Resultados da busca" aria-busy={busy} className="mt-2 min-h-0 overflow-y-auto overscroll-contain">
-            {options.map((option, index) => (
-              <button
-                key={option.id}
-                id={`${listId}-${index}`}
-                type="button"
-                role="option"
-                aria-selected={(value?.id ?? '') === option.id}
-                aria-disabled={!!option.disabled}
-                disabled={option.disabled}
-                tabIndex={-1}
-                className={cn('flex min-h-10 w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-violet-50 disabled:cursor-not-allowed disabled:opacity-40', activeIndex === index && 'bg-violet-50', (value?.id ?? '') === option.id && 'font-medium text-violet-700')}
-                onMouseDown={(event) => event.preventDefault()}
-                onClick={() => select(option)}
-              >
-                <span className="min-w-0 break-words">{option.label}</span>
-                {(value?.id ?? '') === option.id && <Check size={16} aria-hidden="true" className="shrink-0" />}
-              </button>
-            ))}
+          <div className="mt-2 min-h-0 flex-1 overflow-y-auto overscroll-contain">
+            <div id={listId} role="listbox" aria-label="Resultados da busca" aria-busy={busy}>
+              {options.map((option, index) => (
+                <button
+                  key={option.id}
+                  id={`${listId}-${index}`}
+                  type="button"
+                  role="option"
+                  aria-selected={(value?.id ?? '') === option.id}
+                  aria-disabled={!!option.disabled}
+                  disabled={option.disabled}
+                  tabIndex={-1}
+                  className={cn('flex min-h-10 w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-violet-50 disabled:cursor-not-allowed disabled:opacity-40', activeIndex === index && 'bg-violet-50', (value?.id ?? '') === option.id && 'font-medium text-violet-700')}
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => select(option)}
+                >
+                  <span className="min-w-0 break-words">{option.label}</span>
+                  {(value?.id ?? '') === option.id && <Check size={16} aria-hidden="true" className="shrink-0" />}
+                </button>
+              ))}
+            </div>
+            {busy ? <p role="status" className="px-3 py-4 text-sm text-slate-500">Buscando...</p>
+              : isError ? <div role="alert" className="space-y-2 px-3 py-3 text-sm text-slate-600"><p>Não foi possível carregar as opções.</p><Button type="button" variant="outline" size="sm" onClick={() => refetch()}>Tentar novamente</Button></div>
+                : !data?.content.length && <p role="status" className="px-3 py-4 text-sm text-slate-500">{search.trim() ? 'Nenhum resultado para esta busca.' : 'Nenhum cadastro disponível.'}</p>}
           </div>
-          {busy ? <p role="status" className="px-3 py-4 text-sm text-slate-500">Buscando...</p>
-            : isError ? <div role="alert" className="space-y-2 px-3 py-3 text-sm text-slate-600"><p>Não foi possível carregar as opções.</p><Button type="button" variant="outline" size="sm" onClick={() => refetch()}>Tentar novamente</Button></div>
-              : !data?.content.length && <p role="status" className="px-3 py-4 text-sm text-slate-500">{search.trim() ? 'Nenhum resultado para esta busca.' : 'Nenhum cadastro disponível.'}</p>}
           {!busy && !isError && data && data.totalPages > 1 && (
             <div className="mt-2 flex shrink-0 items-center justify-between gap-2 border-t border-slate-100 pt-2">
               <span className="text-xs text-slate-500">Página {page + 1} de {data.totalPages}</span>
